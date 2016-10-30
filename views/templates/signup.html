@@ -1,0 +1,25 @@
+<form method="POST" action="{{ urlfor "AuthController.SignUp"}}">
+    <div>
+        <label for="username">Username</label>
+        <input id="username" type="text" name="username"/>
+    </div>
+    <div>
+        <label for="email">Email</label>
+        <input id="email" type="email" name="email"/>
+    </div>
+    <div>
+        <label for="password">Password</label>
+        <input type="password" name="password"/>
+    </div>
+    <div>
+        <label for="confirmpassword">Confirm Password</label>
+        <input id="confirmpassword" type="password" name="confirmpassword"/>
+    </div>
+    <div>
+        <button type="submit" name="submit">Sign up</button>
+    </div>
+    {{ .err }}
+</form>
+<div>
+    <a href="{{ urlfor "AuthController.SignIn" }}">Sign in</a>
+</div>

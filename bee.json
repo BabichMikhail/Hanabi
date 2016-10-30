@@ -1,0 +1,11 @@
+{
+    "go_install": false,
+    "watch_ext": [],
+    "dir_structure":{
+        "watch_all": true,
+        "controllers": ".",
+        "models": ".",
+        "middlewares": ".",
+        "database": "!*.db"
+    }
+}
