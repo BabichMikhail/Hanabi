@@ -6,6 +6,7 @@
         "controllers": ".",
         "models": ".",
         "middlewares": ".",
-        "database": "!*.db"
+        "database": ".",
+        "engine": "."
     }
 }

@@ -1,0 +1,58 @@
+<div>
+    <table>
+        <thead>
+            <th>Owner</th>
+            <th>Users</th>
+            <th>Limit</th>
+            <th></th>
+        </thead>
+        <tbody id="games">
+            {{ range $idx, $game := .games }}
+            <tr id="game-{{ $game.Id }}">
+                <td>{{ $game.Owner }}</td>
+                <td>
+                    <a id="users-{{ $game.Id }}" href="javascript:Game.LoadUserList({{ $game.Id }})">{{ $game.PlayerCount }}</a>
+                </td>
+                <td>
+                    {{ $game.PlayerPlaces }}
+                </td>
+                <td>
+                    {{ if $game.UserIn }}
+                    {{ if compare $game.Status "active" }}
+                    <a href="{{ urlfor "GameController.Game" ":id" $game.Id }}">GO</a>
+                    {{ else }}
+                    <button type="button" onclick="Game.Leave({{ $game.Id }});">Leave</button>
+                    {{ end}}
+                    {{ else }}
+                    {{ if compare $game.Status "active" }}
+                    {{ else }}
+                    <button type="button" onclick="Game.Join({{ $game.Id }});">Join</button>
+                    {{ end }}
+                    {{ end }}
+
+                </td>
+            </tr>
+            {{ end }}
+        </tbody>
+    </table>
+    <button type="button" onclick="Game.Create();" value="create">New Game</button>
+    <input type="text" name="playersCount" placeholder="Players count 2..5"/>
+</div>
+<div id="queue">
+    {{ range $idx, $game := .games }}
+    {{ if $game.UserIn }}
+    <div>
+        <p>Game: {{ $game.Status }}</p>
+        <p>Places: {{ $game.PlayerPlaces }}</p>
+        <div>
+            {{ range $i, $player := $game.Players }}
+            <p>{{ $player.NickName }}</p>
+            {{ end }}
+        </div>
+    </div>
+    {{ end }}
+    {{ end }}
+</div>
+<script type="text/javascript" src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
+<script type="text/javascript" src="/js/games.js"></script>
+<script type="text/javascript" src="/js/users.js"></script>

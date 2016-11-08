@@ -57,3 +57,14 @@ func (this *AuthController) SignOut() {
 	auth.LogoutUser(this.Ctx)
 	this.Ctx.Redirect(302, this.URLFor(".SignIn"))
 }
+
+func (this *AuthController) UserCurrent() {
+	var user wetalk.User
+	auth.GetUserFromSession(&user, this.Ctx.Input.CruSession)
+	result := struct {
+		User   wetalk.User `json:"user"`
+		Status string      `json:"status"`
+	}{user, "OK"}
+	this.Data["json"] = &result
+	this.ServeJSON()
+}

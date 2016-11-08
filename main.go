@@ -8,11 +8,13 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-//var globalSessions *session.Manager
-
 func init() {
+	beego.SetStaticPath("/images", "static/images")
+	beego.SetStaticPath("/css", "static/css")
+	beego.SetStaticPath("/js", "static/js")
 	d.InitDatabase()
 	m.InitMiddleware()
+
 }
 
 func main() {
