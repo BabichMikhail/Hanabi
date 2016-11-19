@@ -1,0 +1,37 @@
+{
+    "Js": {
+        "SrcPath": "static_source/js",
+        "DistPath": "static/js",
+        "SrcURL": "static_source/js",
+        "DistURL": "static/js",
+        "Groups": {
+            "lib": {
+                "DistFile": "lib.min.js",
+                "SourceFiles": [
+
+                ],
+                "SkipFiles": []
+            },
+            "app": {
+                "DistFile": "app.min.js",
+                "SourceFiles": [
+                    "games.js",
+                    "users.js"
+                ]
+            }
+        }
+    },
+    "Css": {
+        "SrcPath": "static_source/css",
+        "DistPath": "static/css",
+        "SrcURL": "static_source/css",
+        "DistURL": "static/css",
+        "Groups": {
+            "lib": {
+                "DistFile": "lib.min.css",
+                "SourceFiles": [],
+                "SkipFiles": []
+            }
+        }
+    }
+}

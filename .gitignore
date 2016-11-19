@@ -2,3 +2,7 @@
 *.exe~
 *.db
 *.pprof
+tmp
+static/js/*
+static/css/*
+static/img/*
