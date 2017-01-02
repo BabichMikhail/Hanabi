@@ -39,7 +39,6 @@ func NewGame(userId int, playersCount int, status int) (id int) {
 	if res, err := o.Raw(sql, userId, playersCount, status).Exec(); err == nil {
 		id64, _ := res.LastInsertId()
 		id = int(id64)
-		fmt.Println(id)
 	}
 	if id > 0 {
 		if err, _ := JoinGame(id, userId); err == nil {
@@ -52,7 +51,6 @@ func NewGame(userId int, playersCount int, status int) (id int) {
 		id = 0
 		o.Rollback()
 	}
-	fmt.Println(id)
 	return
 }
 
@@ -172,7 +170,6 @@ func GetGamePlayers(gameIds []int) map[int]([]engineModels.Player) {
 		GameId   int    `orm:"column(game_id)"`
 	}
 	o.Raw(sql).QueryRows(&splayers)
-	fmt.Println(splayers)
 	playersMap := map[int]([]engineModels.Player){}
 	for _, v := range splayers {
 		playersMap[v.GameId] = append(playersMap[v.GameId], engineModels.Player{v.UserId, v.NickName})
@@ -209,7 +206,6 @@ func GetGameList(status []int, userId int) (games []engineModels.GameItem) {
 		gamesMap[v.Id] = v.Count
 	}
 	playersMap := GetGamePlayers(ids)
-	fmt.Println(playersMap)
 	userGames := getUserGames(userId)
 	userInMap := map[int]bool{}
 	for _, v := range userGames {

@@ -22,4 +22,5 @@ func CheckAuth(ctx *context.Context) {
 func InitMiddleware() {
 	beego.InsertFilter("/", beego.BeforeRouter, CheckAuth)
 	beego.InsertFilter("/games", beego.BeforeRouter, CheckAuth)
+	beego.InsertFilter("/api/*", beego.BeforeRouter, CheckAuth)
 }
