@@ -140,4 +140,6 @@ function gameHandler() {
     return this
 }
 
-window.Game = new gameHandler()
+if (window.location.pathname == "/games") {
+    window.Game = new gameHandler()
+}

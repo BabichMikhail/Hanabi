@@ -21,7 +21,6 @@ func (this *GameController) Game() {
 	}
 	game := engine.NewGame(playerIds)
 	fmt.Println(game)
-	this.Data["Website"] = "beego.me"
-	this.Data["Email"] = "astaxie@gmail.com"
-	this.TplName = "index.tpl"
+	this.Layout = "base.tpl"
+	this.TplName = "templates/game.html"
 }
