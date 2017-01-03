@@ -15,6 +15,7 @@
             "app": {
                 "DistFile": "app.min.js",
                 "SourceFiles": [
+                    "lobby.js",
                     "games.js",
                     "users.js"
                 ]

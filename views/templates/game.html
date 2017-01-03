@@ -1,2 +1,62 @@
 <div>
+    <div id="deck"><p>The remaining cards in the deck: {{ $.playerInfo.DeckSize }}</p></div>
+    <div id="redTokens"><p>Red tokens: {{ $.playerInfo.RedTokens }}</p></div>
+    <div id="blueTokens"><p>Blue tokens: {{ $.playerInfo.BlueTokens }}</p></div>
+    <div id="table-cards">
+        Cards on table:
+        <div id="table-red-cards">Red:
+            {{ $red := index $.playerInfo.TableCards 1 }}
+            {{ if ne $red.Value 0 }}
+            {{ $red.Value }}
+            {{ else }}
+            {{ end }}
+        </div>
+        <div id="table-blue-cards">Blue:
+            {{ $blue := index $.playerInfo.TableCards 2 }}
+            {{ if ne $red.Value 0 }}
+            {{ $blue.Value }}
+            {{ else }}
+            {{ end }}
+        </div>
+        <div id="table-green-cards">Green:
+            {{ $green := index $.playerInfo.TableCards 3 }}
+            {{ if ne $red.Value 0 }}
+            {{ $green.Value }}
+            {{ else }}
+            {{ end }}
+        </div>
+        <div id="table-gold-cards">Gold:
+            {{ $gold := index $.playerInfo.TableCards 4 }}
+            {{ if ne $red.Value 0 }}
+            {{ $gold.Value }}
+            {{ else }}
+            {{ end }}
+        </div>
+        <div id="table-black-cards">Black:
+            {{ $black := index $.playerInfo.TableCards 5 }}
+            {{ if ne $red.Value 0 }}
+            {{ $black.Value }}
+            {{ else }}
+            {{ end }}
+        </div>
+    </div>
+    <div id="user-cards">
+        Cards of players:
+        {{ range $pos, $cards := $.playerInfo.PlayersCards }}
+        <div>
+            {{ if eq $.playerInfo.Position $pos }}
+            My Cards:
+            {{ else }}
+            Player #{{ $pos }}:
+            {{ end }}
+            <div>
+                {{ range $idx, $card := $cards }}
+                <div>
+                    {{ cardValue $card.Value }} {{ cardColor $card.Color }}
+                </div>
+                {{ end }}
+            </div>
+        </div>
+        {{ end }}
+    </div>
 </div>

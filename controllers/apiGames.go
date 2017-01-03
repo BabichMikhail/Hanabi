@@ -3,15 +3,31 @@ package controllers
 import (
 	"strconv"
 
+	"github.com/BabichMikhail/Hanabi/engine"
 	"github.com/BabichMikhail/Hanabi/models"
 	"github.com/beego/wetalk/modules/auth"
 )
 
-type GameController struct {
+type ApiGameController struct {
 	BaseController
 }
 
-func (this *GameController) Game() {
+var card engine.Card
+
+func init() {
+	card = engine.Card{}
+}
+
+func (this *ApiGameController) GetGameCards() {
+	result := struct {
+		Colors map[engine.CardColor]string `json:"colors"`
+		Values map[engine.CardValue]string `json:"values"`
+	}{card.GetColors(), card.GetValues()}
+	this.Data["json"] = &result
+	this.ServeJSON()
+}
+
+func (this *ApiGameController) GetGameStatuses() {
 	id, _ := strconv.Atoi(this.Ctx.Input.Param(":id"))
 	gamePlayers := models.GetGamePlayers([]int{id})[id]
 	playerIds := []int{}
@@ -24,8 +40,6 @@ func (this *GameController) Game() {
 	}
 	userId := auth.GetUserIdFromSession(this.Ctx.Input.CruSession)
 	playerInfo := game.GetPlayerGameInfo(userId)
-	this.Data["playerInfo"] = playerInfo
-	this.Data["S"] = game.SprintGame()
-	this.Layout = "base.tpl"
-	this.TplName = "templates/game.html"
+	this.Data["json"] = &playerInfo
+	this.ServeJSON()
 }

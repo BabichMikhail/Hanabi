@@ -2,6 +2,7 @@ package main
 
 import (
 	d "github.com/BabichMikhail/Hanabi/database"
+	"github.com/BabichMikhail/Hanabi/engine"
 	m "github.com/BabichMikhail/Hanabi/middlewares"
 	_ "github.com/BabichMikhail/Hanabi/routers"
 	"github.com/astaxie/beego"
@@ -25,11 +26,18 @@ func SettingCompress() {
 	beego.AddFuncMap("compress_css", setting.Css.CompressCss)
 }
 
+func decrease(value interface{}) int {
+	return value.(int) - 1
+}
+
 func init() {
 	beego.SetStaticPath("/images", "static/images")
 	beego.SetStaticPath("/css", "static/css")
 	beego.SetStaticPath("/js", "static/js")
 	d.InitDatabase()
+	beego.AddFuncMap("decrease", decrease)
+	beego.AddFuncMap("cardValue", engine.GetCardValue)
+	beego.AddFuncMap("cardColor", engine.GetCardColor)
 	m.InitMiddleware()
 }
 
