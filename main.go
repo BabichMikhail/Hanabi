@@ -36,8 +36,7 @@ func init() {
 	beego.SetStaticPath("/js", "static/js")
 	d.InitDatabase()
 	beego.AddFuncMap("decrease", decrease)
-	beego.AddFuncMap("cardValue", engine.GetCardValue)
-	beego.AddFuncMap("cardColor", engine.GetCardColor)
+	engine.RegisterFunction()
 	m.InitMiddleware()
 }
 

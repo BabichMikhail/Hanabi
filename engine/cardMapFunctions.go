@@ -1,5 +1,7 @@
 package engine
 
+import "github.com/astaxie/beego"
+
 func GetCardValue(value CardValue) string {
 	return map[CardValue]string{
 		NoneValue: "Unknown Value",
@@ -20,4 +22,9 @@ func GetCardColor(color CardColor) string {
 		Gold:      "Gold",
 		Black:     "Black",
 	}[color]
+}
+
+func RegisterFunction() {
+	beego.AddFuncMap("cardValue", GetCardValue)
+	beego.AddFuncMap("cardColor", GetCardColor)
 }
