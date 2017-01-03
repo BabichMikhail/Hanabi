@@ -42,3 +42,8 @@ type GameItem struct {
 	URL          string    ``
 	Created      time.Time `orm:"column(created)"`
 }
+
+type Player struct {
+	Id       int    `orm:"column(id)" json:"id"`
+	NickName string `orm:"column(nick_name)" json:"nick_name"`
+}
