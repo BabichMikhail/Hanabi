@@ -9,7 +9,7 @@ type GameState struct {
 	CurrentPosition int           `json:"current_pos"`
 	UsedCards       []Card        `json:"used_cards"`
 	TableCards      map[int]Card  `json:"table_cards"`
-	PlayerStates    []Information `json:"information"`
+	PlayerStates    []PlayerState `json:"player_state"`
 }
 
 func NewGameState(ids []int, pcards []*Card, playerCount int) GameState {
@@ -40,7 +40,7 @@ func NewGameState(ids []int, pcards []*Card, playerCount int) GameState {
 		allPlayerCards = append(allPlayerCards, DereferenceCard(userCards))
 	}
 	for i := 0; i < len(ids); i++ {
-		this.PlayerStates = append(this.PlayerStates, NewInformation(allPlayerCards, i, ids[i]))
+		this.PlayerStates = append(this.PlayerStates, NewPlayerState(allPlayerCards, i, ids[i]))
 	}
 	this.Deck = DereferenceCard(pcards)
 	return *this

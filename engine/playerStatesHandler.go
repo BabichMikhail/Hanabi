@@ -10,7 +10,7 @@ type ValueInfo struct {
 	Count int       `json:"count"`
 }
 
-type Information struct {
+type PlayerState struct {
 	PlayerId       int         `json:"player_id"`
 	PlayerPosition int         `json:"pos"`
 	PlayersCards   [][]Card    `json:"players_cards"`
@@ -18,8 +18,8 @@ type Information struct {
 	ValueInfo      []ValueInfo `json:"value_info"`
 }
 
-func NewInformation(cards [][]Card, playerPosition int, playerId int) Information {
-	this := new(Information)
+func NewPlayerState(cards [][]Card, playerPosition int, playerId int) PlayerState {
+	this := new(PlayerState)
 	this.PlayerPosition = playerPosition
 	this.ColorInfo = []ColorInfo{}
 	this.ValueInfo = []ValueInfo{}
