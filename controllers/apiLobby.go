@@ -3,8 +3,7 @@ package controllers
 import (
 	"strconv"
 
-	engine "github.com/BabichMikhail/Hanabi/engine"
-	engineModels "github.com/BabichMikhail/Hanabi/engine/models"
+	engineLobby "github.com/BabichMikhail/Hanabi/engine/lobby"
 	"github.com/BabichMikhail/Hanabi/models"
 	"github.com/beego/wetalk/modules/auth"
 	wetalk "github.com/beego/wetalk/modules/models"
@@ -18,8 +17,8 @@ func (this *LobbyApiController) GameCreate() {
 	var user wetalk.User
 	playersCount, _ := this.GetInt("playersCount")
 	auth.GetUserFromSession(&user, this.Ctx.Input.CruSession)
-	id := models.NewGame(user.Id, playersCount, engineModels.GameWait)
-	game, err := engine.MakeGame(id, user)
+	id := models.NewGame(user.Id, playersCount, engineLobby.GameWait)
+	game, err := engineLobby.MakeGame(id, user)
 	if err != nil {
 		result := struct {
 			Status string `json:"status"`
@@ -29,11 +28,11 @@ func (this *LobbyApiController) GameCreate() {
 	} else {
 		userId := auth.GetUserIdFromSession(this.Ctx.Input.CruSession)
 		result := struct {
-			Status      string            `json:"status"`
-			Game        engineModels.Game `json:"game"`
-			userId      int               `json:"currentUserId"`
-			Err         error             `json:"err"`
-			RedirectURL string            `json:"redirectURL"`
+			Status      string           `json:"status"`
+			Game        engineLobby.Game `json:"game"`
+			userId      int              `json:"currentUserId"`
+			Err         error            `json:"err"`
+			RedirectURL string           `json:"redirectURL"`
 		}{"OK", game, userId, nil, this.URLFor("GameController.Game", ":id", id)}
 		this.Data["json"] = &result
 	}
@@ -103,8 +102,8 @@ func (this *LobbyApiController) GameUpdate() {
 func (this *LobbyApiController) GameUsers() {
 	id, _ := strconv.Atoi(this.Ctx.Input.Param(":id"))
 	result := struct {
-		Status  string                `json:"status"`
-		Players []engineModels.Player `json:"players"`
+		Status  string               `json:"status"`
+		Players []engineLobby.Player `json:"players"`
 	}{"OK", models.GetGamePlayers([]int{id})[id]}
 	this.Data["json"] = &result
 	this.ServeJSON()

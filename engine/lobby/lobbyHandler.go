@@ -1,6 +1,12 @@
-package enginemodels
+package enginelobby
 
-import "time"
+import (
+	"errors"
+	"fmt"
+	"time"
+
+	wetalk "github.com/beego/wetalk/modules/models"
+)
 
 const (
 	GameWait     = 1
@@ -46,4 +52,20 @@ type GameItem struct {
 type Player struct {
 	Id       int    `orm:"column(id)" json:"id"`
 	NickName string `orm:"column(nick_name)" json:"nick_name"`
+}
+
+func GetAllStatuses() []int {
+	return []int{GameWait, GameActive, GameInActive}
+}
+
+func MakeGame(id int, user wetalk.User) (game Game, err error) {
+	if id <= 0 {
+		errors.New(fmt.Sprintf("Can't make game with Id = %d", id))
+	}
+	game.Id = id
+	game.Status = GameStatusName(GameWait)
+	game.Owner = user.NickName
+	player := Player{user.Id, user.NickName}
+	game.Players = []Player{player}
+	return game, nil
 }

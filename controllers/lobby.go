@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	engine "github.com/BabichMikhail/Hanabi/engine"
+	engineLobby "github.com/BabichMikhail/Hanabi/engine/lobby"
 	"github.com/BabichMikhail/Hanabi/models"
 	"github.com/beego/wetalk/modules/auth"
 	wetalk "github.com/beego/wetalk/modules/models"
@@ -17,7 +17,7 @@ func (this *LobbyController) GameList() {
 	var user wetalk.User
 	auth.GetUserFromSession(&user, this.Ctx.Input.CruSession)
 	this.Data["user"] = user
-	this.Data["games"] = models.GetGameList(engine.GetAllStatuses(), user.Id)
+	this.Data["games"] = models.GetGameList(engineLobby.GetAllStatuses(), user.Id)
 	if !this.Ctx.Input.IsPost() {
 		return
 	}
