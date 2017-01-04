@@ -6,8 +6,10 @@ import (
 )
 
 type Game struct {
-	PlayerCount int         `json:"player_count"`
-	GameStatus  []GameState `json:"states"`
+	PlayerCount  int       `json:"player_count"`
+	InitState    GameState `json:"init_state"`
+	CurrentState GameState `json:"current_state"`
+	Actions      []Action  `json:"actions"`
 }
 
 func NewGame(ids []int) Game {
@@ -23,7 +25,10 @@ func NewGame(ids []int) Game {
 	RandomCardsPermutation(cards)
 	ids = RandomIntPermutation(ids)
 	this.PlayerCount = len(ids)
-	this.GameStatus = append(this.GameStatus, NewGameState(ids, cards, this.PlayerCount))
+	state := NewGameState(ids, cards, this.PlayerCount)
+	this.InitState = state
+	this.CurrentState = state.Copy()
+	this.Actions = []Action{}
 	return *this
 }
 

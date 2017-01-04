@@ -20,6 +20,24 @@ func (g *ActiveGame) TableName() string {
 	return "active_games"
 }
 
+func CreateActiveGame(playerIds []int, gameId int) (game gamePackage.Game, err error) {
+	game = gamePackage.NewGame(playerIds)
+	o := orm.NewOrm()
+	o.Begin()
+	qb, _ := orm.NewQueryBuilder("mysql")
+	qb.InsertInto("active_games", "game_id", "game", "created_at").
+		Values("?", "?", "CURRENT_TIMESTAMP")
+	sql := qb.String()
+	if res, err := o.Raw(sql, gameId, game.SprintGame()).Exec(); err == nil {
+		id64, _ := res.LastInsertId()
+		id := int(id64)
+		o.Commit()
+		return ReadActiveGameById(id)
+	}
+	o.Rollback()
+	return
+}
+
 func ReadActiveGameById(id int) (game gamePackage.Game, err error) {
 	o := orm.NewOrm()
 	qb, _ := orm.NewQueryBuilder("mysql")
@@ -47,20 +65,26 @@ func ReadActiveGameByGameId(gameId int) (game gamePackage.Game, err error) {
 	return game, err
 }
 
-func CreateActiveGame(playerIds []int, gameId int) (game gamePackage.Game, err error) {
-	game = gamePackage.NewGame(playerIds)
+func UpdateCurrentGameById(id int, game gamePackage.Game) (err error) {
 	o := orm.NewOrm()
-	o.Begin()
-	qb, _ := orm.NewQueryBuilder("mysql")
-	qb.InsertInto("active_games", "game_id", "game", "created_at").
-		Values("?", "?", "CURRENT_TIMESTAMP")
-	sql := qb.String()
-	if res, err := o.Raw(sql, gameId, game.SprintGame()).Exec(); err == nil {
-		id64, _ := res.LastInsertId()
-		id := int(id64)
-		o.Commit()
-		return ReadActiveGameById(id)
+	activeGame := new(ActiveGame)
+	activeGame.Id = id
+	if err = o.Read(activeGame); err != nil {
+		return err
 	}
-	o.Rollback()
+	activeGame.Json = game.SprintGame()
+	_, err = o.Update(activeGame, "game")
+	return
+}
+
+func UpdateCurrentGameByGameId(gameId int, game gamePackage.Game) (err error) {
+	o := orm.NewOrm()
+	activeGame := new(ActiveGame)
+	activeGame.GameID = gameId
+	if err = o.Read(activeGame); err != nil {
+		return err
+	}
+	activeGame.Json = game.SprintGame()
+	_, err = o.Update(activeGame, "game")
 	return
 }

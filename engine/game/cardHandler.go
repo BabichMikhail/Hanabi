@@ -78,3 +78,12 @@ func DereferenceCard(pcards []*Card) []Card {
 func NewCard(color CardColor, value CardValue, known bool) *Card {
 	return &Card{color, known, value, known}
 }
+
+func (this Card) Copy() Card {
+	return Card{
+		Color:      this.Color,
+		KnownColor: this.KnownColor,
+		Value:      this.Value,
+		KnownValue: this.KnownValue,
+	}
+}

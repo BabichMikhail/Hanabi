@@ -23,3 +23,19 @@ func NewPlayerState(cards [][]Card, playerPosition int, playerId int) PlayerStat
 	this.PlayersCards = copyCards
 	return *this
 }
+
+func (this PlayerState) Copy() PlayerState {
+	playersCards := [][]Card{}
+	for i := 0; i < len(this.PlayersCards); i++ {
+		cards := []Card{}
+		for j := 0; j < len(this.PlayersCards[i]); j++ {
+			cards = append(cards, this.PlayersCards[i][j].Copy())
+		}
+		playersCards = append(playersCards, cards)
+	}
+	return PlayerState{
+		PlayerId:       this.PlayerId,
+		PlayerPosition: this.PlayerPosition,
+		PlayersCards:   playersCards,
+	}
+}

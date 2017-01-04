@@ -15,11 +15,11 @@ type PlayerGameInfo struct {
 }
 
 func (this *Game) GetPlayerGameInfo(playerId int) PlayerGameInfo {
-	state := this.GameStatus[len(this.GameStatus)-1]
-	var playerState PlayerState
+	state := &this.CurrentState
+	var playerState *PlayerState
 	for i := 0; i < len(state.PlayerStates); i++ {
 		if state.PlayerStates[i].PlayerId == playerId {
-			playerState = state.PlayerStates[i]
+			playerState = &state.PlayerStates[i]
 		}
 	}
 
