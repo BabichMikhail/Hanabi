@@ -1,4 +1,4 @@
-package engine
+package game
 
 type PlayerGameInfo struct {
 	PlayerCount  int          `json:"player_count"`

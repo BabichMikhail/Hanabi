@@ -1,4 +1,4 @@
-package engine
+package game
 
 type PlayerState struct {
 	PlayerId       int      `json:"player_id"`

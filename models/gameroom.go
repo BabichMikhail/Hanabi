@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/BabichMikhail/Hanabi/engine"
+	gamePackage "github.com/BabichMikhail/Hanabi/engine/game"
 	"github.com/astaxie/beego/orm"
 )
 
@@ -20,7 +20,7 @@ func (g *ActiveGame) TableName() string {
 	return "active_games"
 }
 
-func ReadActiveGameById(id int) (game engine.Game, err error) {
+func ReadActiveGameById(id int) (game gamePackage.Game, err error) {
 	o := orm.NewOrm()
 	qb, _ := orm.NewQueryBuilder("mysql")
 	qb.Select("game").
@@ -34,7 +34,7 @@ func ReadActiveGameById(id int) (game engine.Game, err error) {
 	return game, err
 }
 
-func ReadActiveGameByGameId(gameId int) (game engine.Game, err error) {
+func ReadActiveGameByGameId(gameId int) (game gamePackage.Game, err error) {
 	o := orm.NewOrm()
 	qb, _ := orm.NewQueryBuilder("mysql")
 	qb.Select("game").
@@ -47,8 +47,8 @@ func ReadActiveGameByGameId(gameId int) (game engine.Game, err error) {
 	return game, err
 }
 
-func CreateActiveGame(playerIds []int, gameId int) (game engine.Game, err error) {
-	game = engine.NewGame(playerIds)
+func CreateActiveGame(playerIds []int, gameId int) (game gamePackage.Game, err error) {
+	game = gamePackage.NewGame(playerIds)
 	o := orm.NewOrm()
 	o.Begin()
 	qb, _ := orm.NewQueryBuilder("mysql")

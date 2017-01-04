@@ -2,7 +2,7 @@ package main
 
 import (
 	d "github.com/BabichMikhail/Hanabi/database"
-	"github.com/BabichMikhail/Hanabi/engine"
+	gamePackage "github.com/BabichMikhail/Hanabi/engine/game"
 	m "github.com/BabichMikhail/Hanabi/middlewares"
 	_ "github.com/BabichMikhail/Hanabi/routers"
 	"github.com/astaxie/beego"
@@ -36,7 +36,7 @@ func init() {
 	beego.SetStaticPath("/js", "static/js")
 	d.InitDatabase()
 	beego.AddFuncMap("decrease", decrease)
-	engine.RegisterFunction()
+	gamePackage.RegisterFunction()
 	m.InitMiddleware()
 }
 

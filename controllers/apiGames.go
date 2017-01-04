@@ -3,7 +3,7 @@ package controllers
 import (
 	"strconv"
 
-	"github.com/BabichMikhail/Hanabi/engine"
+	gamePackage "github.com/BabichMikhail/Hanabi/engine/game"
 	"github.com/BabichMikhail/Hanabi/models"
 	"github.com/beego/wetalk/modules/auth"
 )
@@ -12,16 +12,16 @@ type ApiGameController struct {
 	BaseController
 }
 
-var card engine.Card
+var card gamePackage.Card
 
 func init() {
-	card = engine.Card{}
+	card = gamePackage.Card{}
 }
 
 func (this *ApiGameController) GetGameCards() {
 	result := struct {
-		Colors map[engine.CardColor]string `json:"colors"`
-		Values map[engine.CardValue]string `json:"values"`
+		Colors map[gamePackage.CardColor]string `json:"colors"`
+		Values map[gamePackage.CardValue]string `json:"values"`
 	}{card.GetColors(), card.GetValues()}
 	this.Data["json"] = &result
 	this.ServeJSON()

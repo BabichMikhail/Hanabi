@@ -1,4 +1,4 @@
-package engine
+package game
 
 import "github.com/astaxie/beego"
 

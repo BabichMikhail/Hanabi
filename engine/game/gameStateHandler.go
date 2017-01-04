@@ -1,4 +1,4 @@
-package engine
+package game
 
 type GameState struct {
 	Deck            []Card        `json:"deck"`

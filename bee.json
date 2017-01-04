@@ -7,6 +7,8 @@
         "models": ".",
         "middlewares": ".",
         "database": ".",
-        "engine": "."
+        "engine": ".",
+        "engine/lobby": ".",
+        "engine/game": "."
     }
 }
