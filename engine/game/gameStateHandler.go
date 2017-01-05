@@ -1,5 +1,7 @@
 package game
 
+import "sort"
+
 const (
 	MaxBlueTokens = 8
 	MaxRedTokens  = 3
@@ -16,6 +18,42 @@ type GameState struct {
 	UsedCards       []Card        `json:"used_cards"`
 	TableCards      map[int]Card  `json:"table_cards"`
 	PlayerStates    []PlayerState `json:"player_state"`
+}
+
+type Pair struct {
+	Count int
+	Index int
+}
+
+type Pairs []Pair
+
+func (this Pairs) Len() int {
+	return len(this)
+}
+
+func (this Pairs) Less(i, j int) bool {
+	return this[i].Count > this[j].Count
+}
+
+func (this Pairs) Swap(i, j int) {
+	this[i], this[j] = this[j], this[i]
+}
+
+func SetMostColourfulPlayerCardsAtZeroPlace(pcards []*[]Card) [][]Card {
+	pairs := Pairs{}
+	for i := 0; i < len(pcards); i++ {
+		colors := map[CardColor]int{}
+		for j := 0; j < len(*pcards[i]); j++ {
+			colors[(*pcards[i])[j].Color] = 1
+		}
+		pairs = append(pairs, Pair{len(colors), i})
+	}
+	sort.Sort(pairs)
+	cards := [][]Card{}
+	for i := 0; i < pairs.Len(); i++ {
+		cards = append(cards, *pcards[pairs[i].Index])
+	}
+	return cards
 }
 
 func NewGameState(ids []int, pcards []*Card, playerCount int) GameState {
@@ -42,12 +80,14 @@ func NewGameState(ids []int, pcards []*Card, playerCount int) GameState {
 		cardCount = 4
 	}
 
-	allPlayerCards := [][]Card{}
+	allPlayerPCards := []*[]Card{}
 	for i := 0; i < len(ids); i++ {
 		userCards := pcards[0:cardCount]
 		pcards = append(pcards[:0], pcards[cardCount:]...)
-		allPlayerCards = append(allPlayerCards, DereferenceCard(userCards))
+		cards := DereferenceCard(userCards)
+		allPlayerPCards = append(allPlayerPCards, &cards)
 	}
+	allPlayerCards := SetMostColourfulPlayerCardsAtZeroPlace(allPlayerPCards)
 	for i := 0; i < len(ids); i++ {
 		this.PlayerStates = append(this.PlayerStates, NewPlayerState(allPlayerCards, i, ids[i]))
 	}
