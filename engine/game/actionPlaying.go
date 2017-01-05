@@ -17,6 +17,9 @@ func (this Game) NewActionPlaying(playerPosition int, cardPosition int) error {
 			Value:      card.Value,
 			KnownValue: true,
 		}
+		if card.Value == Five && state.BlueTokens < MaxBlueTokens {
+			state.BlueTokens++
+		}
 	} else {
 		state.RedTokens--
 	}
