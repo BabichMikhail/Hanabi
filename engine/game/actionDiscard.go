@@ -2,7 +2,7 @@ package game
 
 import "errors"
 
-func (this Game) NewActionDiscard(playerPosition int, cardPosition int) error {
+func (this *Game) NewActionDiscard(playerPosition int, cardPosition int) error {
 	state := &this.CurrentState
 	if state.BlueTokens == MaxBlueTokens {
 		return errors.New("Too many blue tokens")

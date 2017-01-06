@@ -15,7 +15,7 @@ type Action struct {
 	Value          int        `json:"value"`
 }
 
-func (this Game) NewAction(actionType ActionType, playerPosition int, value int) {
+func (this *Game) NewAction(actionType ActionType, playerPosition int, value int) {
 	action := Action{
 		ActionType:     actionType,
 		PlayerPosition: playerPosition,
@@ -25,7 +25,7 @@ func (this Game) NewAction(actionType ActionType, playerPosition int, value int)
 	this.IncreaseStep()
 }
 
-func (this Game) IncreaseStep() {
+func (this *Game) IncreaseStep() {
 	state := &this.CurrentState
 	state.Step++
 	state.CurrentPosition++
