@@ -18,7 +18,7 @@ func (this *GameController) Game() {
 	for i := 0; i < len(gamePlayers); i++ {
 		playerIds = append(playerIds, gamePlayers[i].Id)
 	}
-	game, err := models.ReadActiveGameByGameId(id)
+	game, err := models.ReadActiveGameById(id)
 	if err != nil {
 		game, _ = models.CreateActiveGame(playerIds, id)
 	}

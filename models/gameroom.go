@@ -2,37 +2,24 @@ package models
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
-	"time"
 
 	gamePackage "github.com/BabichMikhail/Hanabi/engine/game"
 	"github.com/astaxie/beego/orm"
 )
 
-type ActiveGame struct {
-	Id      int       `orm:"auto"`
-	GameID  int       `orm:"column(game_id)"`
-	Json    string    `orm:"column(game);type(text)"`
-	Created time.Time `orm:"column(created_at);auto_now_add;type(timestamp)"`
-}
-
-func (g *ActiveGame) TableName() string {
-	return "active_games"
-}
-
 func CreateActiveGame(playerIds []int, gameId int) (game gamePackage.Game, err error) {
 	game = gamePackage.NewGame(playerIds)
 	o := orm.NewOrm()
 	o.Begin()
-	qb, _ := orm.NewQueryBuilder("mysql")
-	qb.InsertInto("active_games", "game_id", "game", "created_at").
-		Values("?", "?", "CURRENT_TIMESTAMP")
-	sql := qb.String()
-	if res, err := o.Raw(sql, gameId, game.SprintGame()).Exec(); err == nil {
-		id64, _ := res.LastInsertId()
-		id := int(id64)
+	var ormGame Game
+	_, err = o.QueryTable(ormGame).Filter("id", gameId).Update(orm.Params{
+		"game": game.SprintGame(),
+	})
+	if err == nil {
 		o.Commit()
-		return ReadActiveGameById(id)
+		return game, nil
 	}
 	o.Rollback()
 	return
@@ -42,45 +29,23 @@ func ReadActiveGameById(id int) (game gamePackage.Game, err error) {
 	o := orm.NewOrm()
 	qb, _ := orm.NewQueryBuilder("mysql")
 	qb.Select("game").
-		From("active_games").
+		From("games").
 		Where("id = ?")
 	sql := qb.String()
-	var jsonString string
-	err = o.Raw(sql, id).QueryRow(&jsonString)
-	json.Unmarshal([]byte(jsonString), &game)
-	fmt.Print(err)
-	return game, err
-}
-
-func ReadActiveGameByGameId(gameId int) (game gamePackage.Game, err error) {
-	o := orm.NewOrm()
-	qb, _ := orm.NewQueryBuilder("mysql")
-	qb.Select("game").
-		From("active_games").
-		Where("game_id = ?")
-	sql := qb.String()
-	var jsonString string
-	err = o.Raw(sql, gameId).QueryRow(&jsonString)
-	json.Unmarshal([]byte(jsonString), &game)
-	return game, err
-}
-
-func UpdateCurrentGameById(id int, game gamePackage.Game) (err error) {
-	o := orm.NewOrm()
-	activeGame := new(ActiveGame)
-	activeGame.Id = id
-	if err = o.Read(activeGame); err != nil {
-		return err
+	var gameModel Game
+	err = o.Raw(sql, id).QueryRow(&gameModel)
+	if fmt.Sprintf("%s", gameModel.Json) == "" {
+		err = errors.New(fmt.Sprintf("Active game #%d not found", id))
+		return
 	}
-	activeGame.Json = game.SprintGame()
-	_, err = o.Update(activeGame, "game")
+	json.Unmarshal([]byte(gameModel.Json), &game)
 	return
 }
 
-func UpdateCurrentGameByGameId(gameId int, game gamePackage.Game) (err error) {
+func UpdateCurrentGameById(gameId int, game gamePackage.Game) (err error) {
 	o := orm.NewOrm()
-	activeGame := new(ActiveGame)
-	activeGame.GameID = gameId
+	activeGame := new(Game)
+	activeGame.Id = gameId
 	if err = o.Read(activeGame); err != nil {
 		return err
 	}

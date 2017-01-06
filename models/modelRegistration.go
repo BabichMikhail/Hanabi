@@ -7,5 +7,4 @@ import (
 func Registration() {
 	orm.RegisterModel(new(Game))
 	orm.RegisterModel(new(Player))
-	orm.RegisterModel(new(ActiveGame))
 }

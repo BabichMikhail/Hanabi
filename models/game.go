@@ -16,6 +16,7 @@ type Game struct {
 	OwnerId      int       `orm:"column(owner_id)"`
 	PlayersCount int       `orm:"column(players_count)"`
 	Status       int       `orm:"column(status);default(4)"`
+	Json         string    `orm:"column(game);type(text)"`
 	Created      time.Time `orm:"column(created_at);auto_now_add;type(timestamp)"`
 }
 

@@ -2,6 +2,7 @@ package game
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 )
 
@@ -38,4 +39,13 @@ func (this *Game) SprintGame() string {
 		return ""
 	}
 	return fmt.Sprintln(string(b))
+}
+
+func (this *Game) GetPlayerPositionById(id int) (pos int, err error) {
+	for i := 0; i < len(this.CurrentState.PlayerStates); i++ {
+		if this.CurrentState.PlayerStates[i].PlayerId == id {
+			return i, nil
+		}
+	}
+	return -1, errors.New("Player not found")
 }

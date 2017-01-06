@@ -1,6 +1,7 @@
 package game
 
 type PlayerGameInfo struct {
+	MyTurn       bool         `json:"my_turn"`
 	PlayerCount  int          `json:"player_count"`
 	Position     int          `json:"pos"`
 	Step         int          `json:"step"`
@@ -28,15 +29,18 @@ func (this *Game) GetPlayerGameInfo(playerId int) PlayerGameInfo {
 			cards := &playerState.PlayersCards[i]
 			for j := 0; j < len(*cards); j++ {
 				card := &(*cards)[j]
-				card.KnownColor = false
-				card.Color = NoneColor
-				card.KnownValue = false
-				card.Value = NoneValue
+				if !card.KnownColor {
+					card.Color = NoneColor
+				}
+				if !card.KnownValue {
+					card.Value = NoneValue
+				}
 			}
 		}
 	}
 
 	return PlayerGameInfo{
+		MyTurn:       state.CurrentPosition == playerState.PlayerPosition,
 		PlayerCount:  this.PlayerCount,
 		Position:     playerState.PlayerPosition,
 		Step:         state.Step,
