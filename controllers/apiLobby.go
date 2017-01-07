@@ -10,7 +10,7 @@ import (
 )
 
 type LobbyApiController struct {
-	BaseController
+	ApiController
 }
 
 func (this *LobbyApiController) GameCreate() {
@@ -19,61 +19,49 @@ func (this *LobbyApiController) GameCreate() {
 	auth.GetUserFromSession(&user, this.Ctx.Input.CruSession)
 	id := models.NewGame(user.Id, playersCount, engineLobby.GameWait)
 	game, err := engineLobby.MakeGame(id, user)
-	if err != nil {
-		result := struct {
-			Status string `json:"status"`
-			Err    error  `json:"err"`
-		}{"FAIL", err}
-		this.Data["json"] = &result
-	} else {
-		userId := auth.GetUserIdFromSession(this.Ctx.Input.CruSession)
-		result := struct {
-			Status      string           `json:"status"`
-			Game        engineLobby.Game `json:"game"`
-			userId      int              `json:"currentUserId"`
-			Err         error            `json:"err"`
-			RedirectURL string           `json:"redirectURL"`
-		}{"OK", game, userId, nil, this.URLFor("GameController.Game", ":id", id)}
-		this.Data["json"] = &result
+	if this.SetError(err) {
+		return
 	}
-	this.ServeJSON()
+
+	userId := auth.GetUserIdFromSession(this.Ctx.Input.CruSession)
+	result := struct {
+		Status      string           `json:"status"`
+		Game        engineLobby.Game `json:"game"`
+		userId      int              `json:"currentUserId"`
+		RedirectURL string           `json:"redirectURL"`
+	}{StatusSuccess, game, userId, this.URLFor("GameController.Game", ":id", id)}
+	this.SetData(&result)
 }
 
 func (this *LobbyApiController) GameJoin() {
 	id, _ := strconv.Atoi(this.Ctx.Input.Param(":id"))
 	userId := auth.GetUserIdFromSession(this.Ctx.Input.CruSession)
-	err, game_status := models.JoinGame(id, userId)
-	var status string
-	if err == nil {
-		status = "OK"
-	} else {
-		status = "FAIL"
+	err, gameStatus := models.JoinGame(id, userId)
+	if this.SetError(err) {
+		return
 	}
+
 	result := struct {
 		Status      string `json:"status"`
 		GameStatus  string `json:"game_status"`
 		GameRoomURL string `json:"URL"`
-	}{status, game_status, this.URLFor(".Game", ":id", id)}
-	this.Data["json"] = &result
-	this.ServeJSON()
+	}{StatusSuccess, gameStatus, this.URLFor(".Game", ":id", id)}
+	this.SetData(&result)
 }
 
 func (this *LobbyApiController) GameLeave() {
 	id, _ := strconv.Atoi(this.Ctx.Input.Param(":id"))
 	userId := auth.GetUserIdFromSession(this.Ctx.Input.CruSession)
 	action, err := models.LeaveGame(id, userId)
-	var status string
-	if err == nil && action != "" {
-		status = "OK"
-	} else {
-		status = "FAIL"
+	if this.SetError(err) {
+		return
 	}
+
 	result := struct {
 		Status string `json:"status"`
 		Action string `json:"action"`
-	}{status, action}
-	this.Data["json"] = &result
-	this.ServeJSON()
+	}{StatusSuccess, action}
+	this.SetData(&result)
 }
 
 func ConvertStringArrayToIntArray(s []string) []int {
@@ -91,12 +79,12 @@ func (this *LobbyApiController) GameUpdate() {
 	for i, g := range GameStatuses {
 		GameStatuses[i].URL = this.URLFor("GameController.Game", ":id", g.GameId)
 	}
+
 	result := struct {
-		GameStatuses []models.GameStatus `json:"game"`
 		Status       string              `json:"status"`
-	}{GameStatuses, "OK"}
-	this.Data["json"] = &result
-	this.ServeJSON()
+		GameStatuses []models.GameStatus `json:"game"`
+	}{StatusSuccess, GameStatuses}
+	this.SetData(&result)
 }
 
 func (this *LobbyApiController) GameUsers() {
@@ -104,7 +92,6 @@ func (this *LobbyApiController) GameUsers() {
 	result := struct {
 		Status  string               `json:"status"`
 		Players []engineLobby.Player `json:"players"`
-	}{"OK", models.GetGamePlayers([]int{id})[id]}
-	this.Data["json"] = &result
-	this.ServeJSON()
+	}{StatusSuccess, models.GetGamePlayers([]int{id})[id]}
+	this.SetData(&result)
 }

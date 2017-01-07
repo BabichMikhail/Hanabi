@@ -9,7 +9,7 @@ import (
 )
 
 type ApiGameController struct {
-	BaseController
+	ApiController
 }
 
 var card gamePackage.Card
@@ -23,8 +23,7 @@ func (this *ApiGameController) GetGameCards() {
 		Colors map[gamePackage.CardColor]string `json:"colors"`
 		Values map[gamePackage.CardValue]string `json:"values"`
 	}{card.GetColors(), card.GetValues()}
-	this.Data["json"] = &result
-	this.ServeJSON()
+	this.SetData(&result)
 }
 
 func (this *ApiGameController) GetGameStatuses() {
@@ -40,115 +39,68 @@ func (this *ApiGameController) GetGameStatuses() {
 	}
 	userId := auth.GetUserIdFromSession(this.Ctx.Input.CruSession)
 	playerInfo := game.GetPlayerGameInfo(userId)
-	this.Data["json"] = &playerInfo
-	this.ServeJSON()
+	this.SetData(&playerInfo)
 }
 
 func (this *ApiGameController) GamePlayCard() {
 	gameId, _ := this.GetInt("game_id")
-	cardPosition, _ := this.GetInt("card_position")
 	game, err := models.ReadActiveGameById(gameId)
-	if err != nil {
-		result := struct {
-			Status string `json:"status"`
-			Err    error  `json:"err"`
-		}{"FAIL", err}
-		this.Data["json"] = &result
-		this.ServeJSON()
+	if this.SetError(err) {
 		return
 	}
+
 	playerPosition, err := game.GetPlayerPositionById(auth.GetUserIdFromSession(this.Ctx.Input.CruSession))
-	if err != nil {
-		result := struct {
-			Status string `json:"status"`
-			Err    error  `json:"err"`
-		}{"FAIL", err}
-		this.Data["json"] = &result
-		this.ServeJSON()
+	if this.SetError(err) {
 		return
 	}
+
+	cardPosition, _ := this.GetInt("card_position")
 	game.NewActionPlaying(playerPosition, cardPosition)
-	result := struct {
-		Status string `json:status`
-	}{"OK"}
-	this.Data["json"] = &result
-	this.ServeJSON()
+	this.SetSuccessResponse()
 }
 
 func (this *ApiGameController) GameDiscardCard() {
 	gameId, _ := this.GetInt("game_id")
-	cardPosition, _ := this.GetInt("card_position")
 	game, err := models.ReadActiveGameById(gameId)
-	if err != nil {
-		result := struct {
-			Status string `json:"status"`
-			Err    error  `json:"err"`
-		}{"FAIL", err}
-		this.Data["json"] = &result
-		this.ServeJSON()
+	if this.SetError(err) {
 		return
 	}
+
 	playerPosition, err := game.GetPlayerPositionById(auth.GetUserIdFromSession(this.Ctx.Input.CruSession))
-	if err != nil {
-		result := struct {
-			Status string `json:"status"`
-			Err    error  `json:"err"`
-		}{"FAIL", err}
-		this.Data["json"] = &result
-		this.ServeJSON()
+	if this.SetError(err) {
 		return
 	}
+
+	cardPosition, _ := this.GetInt("card_position")
 	game.NewActionDiscard(playerPosition, cardPosition)
 	models.UpdateCurrentGameById(gameId, game)
-	result := struct {
-		Status string `json:status`
-	}{"OK"}
-	this.Data["json"] = &result
-	this.ServeJSON()
+	this.SetSuccessResponse()
 }
 
 func (this *ApiGameController) GameInfoCardValue() {
 	gameId, _ := this.GetInt("game_id")
-	playerPosition, _ := this.GetInt("player_position")
-	cardValue, _ := this.GetInt("card_value")
 	game, err := models.ReadActiveGameById(gameId)
-	if err != nil {
-		result := struct {
-			Status string `json:"status"`
-			Err    error  `json:"err"`
-		}{"FAIL", err}
-		this.Data["json"] = &result
-		this.ServeJSON()
+	if this.SetError(err) {
 		return
 	}
+
+	playerPosition, _ := this.GetInt("player_position")
+	cardValue, _ := this.GetInt("card_value")
 	game.NewActionInformationValue(playerPosition, gamePackage.CardValue(cardValue))
 	models.UpdateCurrentGameById(gameId, game)
-	result := struct {
-		Status string `json:status`
-	}{"OK"}
-	this.Data["json"] = &result
-	this.ServeJSON()
+	this.SetSuccessResponse()
 }
 
 func (this *ApiGameController) GameInfoCardColor() {
 	gameId, _ := this.GetInt("game_id")
-	playerPosition, _ := this.GetInt("player_position")
-	cardColor, _ := this.GetInt("card_color")
 	game, err := models.ReadActiveGameById(gameId)
-	if err != nil {
-		result := struct {
-			Status string `json:"status"`
-			Err    error  `json:"err"`
-		}{"FAIL", err}
-		this.Data["json"] = &result
-		this.ServeJSON()
+	if this.SetError(err) {
 		return
 	}
+
+	playerPosition, _ := this.GetInt("player_position")
+	cardColor, _ := this.GetInt("card_color")
 	game.NewActionInformationColor(playerPosition, gamePackage.CardColor(cardColor))
 	models.UpdateCurrentGameById(gameId, game)
-	result := struct {
-		Status string `json:status`
-	}{"OK"}
-	this.Data["json"] = &result
-	this.ServeJSON()
+	this.SetSuccessResponse()
 }

@@ -29,10 +29,10 @@ func GameStatusName(status int) string {
 }
 
 type Game struct {
-	Id      int
-	Owner   string
-	Status  string
-	Players []Player
+	Id      int      `json:"id"`
+	Owner   string   `json:"owner"`
+	Status  string   `json:"status"`
+	Players []Player `json:"players"`
 }
 
 type GameItem struct {
@@ -60,7 +60,8 @@ func GetAllStatuses() []int {
 
 func MakeGame(id int, user wetalk.User) (game Game, err error) {
 	if id <= 0 {
-		errors.New(fmt.Sprintf("Can't make game with Id = %d", id))
+		err = errors.New(fmt.Sprintf("Can't make game with Id = %d", id))
+		return
 	}
 	game.Id = id
 	game.Status = GameStatusName(GameWait)

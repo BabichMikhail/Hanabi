@@ -1,18 +1,22 @@
 function lobbyHandler() {
     this.Create = function () {
+        let count = $("input[name=playersCount]").val()
+        count = count < 2 ? 2 : count
+        count = count > 5 ? 5 : count
         $.ajax({
             type: "POST",
             url: "/api/lobby/create",
             data: {
-                playersCount: $("input[name=playersCount]").val()
+                playersCount: count,
             },
         }).done(function(data) {
             console.log(data)
-            if (data.status == "OK") {
+            if (data.status == "success") {
                 let gameId = data.game.Id
                 let html = `<tr id="game-` +  gameId + `">
                     <td>` + data.game.Owner + `</td>
                     <td><a href="Game.LoadUserList(` + gameId + `)">1</a></td>
+                    <td>` + count  + `</td>
                     <td>
                         <button type="button" onClick="Game.Leave(` + gameId + `);">` + (data.currentUserId == data.game.OwnerId ? `Leave` : `Join`) + `</button>
                     </td>
@@ -31,7 +35,7 @@ function lobbyHandler() {
             data: {}
         }).done(function(data) {
             console.log(data)
-            if (data.status == "OK") {
+            if (data.status == "success") {
                 if (data.action == "delete") {
                     $("#game-" + id).remove()
                 } else {
@@ -56,7 +60,7 @@ function lobbyHandler() {
             data: {}
         }).done(function(data) {
             console.log(data)
-            if (data.status == "OK") {
+            if (data.status == "success") {
                 if (data.game_status == "active") {
                     setTimeout(Lobby.OpenGame, 1000, data.URL)
                 }
@@ -103,7 +107,7 @@ function lobbyHandler() {
             data: {}
         }).done(function(data) {
             console.log(data)
-            if (data.status == "OK") {
+            if (data.status == "success") {
                 let html = "<ul>"
                 for (let i = 0; i < data.players.length; ++i) {
                     html += "<li>" + data.players[i].nick_name + "</li>";
