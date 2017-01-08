@@ -1,17 +1,8 @@
-<form method="POST" action="{{ urlfor "AuthController.SignIn"}}">
-    <div>
-        <label for="username">Username</label>
-        <input id="username" type="text" name="username"/>
-    </div>
-    <div>
-        <label for="password">Password</label>
-        <input id="password" type="password" name="password"/>
-    </div>
-    <div>
-        <button type="submit" name="submit">Sign in</button>
-    </div>
-    {{ .err }}
-</form>
-<div>
-    <a href="{{ urlfor "AuthController.SignUp" }}">Sign up</a>
+<div class="container">
+    <form class="form-signin" method="POST" action="{{ urlfor "AuthController.SignIn"}}">
+        <input type="text" name="username" class="form-control" placeholder="username or email" required autofocus>
+        <input type="password" name="password" class="form-control" placeholder="password" required>
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+        <a href="{{ urlfor "AuthController.SignUp" }}" class="">Don't have an Account? Sign Up! NOW!</a>
+    </form>
 </div>
