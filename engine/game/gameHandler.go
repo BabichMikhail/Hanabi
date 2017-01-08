@@ -49,3 +49,37 @@ func (this *Game) GetPlayerPositionById(id int) (pos int, err error) {
 	}
 	return -1, errors.New("Player not found")
 }
+
+func (this *Game) GetPoints() (points int, err error) {
+	if !this.IsGameOver() {
+		return 0, errors.New("Game not is over")
+	}
+
+	state := &this.CurrentState
+	for _, card := range state.TableCards {
+		points += card.GetPoints()
+	}
+	return
+}
+
+func (this *Game) IsGameOver() bool {
+	state := &this.CurrentState
+	if state.RedTokens == 0 {
+		return true
+	}
+
+	cardInHands := 0
+	for i := 0; i < len(state.PlayerStates[0].PlayersCards); i++ {
+		cardInHands += len(state.PlayerStates[0].PlayersCards[i])
+	}
+	if cardInHands == state.PlayerCount*(state.GetCardCount()-1) {
+		return true
+	}
+
+	for _, card := range state.TableCards {
+		if card.Value != Five {
+			return false
+		}
+	}
+	return true
+}

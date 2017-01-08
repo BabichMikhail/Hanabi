@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	engineLobby "github.com/BabichMikhail/Hanabi/engine/lobby"
+	lobby "github.com/BabichMikhail/Hanabi/engine/lobby"
 	"github.com/astaxie/beego/orm"
 )
 
@@ -60,7 +60,7 @@ func ActivateGame(gameId int) int {
 	game := new(Game)
 	game.Id = gameId
 	o.Read(game)
-	game.Status = engineLobby.GameActive
+	game.Status = lobby.GameActive
 	o.Update(game)
 	return game.Status
 }
@@ -91,7 +91,7 @@ func JoinGame(gameId int, userId int) (err error, status string) {
 	sql := qb.String()
 	if _, err = o.Raw(sql, userId, gameId).Exec(); err == nil {
 		o.Commit()
-		status = engineLobby.GameStatusName(CheckGame(gameId))
+		status = lobby.GameStatusName(CheckGame(gameId))
 	} else {
 		status = ""
 		o.Rollback()
@@ -155,7 +155,7 @@ func LeaveGame(gameId int, userId int) (string, error) {
 	return action, err
 }
 
-func GetGamePlayers(gameIds []int) map[int]([]engineLobby.Player) {
+func GetGamePlayers(gameIds []int) map[int]([]lobby.Player) {
 	o := orm.NewOrm()
 	qb, _ := orm.NewQueryBuilder("mysql")
 	inString := IntSliceToString(gameIds)
@@ -171,14 +171,14 @@ func GetGamePlayers(gameIds []int) map[int]([]engineLobby.Player) {
 		GameId   int    `orm:"column(game_id)"`
 	}
 	o.Raw(sql).QueryRows(&splayers)
-	playersMap := map[int]([]engineLobby.Player){}
+	playersMap := map[int]([]lobby.Player){}
 	for _, v := range splayers {
-		playersMap[v.GameId] = append(playersMap[v.GameId], engineLobby.Player{v.UserId, v.NickName})
+		playersMap[v.GameId] = append(playersMap[v.GameId], lobby.Player{v.UserId, v.NickName})
 	}
 	return playersMap
 }
 
-func GetGameList(status []int, userId int) (games []engineLobby.GameItem) {
+func GetGameList(status []int, userId int) (games []lobby.GameItem) {
 	o := orm.NewOrm()
 
 	args := IntSliceToString(status)
@@ -194,7 +194,7 @@ func GetGameList(status []int, userId int) (games []engineLobby.GameItem) {
 	sql := qb.String()
 	o.Raw(sql).QueryRows(&games)
 	for i, game := range games {
-		games[i].Status = engineLobby.GameStatusName(game.StatusCode)
+		games[i].Status = lobby.GameStatusName(game.StatusCode)
 	}
 
 	ids := []int{}
@@ -280,7 +280,7 @@ func GetStatuses(userId int) []GameStatus {
 	var statuses []GameStatus
 	o.Raw(sql).QueryRows(&statuses)
 	for i, s := range statuses {
-		statuses[i].StatusName = engineLobby.GameStatusName(s.StatusCode)
+		statuses[i].StatusName = lobby.GameStatusName(s.StatusCode)
 	}
 	return statuses
 }

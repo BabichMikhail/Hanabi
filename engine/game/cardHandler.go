@@ -34,9 +34,7 @@ const (
 func RandomCardsPermutation(cards []*Card) {
 	for i := len(cards) - 1; i >= 0; i-- {
 		j := rand.Intn(i + 1)
-		card := cards[i]
-		cards[i] = cards[j]
-		cards[j] = card
+		cards[i], cards[j] = cards[j], cards[i]
 	}
 }
 
@@ -46,25 +44,36 @@ func (this *Card) SetKnown(known bool) {
 }
 
 func (this *Card) GetColors() map[CardColor]string {
-	colors := map[CardColor]string{}
-	colors[NoneColor] = ""
-	colors[Red] = "Red"
-	colors[Blue] = "Blue"
-	colors[Green] = "Green"
-	colors[Gold] = "Gold"
-	colors[Black] = "Black"
-	return colors
+	return map[CardColor]string{
+		NoneColor: "",
+		Red:       "Red",
+		Blue:      "Blue",
+		Green:     "Green",
+		Gold:      "Gold",
+		Black:     "Black",
+	}
 }
 
 func (this *Card) GetValues() map[CardValue]string {
-	values := map[CardValue]string{}
-	values[NoneValue] = ""
-	values[One] = "1"
-	values[Two] = "2"
-	values[Three] = "3"
-	values[Four] = "4"
-	values[Five] = "5"
-	return values
+	return map[CardValue]string{
+		NoneValue: "",
+		One:       "1",
+		Two:       "2",
+		Three:     "3",
+		Four:      "4",
+		Five:      "5",
+	}
+}
+
+func (this *Card) GetPoints() int {
+	return map[CardValue]int{
+		NoneValue: 0,
+		One:       1,
+		Two:       2,
+		Three:     3,
+		Four:      4,
+		Five:      5,
+	}[this.Value]
 }
 
 func DereferenceCard(pcards []*Card) []Card {

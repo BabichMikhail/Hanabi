@@ -11,7 +11,7 @@ import (
 const (
 	GameWait     = 1
 	GameActive   = 2
-	GameInActive = 4
+	GameInactive = 4
 	GameUnknown  = 8
 )
 
@@ -21,7 +21,7 @@ func GameStatusName(status int) string {
 		return "wait"
 	case GameActive:
 		return "active"
-	case GameInActive:
+	case GameInactive:
 		return "inactive"
 	default:
 		return "unknown"
@@ -55,7 +55,7 @@ type Player struct {
 }
 
 func GetAllStatuses() []int {
-	return []int{GameWait, GameActive, GameInActive}
+	return []int{GameWait, GameActive, GameInactive}
 }
 
 func MakeGame(id int, user wetalk.User) (game Game, err error) {

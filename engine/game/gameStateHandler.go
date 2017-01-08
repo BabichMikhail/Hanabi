@@ -56,6 +56,13 @@ func SetMostColourfulPlayerCardsAtZeroPlace(pcards []*[]Card) [][]Card {
 	return cards
 }
 
+func (this *GameState) GetCardCount() int {
+	if this.PlayerCount >= 4 {
+		return 4
+	}
+	return 5
+}
+
 func NewGameState(ids []int, pcards []*Card, playerCount int) GameState {
 	this := GameState{
 		CurrentPosition: 0,
@@ -75,11 +82,7 @@ func NewGameState(ids []int, pcards []*Card, playerCount int) GameState {
 		Black: *NewCard(Black, NoneValue, true),
 	}
 
-	cardCount := 5
-	if playerCount >= 4 {
-		cardCount = 4
-	}
-
+	cardCount := this.GetCardCount()
 	allPlayerPCards := []*[]Card{}
 	for i := 0; i < len(ids); i++ {
 		userCards := pcards[0:cardCount]

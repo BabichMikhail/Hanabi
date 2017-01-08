@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	gamePackage "github.com/BabichMikhail/Hanabi/engine/game"
+	lobby "github.com/BabichMikhail/Hanabi/engine/lobby"
 	"github.com/astaxie/beego/orm"
 )
 
@@ -25,7 +26,7 @@ func CreateActiveGame(playerIds []int, gameId int) (game gamePackage.Game, err e
 	return
 }
 
-func ReadActiveGameById(id int) (game gamePackage.Game, err error) {
+func ReadGameById(id int) (game gamePackage.Game, err error) {
 	o := orm.NewOrm()
 	qb, _ := orm.NewQueryBuilder("mysql")
 	qb.Select("game").
@@ -33,7 +34,9 @@ func ReadActiveGameById(id int) (game gamePackage.Game, err error) {
 		Where("id = ?")
 	sql := qb.String()
 	var gameModel Game
-	err = o.Raw(sql, id).QueryRow(&gameModel)
+	if err = o.Raw(sql, id).QueryRow(&gameModel); err != nil {
+		return
+	}
 	if fmt.Sprintf("%s", gameModel.Json) == "" {
 		err = errors.New(fmt.Sprintf("Active game #%d not found", id))
 		return
@@ -48,6 +51,9 @@ func UpdateCurrentGameById(gameId int, game gamePackage.Game) (err error) {
 	activeGame.Id = gameId
 	if err = o.Read(activeGame); err != nil {
 		return err
+	}
+	if game.IsGameOver() {
+		activeGame.Status = lobby.GameInactive
 	}
 	activeGame.Json = game.SprintGame()
 	_, err = o.Update(activeGame, "game")
