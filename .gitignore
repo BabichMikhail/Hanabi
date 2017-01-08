@@ -6,3 +6,4 @@ tmp
 static/js/*
 static/css/*
 static/img/*
+node_modules/*

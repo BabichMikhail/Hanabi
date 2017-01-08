@@ -1,0 +1,25 @@
+{
+  "name": "hanabi",
+  "version": "1.0.0",
+  "description": "\"# Hanabi\"",
+  "directories": {
+    "test": "tests"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BabichMikhail/Hanabi.git"
+  },
+  "keywords": [
+    "hanabi"
+  ],
+  "author": "Babich Mikhail",
+  "bugs": {
+    "url": "https://github.com/BabichMikhail/Hanabi/issues"
+  },
+  "homepage": "https://github.com/BabichMikhail/Hanabi#readme"
+}

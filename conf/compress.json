@@ -8,7 +8,9 @@
             "lib": {
                 "DistFile": "lib.min.js",
                 "SourceFiles": [
-
+                    "../../node_modules/jquery/dist/jquery.js",
+                    "../../node_modules/tether/dist/js/tether.min.js",
+                    "../../node_modules/bootstrap-v4-dev/dist/js/bootstrap.min.js"
                 ],
                 "SkipFiles": []
             },
@@ -30,9 +32,20 @@
         "Groups": {
             "lib": {
                 "DistFile": "lib.min.css",
-                "SourceFiles": [],
+                "SourceFiles": [
+                    "../../node_modules/tether/dist/css/tether.min.css",
+                    "../../node_modules/bootstrap-v4-dev/dist/css/bootstrap.min.css"
+                ],
+                "SkipFiles": []
+            },
+            "app": {
+                "DistFile": "app.min.css",
+                "SourceFiles": [
+                    "signin.css"
+                ],
                 "SkipFiles": []
             }
+
         }
     }
 }
