@@ -41,7 +41,7 @@
 <div id="queue">
     {{ range $idx, $game := .games }}
     {{ if $game.UserIn }}
-    <div>
+    <div id="queue-game-{{ $game.Id }}">
         <p>Game: {{ $game.Status }}</p>
         <p>Places: {{ $game.PlayerPlaces }}</p>
         <div>

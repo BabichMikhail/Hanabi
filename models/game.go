@@ -16,7 +16,7 @@ type Game struct {
 	OwnerId      int       `orm:"column(owner_id)"`
 	PlayersCount int       `orm:"column(players_count)"`
 	Status       int       `orm:"column(status);default(4)"`
-	Json         string    `orm:"column(game);type(text)"`
+	Json         string    `orm:"column(game);null;type(text)"`
 	Created      time.Time `orm:"column(created_at);auto_now_add;type(timestamp)"`
 }
 
@@ -158,22 +158,25 @@ func LeaveGame(gameId int, userId int) (string, error) {
 func GetGamePlayers(gameIds []int) map[int]([]lobby.Player) {
 	o := orm.NewOrm()
 	qb, _ := orm.NewQueryBuilder("mysql")
-	inString := IntSliceToString(gameIds)
-	qb.Select("p.user_id", "u.nick_name", "p.game_id").
-		From("players p").
-		InnerJoin("user u").
-		On("u.id = p.user_id").
-		Where("p.game_id").In(inString)
-	sql := qb.String()
-	var splayers []struct {
-		UserId   int    `orm:"column(user_id)"`
-		NickName string `orm:"column(nick_name)"`
-		GameId   int    `orm:"column(game_id)"`
-	}
-	o.Raw(sql).QueryRows(&splayers)
 	playersMap := map[int]([]lobby.Player){}
-	for _, v := range splayers {
-		playersMap[v.GameId] = append(playersMap[v.GameId], lobby.Player{v.UserId, v.NickName})
+	if len(gameIds) > 0 {
+		inString := IntSliceToString(gameIds)
+		qb.Select("p.user_id", "u.nick_name", "p.game_id").
+			From("players p").
+			InnerJoin("user u").
+			On("u.id = p.user_id").
+			Where("p.game_id").In(inString)
+		sql := qb.String()
+		var splayers []struct {
+			UserId   int    `orm:"column(user_id)"`
+			NickName string `orm:"column(nick_name)"`
+			GameId   int    `orm:"column(game_id)"`
+		}
+		o.Raw(sql).QueryRows(&splayers)
+
+		for _, v := range splayers {
+			playersMap[v.GameId] = append(playersMap[v.GameId], lobby.Player{v.UserId, v.NickName})
+		}
 	}
 	return playersMap
 }
@@ -272,15 +275,20 @@ func GetStatuses(userId int) []GameStatus {
 		return strings.Join(ans, ", ")
 	}(getUserGames(userId))
 
-	qb, _ := orm.NewQueryBuilder("mysql")
-	qb.Select("id, status").
-		From("games").
-		Where("id").In(userGames)
-	sql := qb.String()
 	var statuses []GameStatus
-	o.Raw(sql).QueryRows(&statuses)
-	for i, s := range statuses {
-		statuses[i].StatusName = lobby.GameStatusName(s.StatusCode)
+	if len(userGames) > 0 {
+		qb, _ := orm.NewQueryBuilder("mysql")
+		qb.Select("id, status").
+			From("games").
+			Where("id").In(userGames)
+		sql := qb.String()
+
+		o.Raw(sql).QueryRows(&statuses)
+		for i, s := range statuses {
+			statuses[i].StatusName = lobby.GameStatusName(s.StatusCode)
+		}
+	} else {
+		statuses = []GameStatus{}
 	}
 	return statuses
 }

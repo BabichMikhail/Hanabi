@@ -12,16 +12,25 @@ function lobbyHandler() {
         }).done(function(data) {
             console.log(data)
             if (data.status == "success") {
-                let gameId = data.game.Id
+                let gameId = data.game.id
                 let html = `<tr id="game-` +  gameId + `">
-                    <td>` + data.game.Owner + `</td>
-                    <td><a href="Game.LoadUserList(` + gameId + `)">1</a></td>
+                    <td>` + data.game.owner + `</td>
+                    <td><a id="users-` + gameId + `" href="javascript:Lobby.LoadUserList(` + gameId + `)">1</a></td>
                     <td>` + count  + `</td>
                     <td>
-                        <button type="button" onClick="Game.Leave(` + gameId + `);">` + (data.currentUserId == data.game.OwnerId ? `Leave` : `Join`) + `</button>
+                        <button type="button" onClick="Lobby.Leave(` + gameId + `);">` + (data.currentUserId == data.game.OwnerId ? `Leave` : `Join`) + `</button>
                     </td>
                 </tr>`
                 $("#games").append(html)
+
+                queueHtml = `<div id="queue-game-` +  gameId + `">
+                    <p>Game: ` + data.game.status + `</p>
+                    <p>Places: ` + count + `</p>
+                    <div>
+                        <p>` + data.game.owner + `</p>
+                    </div>
+                </div>`
+                $("#queue").append(queueHtml)
             }
         }).fail(function(data) {
             alert("CREATE FAIL")
@@ -38,6 +47,7 @@ function lobbyHandler() {
             if (data.status == "success") {
                 if (data.action == "delete") {
                     $("#game-" + id).remove()
+                    $("#queue-game-" + id).remove()
                 } else {
                     location.reload()
                 }
@@ -94,7 +104,7 @@ function lobbyHandler() {
                     }
                 }
             }
-            setTimeout(Lobby.Update, 5000)
+            setTimeout(Lobby.Update, 10000)
         }).fail(function(data) {
             alert("UPDATE FAIL")
         })
