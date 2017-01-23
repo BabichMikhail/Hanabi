@@ -1,25 +1,16 @@
-<form method="POST" action="{{ urlfor "AuthController.SignUp"}}">
-    <div>
-        <label for="username">Username</label>
-        <input id="username" type="text" name="username"/>
+<div class="box-signup">
+    <div class="logo">
+        <a href="/">Hanabi</a>
     </div>
-    <div>
-        <label for="email">Email</label>
-        <input id="email" type="email" name="email"/>
-    </div>
-    <div>
-        <label for="password">Password</label>
-        <input type="password" name="password"/>
-    </div>
-    <div>
-        <label for="confirmpassword">Confirm Password</label>
-        <input id="confirmpassword" type="password" name="confirmpassword"/>
-    </div>
-    <div>
-        <button type="submit" name="submit">Sign up</button>
-    </div>
-    {{ .err }}
-</form>
-<div>
-    <a href="{{ urlfor "AuthController.SignIn" }}">Sign in</a>
+    <form method="POST" class="form-signup" action="{{ urlfor "AuthController.SignUp"}}">
+        <input id="username" type="text" name="username" class="form-control" placeholder="username"/>
+        <input id="email" type="email" name="email" class="form-control" placeholder="email"/>
+        <input type="password" name="password" class="form-control" placeholder="password"/>
+        <input id="confirmpassword" type="password" name="confirmpassword" class="form-control" placeholder="re-type password"/>
+        <button type="submit" name="submit" class="btn btn-lg btn-primary btn-block">Sign up</button>
+        {{ .err }}
+        <div class="signup-footer-box">
+            <a href="{{ urlfor "AuthController.SignIn" }}">Sign in!</a>
+        </div>
+    </form>
 </div>
