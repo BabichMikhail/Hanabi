@@ -14,6 +14,7 @@ function lobbyHandler() {
             if (data.status == "success") {
                 let gameId = data.game.id
                 let html = `<tr id="game-` +  gameId + `">
+                    <th scope="row">` + gameId + `</th>
                     <td>` + data.game.owner + `</td>
                     <td><a id="users-` + gameId + `" href="javascript:Lobby.LoadUserList(` + gameId + `)">1</a></td>
                     <td>` + count  + `</td>
@@ -21,16 +22,20 @@ function lobbyHandler() {
                         <button type="button" onClick="Lobby.Leave(` + gameId + `);">` + (data.currentUserId == data.game.OwnerId ? `Leave` : `Join`) + `</button>
                     </td>
                 </tr>`
-                $("#games").append(html)
+                $("#games").prepend(html)
 
-                queueHtml = `<div id="queue-game-` +  gameId + `">
-                    <p>Game: ` + data.game.status + `</p>
-                    <p>Places: ` + count + `</p>
-                    <div>
-                        <p>` + data.game.owner + `</p>
+                queueHtml = `<div id="queue-game-` +  gameId + `" class="card text-center">
+                    <div class="card-block">
+                        <h4 class="card-title">Game #` + gameId + `</h4>
+                        <p class="card-text">Status: ` + data.game.status + `</p>
+                        <p class="card-text">Places: ` + count + `</p>
+                        <p class="card-text">Players: ` + data.game.owner + `</p>
                     </div>
                 </div>`
-                $("#queue").append(queueHtml)
+                let childLeft = $('#queue-1')
+                let childRight = $('#queue-2')
+                let elem = childLeft[0].childElementCount > childRight[0].childElementCount ? childRight : childLeft
+                elem.append(queueHtml)
             }
         }).fail(function(data) {
             alert("CREATE FAIL")

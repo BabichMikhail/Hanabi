@@ -1,8 +1,4 @@
-body {
-    padding: 40px;
-    padding: 40px;
-    background-color: #eee;
-}
+body {}
 
 .logo {
     text-align: center;
@@ -26,7 +22,7 @@ body {
 }
 
 .signin-footer-box {
-    max-width: 275px;
+    max-width: 280px;
     margin: 0 auto
 }
 

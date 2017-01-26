@@ -17,8 +17,11 @@ func (this *LobbyController) GameList() {
 	var user wetalk.User
 	auth.GetUserFromSession(&user, this.Ctx.Input.CruSession)
 	this.Data["user"] = user
-	this.Data["games"] = models.GetGameList(engineLobby.GetAllStatuses(), user.Id)
-	if !this.Ctx.Input.IsPost() {
-		return
-	}
+	games := models.GetGameList(engineLobby.GetAllStatuses(), user.Id)
+
+	copyGames := engineLobby.CopyGameItems(games)
+	gameCount := len(games)
+	this.Data["gamesLeft"] = engineLobby.RevertGameItems(copyGames[gameCount/2:])
+	this.Data["gamesRight"] = engineLobby.RevertGameItems(copyGames[:gameCount/2])
+	this.Data["games"] = games
 }

@@ -1,6 +1,30 @@
-<div>
-    <table>
+<ul class="nav nav-tabs">
+    <li class="nav-item"><a class="nav-link active" href="#">Lobby</a></li>
+    <li class="nav-item"><a class="nav-link" href="#">All Games</a></li>
+</ul>
+<div id="queue-1" name="queue" class="col-md-2">
+    {{ range $idx, $game := .gamesLeft }}
+    {{ if $game.UserIn }}
+    <div id="queue-game-{{ $game.Id }}" class="card text-center">
+        <div class="card-block">
+            <h4 class="card-title">Game #{{ $game.Id}}</h4>
+            <p class="card-text">Status: {{ $game.Status }}</p>
+            <p class="card-text">Places: {{ $game.PlayerPlaces }}</p>
+            <p class="card-text">
+                Players:
+                {{ range $i, $player := $game.Players }}
+                {{ $player.NickName }}
+                {{ end }}
+            </p>
+        </div>
+    </div>
+    {{ end }}
+    {{ end }}
+</div>
+<div class="col-md-8">
+    <table class="table table-striped">
         <thead>
+            <th></th>
             <th>Owner</th>
             <th>Users</th>
             <th>Limit</th>
@@ -9,6 +33,7 @@
         <tbody id="games">
             {{ range $idx, $game := .games }}
             <tr id="game-{{ $game.Id }}">
+                <th scope="row">{{ $game.Id }}</th>
                 <td>{{ $game.Owner }}</td>
                 <td>
                     <a id="users-{{ $game.Id }}" href="javascript:Lobby.LoadUserList({{ $game.Id }})">{{ $game.PlayerCount }}</a>
@@ -29,25 +54,32 @@
                     <button type="button" onclick="Lobby.Join({{ $game.Id }});">Join</button>
                     {{ end }}
                     {{ end }}
-
                 </td>
             </tr>
             {{ end }}
         </tbody>
     </table>
-    <button type="button" onclick="Lobby.Create();" value="create">New Game</button>
-    <input type="text" name="playersCount" placeholder="Players count 2..5"/>
+    <div class="form-group col-md-2">
+        <button type="button" class="btn btn-default" onclick="Lobby.Create();" value="create">New Game</button>
+    </div>
+    <div class="form-group col-md-4">
+        <input type="number" min="2" max="5" class="form-control" name="playersCount" placeholder="Players count 2..5"/>
+    </div>
 </div>
-<div id="queue">
-    {{ range $idx, $game := .games }}
+<div id="queue-2" name="queue" class="col-md-2">
+    {{ range $idx, $game := .gamesRight }}
     {{ if $game.UserIn }}
-    <div id="queue-game-{{ $game.Id }}">
-        <p>Game: {{ $game.Status }}</p>
-        <p>Places: {{ $game.PlayerPlaces }}</p>
-        <div>
-            {{ range $i, $player := $game.Players }}
-            <p>{{ $player.NickName }}</p>
-            {{ end }}
+    <div id="queue-game-{{ $game.Id }}" class="card text-center">
+        <div class="card-block">
+            <h4 class="card-title">Game #{{ $game.Id}}</h4>
+            <p class="card-text">Status: {{ $game.Status }}</p>
+            <p class="card-text">Places: {{ $game.PlayerPlaces }}</p>
+            <p class="card-text">
+                Players:
+                {{ range $i, $player := $game.Players }}
+                {{ $player.NickName }}
+                {{ end }}
+            </p>
         </div>
     </div>
     {{ end }}

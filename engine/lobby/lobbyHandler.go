@@ -38,7 +38,7 @@ type Game struct {
 type GameItem struct {
 	Id           int       `orm:"column(id)"`
 	OwnerId      int       `orm:"column(owner_id)"`
-	Owner        string    `orm:"column(owner)`
+	Owner        string    `orm:"column(owner)"`
 	StatusCode   int       `orm:"column(status)"`
 	Status       string    ``
 	PlayerCount  int       `orm:"column(count)"`
@@ -47,6 +47,19 @@ type GameItem struct {
 	UserIn       bool      ``
 	URL          string    ``
 	Created      time.Time `orm:"column(created)"`
+}
+
+func RevertGameItems(items []GameItem) []GameItem {
+	for i := 0; i < len(items)/2; i++ {
+		items[i], items[len(items)-i-1] = items[len(items)-i-1], items[i]
+	}
+	return items
+}
+
+func CopyGameItems(items []GameItem) []GameItem {
+	copyItems := make([]GameItem, len(items))
+	copy(copyItems, items)
+	return copyItems
 }
 
 type Player struct {
