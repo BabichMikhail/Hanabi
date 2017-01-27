@@ -36,7 +36,9 @@
                 <th scope="row">{{ $game.Id }}</th>
                 <td>{{ $game.Owner }}</td>
                 <td>
-                    <a id="users-{{ $game.Id }}" href="javascript:Lobby.LoadUserList({{ $game.Id }})">{{ $game.PlayerCount }}</a>
+                    {{ range $i, $player := $game.Players }}
+                    {{ $player.NickName }}
+                    {{ end }}
                 </td>
                 <td>
                     {{ $game.PlayerPlaces }}

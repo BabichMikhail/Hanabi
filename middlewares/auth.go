@@ -11,6 +11,7 @@ func CheckAuth(ctx *context.Context) {
 	if id := auth.GetUserIdFromSession(ctx.Input.CruSession); id > 0 {
 		return
 	}
+
 	var user wetalk.User
 	if auth.LoginUserFromRememberCookie(&user, ctx) {
 		return

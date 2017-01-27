@@ -16,7 +16,7 @@ function lobbyHandler() {
                 let html = `<tr id="game-` +  gameId + `">
                     <th scope="row">` + gameId + `</th>
                     <td>` + data.game.owner + `</td>
-                    <td><a id="users-` + gameId + `" href="javascript:Lobby.LoadUserList(` + gameId + `)">1</a></td>
+                    <td>` + data.game.owner + `</td>
                     <td>` + count  + `</td>
                     <td>
                         <button type="button" onClick="Lobby.Leave(` + gameId + `);">` + (data.currentUserId == data.game.OwnerId ? `Leave` : `Join`) + `</button>
@@ -80,6 +80,7 @@ function lobbyHandler() {
                     setTimeout(Lobby.OpenGame, 1000, data.URL)
                 }
             }
+            location.reload()
         }).fail(function(data) {
             alert("JOIN FAIL")
         })

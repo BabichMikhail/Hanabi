@@ -17,3 +17,9 @@ type Player struct {
 func (p *Player) TableName() string {
 	return "players"
 }
+
+func (p *Player) TableUnique() [][]string {
+	return [][]string{
+		[]string{"user_id", "game_id"},
+	}
+}
