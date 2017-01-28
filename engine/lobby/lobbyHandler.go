@@ -9,10 +9,10 @@ import (
 )
 
 const (
-	GameWait     = 1
-	GameActive   = 2
-	GameInactive = 4
-	GameUnknown  = 8
+	GameWait = 1 << iota
+	GameActive
+	GameInactive
+	GameUnknown
 )
 
 func GameStatusName(status int) string {
