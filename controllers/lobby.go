@@ -24,4 +24,7 @@ func (this *LobbyController) GameList() {
 	this.Data["gamesLeft"] = engineLobby.RevertGameItems(copyGames[gameCount/2:])
 	this.Data["gamesRight"] = engineLobby.RevertGameItems(copyGames[:gameCount/2])
 	this.Data["games"] = games
+
+	this.LayoutSections = make(map[string]string)
+	this.LayoutSections["Header"] = "components/navbar.html"
 }

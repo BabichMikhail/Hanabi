@@ -5,6 +5,7 @@ import (
 
 	"github.com/BabichMikhail/Hanabi/models"
 	"github.com/beego/wetalk/modules/auth"
+	wetalk "github.com/beego/wetalk/modules/models"
 )
 
 type GameController struct {
@@ -30,9 +31,15 @@ func (this *GameController) Game() {
 	userId := auth.GetUserIdFromSession(this.Ctx.Input.CruSession)
 	playerInfo := game.GetPlayerGameInfo(userId)
 	this.Data["playerInfo"] = playerInfo
-	this.Data["S"] = game.SprintGame()
+	this.Data["Step"] = len(game.Actions)
 	this.Layout = "base.tpl"
 	this.TplName = "templates/game.html"
+
+	var user wetalk.User
+	auth.GetUserFromSession(&user, this.Ctx.Input.CruSession)
+	this.Data["user"] = user
+	this.LayoutSections = make(map[string]string)
+	this.LayoutSections["Header"] = "components/navbar.html"
 }
 
 func (this *GameController) GameInactive() {
@@ -45,4 +52,10 @@ func (this *GameController) GameInactive() {
 	this.Data["Points"], _ = game.GetPoints()
 	this.Layout = "base.tpl"
 	this.TplName = "templates/gameinactive.html"
+
+	var user wetalk.User
+	auth.GetUserFromSession(&user, this.Ctx.Input.CruSession)
+	this.Data["user"] = user
+	this.LayoutSections = make(map[string]string)
+	this.LayoutSections["Header"] = "components/navbar.html"
 }

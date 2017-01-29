@@ -27,7 +27,7 @@ func (this *LobbyApiController) GameCreate() {
 	result := struct {
 		Status      string           `json:"status"`
 		Game        engineLobby.Game `json:"game"`
-		userId      int              `json:"currentUserId"`
+		UserId      int              `json:"currentUserId"`
 		RedirectURL string           `json:"redirectURL"`
 	}{StatusSuccess, game, userId, this.URLFor("GameController.Game", ":id", id)}
 	this.SetData(&result)

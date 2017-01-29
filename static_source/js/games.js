@@ -80,13 +80,34 @@ function gameHandler() {
         })
     }
 
+    this.CheckStep = function() {
+        $.ajax({
+            type: "GET",
+            url: "/api/games/step",
+            data: {
+                game_id: Game.Id,
+            },
+        }).done(function(data) {
+            let meta = $("meta[name=step]")
+            if (data.step != meta.attr("step")) {
+                location.reload()
+            } else {
+                setTimeout(Game.CheckStep, 1000)
+            }
+        })
+    }
 
     this.Cards = this.Init()
+
+    let meta = $("meta[name=step]")
+    this.CurrentStep = meta.attr("step")
     this.Id = window.location.pathname.match(/\d+/)[0]
+
     return this
 }
 
 console.log(window.location.pathname.match(/\/games\/room\/.*/))
 if (window.location.pathname.match(/\/games\/room\/.*/)) {
     window.Game = new gameHandler()
+    window.Game.CheckStep()
 }

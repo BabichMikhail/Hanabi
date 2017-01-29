@@ -20,9 +20,10 @@ func init() {
 
 func (this *ApiGameController) GetGameCards() {
 	result := struct {
+		Status string                           `json:"status"`
 		Colors map[gamePackage.CardColor]string `json:"colors"`
 		Values map[gamePackage.CardValue]string `json:"values"`
-	}{card.GetColors(), card.GetValues()}
+	}{StatusSuccess, card.GetColors(), card.GetValues()}
 	this.SetData(&result)
 }
 
@@ -105,4 +106,17 @@ func (this *ApiGameController) GameInfoCardColor() {
 	game.NewActionInformationColor(playerPosition, gamePackage.CardColor(cardColor))
 	models.UpdateCurrentGameById(gameId, game)
 	this.SetSuccessResponse()
+}
+
+func (this *ApiGameController) GameCurrentStep() {
+	gameId, _ := this.GetInt("game_id")
+	game, err := models.ReadGameById(gameId)
+	if this.SetError(err) {
+		return
+	}
+	result := struct {
+		Status string `json:"status"`
+		Step   int    `json:"step"`
+	}{StatusSuccess, len(game.Actions)}
+	this.SetData(&result)
 }
