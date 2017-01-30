@@ -42,6 +42,12 @@ func (this *GameController) Game() {
 	this.LayoutSections = make(map[string]string)
 	this.LayoutSections["Header"] = "components/navbar.html"
 	this.Data["TableColors"] = engineGame.GetTableColorOrder()
+	playerNickNames := []string{}
+	for i := 0; i < len(game.CurrentState.PlayerStates); i++ {
+		nickName := models.GetUserNickNameById(game.CurrentState.PlayerStates[i].PlayerId)
+		playerNickNames = append(playerNickNames, nickName)
+	}
+	this.Data["NickNames"] = playerNickNames
 }
 
 func (this *GameController) GameInactive() {

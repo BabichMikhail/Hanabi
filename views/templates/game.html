@@ -21,16 +21,11 @@
         {{ range $pos, $cards := $.playerInfo.PlayersCards }}
         <div class="col-md-12">
             {{ $isMyCards := eq $.playerInfo.Position $pos }}
-            {{ if $isMyCards }}
-            My Cards:
-            {{ else }}
-            Player #{{ $pos }}:
-            {{ end }}
+            {{ index $.NickNames $pos }}:
             <ul>
                 {{ range $idx, $card := $cards }}
                 <li class="list-inline" style="display: inline-block">
                     <img src="{{ getCardUrl $card.Color $card.Value }}"  width="63" height="88">
-                    <!--{{ cardValue $card.Value }} {{ cardColor $card.Color }}-->
                     <div>
                     {{ if and $isMyCards $.playerInfo.MyTurn }}
                         <div>

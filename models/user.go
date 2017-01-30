@@ -1,11 +1,27 @@
 package models
 
 import (
+	"github.com/astaxie/beego/orm"
 	wetalk "github.com/beego/wetalk/modules/models"
 )
 
 type User struct {
 	wetalk.User
+}
+
+func GetUserNickNameById(id int) string {
+	o := orm.NewOrm()
+	qb, _ := orm.NewQueryBuilder("mysql")
+	qb.Select("nick_name").
+		From("user").
+		Where("id = ?")
+	sql := qb.String()
+	var nickName string
+	if err := o.Raw(sql, id).QueryRow(&nickName); err != nil {
+		return ""
+	} else {
+		return nickName
+	}
 }
 
 type Player struct {
