@@ -17,7 +17,7 @@ func NewGame(ids []int) Game {
 	this := new(Game)
 	cards := []*Card{}
 	values := []CardValue{One, One, One, Two, Two, Three, Three, Four, Four, Five}
-	colors := []CardColor{Red, Blue, Green, Gold, Black}
+	colors := []CardColor{Red, Blue, Green, Yellow, Orange}
 	for i := 0; i < len(colors); i++ {
 		for j := 0; j < len(values); j++ {
 			cards = append(cards, NewCard(colors[i], values[j], false))

@@ -16,8 +16,8 @@ const (
 	Red
 	Blue
 	Green
-	Gold
-	Black
+	Yellow
+	Orange
 )
 
 type CardValue int
@@ -49,8 +49,8 @@ func (this *Card) GetColors() map[CardColor]string {
 		Red:       "Red",
 		Blue:      "Blue",
 		Green:     "Green",
-		Gold:      "Gold",
-		Black:     "Black",
+		Yellow:    "Yellow",
+		Orange:    "Orange",
 	}
 }
 

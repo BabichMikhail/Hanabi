@@ -75,11 +75,11 @@ func NewGameState(ids []int, pcards []*Card, playerCount int) GameState {
 	}
 
 	this.TableCards = map[int]Card{
-		Red:   *NewCard(Red, NoneValue, true),
-		Blue:  *NewCard(Blue, NoneValue, true),
-		Green: *NewCard(Green, NoneValue, true),
-		Gold:  *NewCard(Gold, NoneValue, true),
-		Black: *NewCard(Black, NoneValue, true),
+		Red:    *NewCard(Red, NoneValue, true),
+		Blue:   *NewCard(Blue, NoneValue, true),
+		Green:  *NewCard(Green, NoneValue, true),
+		Yellow: *NewCard(Yellow, NoneValue, true),
+		Orange: *NewCard(Orange, NoneValue, true),
 	}
 
 	cardCount := this.GetCardCount()
@@ -110,11 +110,11 @@ func (this GameState) Copy() GameState {
 	}
 
 	newState.TableCards = map[int]Card{
-		Red:   this.TableCards[Red].Copy(),
-		Blue:  this.TableCards[Blue].Copy(),
-		Green: this.TableCards[Green].Copy(),
-		Gold:  this.TableCards[Gold].Copy(),
-		Black: this.TableCards[Black].Copy(),
+		Red:    this.TableCards[Red].Copy(),
+		Blue:   this.TableCards[Blue].Copy(),
+		Green:  this.TableCards[Green].Copy(),
+		Yellow: this.TableCards[Yellow].Copy(),
+		Orange: this.TableCards[Orange].Copy(),
 	}
 
 	for i := 0; i < len(this.UsedCards); i++ {

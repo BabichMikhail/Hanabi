@@ -19,8 +19,8 @@ func GetCardColor(color CardColor) string {
 		Red:       "Red",
 		Blue:      "Blue",
 		Green:     "Green",
-		Gold:      "Gold",
-		Black:     "Black",
+		Yellow:    "Gold",
+		Orange:    "Black",
 	}[color]
 }
 
@@ -30,8 +30,8 @@ func getCardUrlByValueAndColor(color CardColor, value CardValue) string {
 		Red:       "red",
 		Blue:      "blue",
 		Green:     "green",
-		Gold:      "yellow",
-		Black:     "orange",
+		Yellow:    "yellow",
+		Orange:    "orange",
 	}[color]
 
 	name += "_" + map[CardValue]string{
