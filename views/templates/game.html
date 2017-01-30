@@ -6,26 +6,12 @@
         Cards on table:
         <div>
             <ul>
-                <li id="table-red-cards" class="list-inline" style="display: inline-block">
-                    {{ $red := index $.playerInfo.TableCards 1 }}
-                    <img src="{{ getCardUrl 1 $red.Value }}">
+                {{ range $colorName, $color := $.TableColors }}
+                <li id="table-{{ $colorName }}-cards" class="list-inline" style="display: inline-block">
+                    {{ $red := index $.playerInfo.TableCards $color }}
+                    <img src="{{ getCardUrl $color $red.Value }}" width="63" height="88">
                 </li>
-                <li id="table-blue-cards" class="list-inline" style="display: inline-block">
-                    {{ $blue := index $.playerInfo.TableCards 2 }}
-                    <img src="{{ getCardUrl 2 $blue.Value }}">
-                </li>
-                <li id="table-green-cards" class="list-inline" style="display: inline-block">
-                    {{ $green := index $.playerInfo.TableCards 3 }}
-                    <img src="{{ getCardUrl 3 $green.Value }}">
-                </li>
-                <li id="table-gold-cards" class="list-inline" style="display: inline-block">
-                    {{ $gold := index $.playerInfo.TableCards 4 }}
-                    <img src="{{ getCardUrl 4 $gold.Value }}">
-                </li>
-                <li id="table-black-cards" class="list-inline" style="display: inline-block">
-                    {{ $black := index $.playerInfo.TableCards 5 }}
-                    <img src="{{ getCardUrl 5 $black.Value }}">
-                </li>
+                {{ end }}
             </ul>
         </div>
     </div>
@@ -43,7 +29,7 @@
             <ul>
                 {{ range $idx, $card := $cards }}
                 <li class="list-inline" style="display: inline-block">
-                    <img src="{{ getCardUrl $card.Color $card.Value }}">
+                    <img src="{{ getCardUrl $card.Color $card.Value }}"  width="63" height="88">
                     <!--{{ cardValue $card.Value }} {{ cardColor $card.Color }}-->
                     <div>
                     {{ if and $isMyCards $.playerInfo.MyTurn }}

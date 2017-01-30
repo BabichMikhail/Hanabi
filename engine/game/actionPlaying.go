@@ -11,9 +11,9 @@ func (this *Game) NewActionPlaying(playerPosition int, cardPosition int) error {
 	card := state.PlayerStates[0].PlayersCards[playerPosition][cardPosition]
 
 	var success bool
-	if success = state.TableCards[int(card.Color)].Value+1 == card.Value; success {
+	if success = state.TableCards[card.Color].Value+1 == card.Value; success {
 		card.SetKnown(true)
-		state.TableCards[int(card.Color)] = Card{
+		state.TableCards[card.Color] = Card{
 			Color:      card.Color,
 			KnownColor: true,
 			Value:      card.Value,

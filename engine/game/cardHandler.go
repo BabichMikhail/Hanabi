@@ -76,6 +76,16 @@ func (this *Card) GetPoints() int {
 	}[this.Value]
 }
 
+func GetTableColorOrder() map[string]CardColor {
+	return map[string]CardColor{
+		"red":    Red,
+		"blue":   Blue,
+		"green":  Green,
+		"yellow": Yellow,
+		"orange": Orange,
+	}
+}
+
 func DereferenceCard(pcards []*Card) []Card {
 	cards := []Card{}
 	for i := 0; i < len(pcards); i++ {

@@ -8,16 +8,16 @@ const (
 )
 
 type GameState struct {
-	Deck            []Card        `json:"deck"`
-	Round           int           `json:"round"`
-	PlayerCount     int           `json:"player_count"`
-	Step            int           `json:"step"`
-	BlueTokens      int           `json:"blue_tokens"`
-	RedTokens       int           `json:"red_tokens"`
-	CurrentPosition int           `json:"current_pos"`
-	UsedCards       []Card        `json:"used_cards"`
-	TableCards      map[int]Card  `json:"table_cards"`
-	PlayerStates    []PlayerState `json:"player_state"`
+	Deck            []Card             `json:"deck"`
+	Round           int                `json:"round"`
+	PlayerCount     int                `json:"player_count"`
+	Step            int                `json:"step"`
+	BlueTokens      int                `json:"blue_tokens"`
+	RedTokens       int                `json:"red_tokens"`
+	CurrentPosition int                `json:"current_pos"`
+	UsedCards       []Card             `json:"used_cards"`
+	TableCards      map[CardColor]Card `json:"table_cards"`
+	PlayerStates    []PlayerState      `json:"player_state"`
 }
 
 type Pair struct {
@@ -74,7 +74,7 @@ func NewGameState(ids []int, pcards []*Card, playerCount int) GameState {
 		UsedCards:       []Card{},
 	}
 
-	this.TableCards = map[int]Card{
+	this.TableCards = map[CardColor]Card{
 		Red:    *NewCard(Red, NoneValue, true),
 		Blue:   *NewCard(Blue, NoneValue, true),
 		Green:  *NewCard(Green, NoneValue, true),
@@ -109,7 +109,7 @@ func (this GameState) Copy() GameState {
 		PlayerCount:     this.PlayerCount,
 	}
 
-	newState.TableCards = map[int]Card{
+	newState.TableCards = map[CardColor]Card{
 		Red:    this.TableCards[Red].Copy(),
 		Blue:   this.TableCards[Blue].Copy(),
 		Green:  this.TableCards[Green].Copy(),

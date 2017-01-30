@@ -1,18 +1,18 @@
 package game
 
 type PlayerGameInfo struct {
-	MyTurn       bool         `json:"my_turn"`
-	PlayerCount  int          `json:"player_count"`
-	Position     int          `json:"pos"`
-	Step         int          `json:"step"`
-	Round        int          `json:"round"`
-	PlayerId     int          `json:"player_id"`
-	DeckSize     int          `json:"deck_size"`
-	UsedCards    []Card       `json:"used_cards"`
-	TableCards   map[int]Card `json:"table_cards"`
-	PlayersCards [][]Card     `json:"players_cards"`
-	BlueTokens   int          `json:"blue_tokens"`
-	RedTokens    int          `json:"red_tokens"`
+	MyTurn       bool               `json:"my_turn"`
+	PlayerCount  int                `json:"player_count"`
+	Position     int                `json:"pos"`
+	Step         int                `json:"step"`
+	Round        int                `json:"round"`
+	PlayerId     int                `json:"player_id"`
+	DeckSize     int                `json:"deck_size"`
+	UsedCards    []Card             `json:"used_cards"`
+	TableCards   map[CardColor]Card `json:"table_cards"`
+	PlayersCards [][]Card           `json:"players_cards"`
+	BlueTokens   int                `json:"blue_tokens"`
+	RedTokens    int                `json:"red_tokens"`
 }
 
 func (this *Game) GetPlayerGameInfo(playerId int) PlayerGameInfo {

@@ -3,6 +3,7 @@ package controllers
 import (
 	"strconv"
 
+	engineGame "github.com/BabichMikhail/Hanabi/engine/game"
 	"github.com/BabichMikhail/Hanabi/models"
 	"github.com/beego/wetalk/modules/auth"
 	wetalk "github.com/beego/wetalk/modules/models"
@@ -40,6 +41,7 @@ func (this *GameController) Game() {
 	this.Data["user"] = user
 	this.LayoutSections = make(map[string]string)
 	this.LayoutSections["Header"] = "components/navbar.html"
+	this.Data["TableColors"] = engineGame.GetTableColorOrder()
 }
 
 func (this *GameController) GameInactive() {

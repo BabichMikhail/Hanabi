@@ -24,7 +24,7 @@ func GetCardColor(color CardColor) string {
 	}[color]
 }
 
-func getCardUrlByValueAndColor(color CardColor, value CardValue) string {
+func GetCardUrlByValueAndColor(color CardColor, value CardValue) string {
 	name := "/static/img/" + map[CardColor]string{
 		NoneColor: "unknown",
 		Red:       "red",
@@ -45,8 +45,13 @@ func getCardUrlByValueAndColor(color CardColor, value CardValue) string {
 	return name
 }
 
+func CardColorToInt(color CardColor) int {
+	return int(color)
+}
+
 func RegisterFunction() {
 	beego.AddFuncMap("cardValue", GetCardValue)
 	beego.AddFuncMap("cardColor", GetCardColor)
-	beego.AddFuncMap("getCardUrl", getCardUrlByValueAndColor)
+	beego.AddFuncMap("getCardUrl", GetCardUrlByValueAndColor)
+	beego.AddFuncMap("cardColorToInt", CardColorToInt)
 }
