@@ -120,3 +120,23 @@ func (this *ApiGameController) GameCurrentStep() {
 	}{StatusSuccess, len(game.Actions)}
 	this.SetData(&result)
 }
+
+func (this *ApiGameController) GameInfo() {
+	gameId, _ := this.GetInt("game_id")
+	game, err := models.ReadGameById(gameId)
+	if this.SetError(err) {
+		return
+	}
+
+	playerPosition, err := game.GetPlayerPositionById(auth.GetUserIdFromSession(this.Ctx.Input.CruSession))
+	if this.SetError(err) {
+		return
+	}
+
+	result := struct {
+		Status         string `json:"status"`
+		Count          int    `json:"player_count"`
+		PlayerPosition int    `json:"player_position"`
+	}{StatusSuccess, game.PlayerCount, playerPosition}
+	this.SetData(&result)
+}

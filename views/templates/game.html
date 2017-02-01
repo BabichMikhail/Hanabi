@@ -1,10 +1,103 @@
 <div>
-    <div id="deck"><p>The remaining cards in the deck: {{ $.playerInfo.DeckSize }}</p></div>
-    <div id="redTokens"><p>Red tokens: {{ $.playerInfo.RedTokens }}</p></div>
-    <div id="blueTokens"><p>Blue tokens: {{ $.playerInfo.BlueTokens }}</p></div>
-    <div id="table-cards" class="col-md-12">
-        Cards on table:
-        <div>
+    <div id="user-cards" class="col-md-12">
+        {{ range $pos, $cards := $.playerInfo.PlayersCards }}
+        <div id="player-pos-{{ $pos }}">
+            <div id="player-cards-{{ $pos }}" class="col-md-12">
+                {{ $isMyCards := eq $.playerInfo.Position $pos }}
+                {{ index $.NickNames $pos }}
+                {{ if $isMyCards }}
+                (you)
+                {{ end }}
+                <ul>
+                    {{ range $idx, $card := $cards }}
+                    <li class="list-inline" style="display: inline-block">
+                        <img src="{{ getCardUrl $card.Color $card.Value }}"  width="63" height="88">
+                        <div>
+                        {{ if and $isMyCards $.playerInfo.MyTurn }}
+                            <div>
+                                <a href="javascript:Game.PlayCard({{ $idx }})">
+                                    <i class="fa fa-play"> play</i>
+                                </a>
+                            </div>
+                            <div>
+                                <a href="javascript:Game.DiscardCard({{ $idx }})">
+                                    <i class="fa fa-shopping-basket"> discard</i>
+                                </a>
+                            </div>
+                        {{ end }}
+                        {{ $notMyCards := not $isMyCards }}
+                        {{ if and $notMyCards $.playerInfo.MyTurn }}
+                            <div>
+                                <a href="javascript:Game.InfoCardValue({{ $pos }}, {{ $card.Value }})">
+                                    <i class="fa fa-info"> value</i>
+                                </a>
+                            </div>
+                            <div>
+
+                                <a href="javascript:Game.InfoCardColor({{ $pos }}, {{ $card.Color }})">
+                                    <i class="fa fa-info"> color</i>
+                                </a>
+                            </div>
+                        {{ end }}
+                        </div>
+                    </li>
+                    {{ end }}
+                </ul>
+            </div>
+            <div id="player-info-{{ $pos }}" class="col-md-12" style="display:none">
+                <ul>
+                    {{ range $idx, $card := $cards }}
+                    <li class="list-inline" style="display: inline-block">
+                        <img src="{{ getCardUrl $card.Color $card.Value }}"  width="63" height="88">
+                    </li>
+                    {{ end }}
+                </ul>
+            </div>
+        </div>
+        {{ end }}
+    </div>
+</div>
+
+<div class="col-md-4" id="table-pos" style="text-align:center">
+    <div class="col-md-12">
+        <ul>
+            {{ range $colorName, $color := $.TableColors }}
+            <li id="table-{{ $colorName }}-cards" class="list-inline" style="display: inline-block">
+                {{ $red := index $.playerInfo.TableCards $color }}
+                <img src="{{ getCardUrl $color $red.Value }}" width="63" height="88">
+            </li>
+            {{ end }}
+        </ul>
+    </div>
+    <div class="col-md-12">
+        <div class="col-md-3"></div>
+        <div class="col-md-2" style="">
+            <img src="/static/img/deck.png" width="76" height="106" style="position:absolute; left:0px; top:0px">
+            <img src="/static/img/number_{{ $.deckFirstNumber }}.png" width="30" style="position:absolute; left:5px; top:30px">
+            <img src="/static/img/number_{{ $.deckSecondNumber }}.png" width="30" style="position:absolute; left:30px; top:30px">
+        </div>
+        <div class="col-md-2" style="">
+            <img src="/static/img/token_red.png" width="50" height="50" style="">
+            <img src="/static/img/number_{{ $.playerInfo.RedTokens }}.png" width="30" style="">
+        </div>
+        <div class="col-md-2" style="">
+            <img src="/static/img/token_blue.png" width="50" height="50" style="">
+            <img src="/static/img/number_{{ $.playerInfo.BlueTokens }}.png" width="30" style="">
+        </div>
+        <div class="col-md-3"></div>
+    </div>
+</div>
+
+<div id="game-table" class="col-md-12" style="text-align:center"></div>
+<!--<div>
+    <div class="col-md-2" style="text-align:center"></div>
+    <div class="col-md-4" id="player-2" style="text-align:center"></div>
+    <div class="col-md-4" id="player-3" style="text-align:center"></div>
+    <div class="col-md-2" style="text-align:center"></div>
+
+    <div class="col-md-4" id="player-1" style="text-align:center"></div>
+    <div class="col-md-4" id="table" style="text-align:center">
+        <div class="col-md-12">
             <ul>
                 {{ range $colorName, $color := $.TableColors }}
                 <li id="table-{{ $colorName }}-cards" class="list-inline" style="display: inline-block">
@@ -14,51 +107,30 @@
                 {{ end }}
             </ul>
         </div>
-    </div>
-
-    <div id="user-cards" class="col-md-12">
-        Cards of players:
-        {{ range $pos, $cards := $.playerInfo.PlayersCards }}
         <div class="col-md-12">
-            {{ $isMyCards := eq $.playerInfo.Position $pos }}
-            {{ index $.NickNames $pos }}:
-            <ul>
-                {{ range $idx, $card := $cards }}
-                <li class="list-inline" style="display: inline-block">
-                    <img src="{{ getCardUrl $card.Color $card.Value }}"  width="63" height="88">
-                    <div>
-                    {{ if and $isMyCards $.playerInfo.MyTurn }}
-                        <div>
-                            <a href="javascript:Game.PlayCard({{ $idx }})">
-                                Play card
-                            </a>
-                        </div>
-                        <div>
-                            <a href="javascript:Game.DiscardCard({{ $idx }})">
-                                Discard card
-                            </a>
-                        </div>
-                    {{ end }}
-                    {{ $notMyCards := not $isMyCards }}
-                    {{ if and $notMyCards $.playerInfo.MyTurn }}
-                        <div>
-                            <a href="javascript:Game.InfoCardValue({{ $pos }}, {{ $card.Value }})">
-                                Information value
-                            </a>
-                        </div>
-                        <div>
-                            <a href="javascript:Game.InfoCardColor({{ $pos }}, {{ $card.Color }})">
-                                Information color
-                            </a>
-                        </div>
-                    {{ end }}
-                    </div>
-                </li>
-                {{ end }}
-            </ul>
+            <div class="col-md-3"></div>
+            <div class="col-md-2" style="">
+                <img src="/static/img/deck.png" width="76" height="106" style="position:absolute; left:0px; top:0px">
+                <img src="/static/img/number_{{ $.deckFirstNumber }}.png" width="30" style="position:absolute; left:5px; top:30px">
+                <img src="/static/img/number_{{ $.deckSecondNumber }}.png" width="30" style="position:absolute; left:30px; top:30px">
+            </div>
+            <div class="col-md-2" style="">
+                <img src="/static/img/token_red.png" width="50" height="50" style="">
+                <img src="/static/img/number_{{ $.playerInfo.RedTokens }}.png" width="30" style="">
+            </div>
+            <div class="col-md-2" style="">
+                <img src="/static/img/token_blue.png" width="50" height="50" style="">
+                <img src="/static/img/number_{{ $.playerInfo.BlueTokens }}.png" width="30" style="">
+            </div>
+            <div class="col-md-3"></div>
         </div>
-        {{ end }}
+
     </div>
-</div>
+    <div class="col-md-4" id="player-4" style="text-align:center"></div>
+
+    <div class="col-md-4" style="text-align:center"></div>
+    <div class="col-md-4" id="player-0" style="text-align:center"></div>
+    <div class="col-md-4" style="text-align:center"></div>
+</div>-->
 
 <meta name="step" step="{{ .Step }}">

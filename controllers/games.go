@@ -32,6 +32,9 @@ func (this *GameController) Game() {
 	userId := auth.GetUserIdFromSession(this.Ctx.Input.CruSession)
 	playerInfo := game.GetPlayerGameInfo(userId)
 	this.Data["playerInfo"] = playerInfo
+	this.Data["deckFirstNumber"] = playerInfo.DeckSize / 10
+	this.Data["deckSecondNumber"] = playerInfo.DeckSize % 10
+
 	this.Data["Step"] = len(game.Actions)
 	this.Layout = "base.tpl"
 	this.TplName = "templates/game.html"
