@@ -5,7 +5,9 @@
   "directories": {
     "test": "tests"
   },
-  "dependencies": {},
+  "dependencies": {
+    "font-awesome": "^4.7.0"
+  },
   "devDependencies": {
     "bootstrap-v4-dev": "^4.0.0-alpha.5"
   },
