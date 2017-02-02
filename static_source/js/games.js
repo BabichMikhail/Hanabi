@@ -98,21 +98,50 @@ function gameHandler() {
                     <div class="col-md-12" style="text-align:center" id="player-` + ((offset + 1) % count) + `"></div>
                     <div class="col-md-12" id="table"></div>
                     <div class="col-md-12" style="text-align:center" id="player-` + offset + `"></div>`
-
                 $("#game-table").append(html)
-                $("#table").append(`<div class="col-md-4"></div>`)
                 $("#table").append($("#table-pos").detach())
-                $("#table").append(`<div class="col-md-4"></div>`)
                 $("#player-0").append($("#player-pos-0").detach())
                 $("#player-1").append($("#player-pos-1").detach())
-
-
             } else if (Game.playerCount == 3) {
-
+                html += `
+                    <div class="col-md-6" style="text-align:center" id="player-` + ((offset + 1) % count) + `"></div>
+                    <div class="col-md-6" style="text-align:center" id="player-` + ((offset + 2) % count) + `"></div>
+                    <div class="col-md-12" id="table"></div>
+                    <div class="col-md-12" style="text-align:center" id="player-` + offset + `"></div>`
+                $("#game-table").append(html)
+                $("#table").append($("#table-pos").detach())
+                $("#player-0").append($("#player-pos-0").detach())
+                $("#player-1").append($("#player-pos-1").detach())
+                $("#player-2").append($("#player-pos-2").detach())
             } else if (Game.playerCount == 4) {
-
+                html += `
+                    <div class="col-md-12" style="text-align:center" id="player-` + ((offset + 2) % count) + `"></div>
+                    <div class="col-md-4" style="text-align:center" id="player-` + ((offset + 1) % count) + `"></div>
+                    <div class="col-md-4" id="table"></div>
+                    <div class="col-md-4" style="text-align:center" id="player-` + ((offset + 3) % count) + `"></div>
+                    <div class="col-md-12" style="text-align:center" id="player-` + offset + `"></div>`
+                $("#game-table").append(html)
+                $("#table").append($("#table-pos").detach())
+                $("#player-0").append($("#player-pos-0").detach())
+                $("#player-1").append($("#player-pos-1").detach())
+                $("#player-2").append($("#player-pos-2").detach())
+                $("#player-3").append($("#player-pos-3").detach())
             } else if (Game.playerCount == 5) {
-
+                html += `
+                    <div class="col-md-2"></div>
+                    <div class="col-md-4" style="text-align:center" id="player-` + ((offset + 2) % count) + `"></div>
+                    <div class="col-md-4" style="text-align:center" id="player-` + ((offset + 3) % count) + `"></div>
+                    <div class="col-md-2"></div>
+                    <div class="col-md-4" style="text-align:center" id="player-` + ((offset + 1) % count) + `"></div>
+                    <div class="col-md-4" id="table"></div>
+                    <div class="col-md-4" style="text-align:center" id="player-` + ((offset + 4) % count) + `"></div>
+                    <div class="col-md-12" style="text-align:center" id="player-` + offset + `"></div>`
+                $("#game-table").append(html)
+                $("#table").append($("#table-pos").detach())
+                $("#player-0").append($("#player-pos-0").detach())
+                $("#player-1").append($("#player-pos-1").detach())
+                $("#player-2").append($("#player-pos-2").detach())
+                $("#player-3").append($("#player-pos-3").detach())
             }
         }).fail(function(data) {
             alert("FAIL LOAD GAME INFO")

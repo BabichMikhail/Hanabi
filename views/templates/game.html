@@ -1,3 +1,9 @@
+<style>
+    .abc {
+        position: relative;
+        left: 50% - 30px;
+    }
+</style>
 <div>
     <div id="user-cards" class="col-md-12">
         {{ range $pos, $cards := $.playerInfo.PlayersCards }}
@@ -58,7 +64,7 @@
     </div>
 </div>
 
-<div class="col-md-4" id="table-pos" style="text-align:center">
+<div class="col-md-12" id="table-pos" style="text-align:center">
     <div class="col-md-12">
         <ul>
             {{ range $colorName, $color := $.TableColors }}
@@ -69,22 +75,24 @@
             {{ end }}
         </ul>
     </div>
-    <div class="col-md-12">
-        <div class="col-md-3"></div>
-        <div class="col-md-2" style="">
-            <img src="/static/img/deck.png" width="76" height="106" style="position:absolute; left:0px; top:0px">
-            <img src="/static/img/number_{{ $.deckFirstNumber }}.png" width="30" style="position:absolute; left:5px; top:30px">
-            <img src="/static/img/number_{{ $.deckSecondNumber }}.png" width="30" style="position:absolute; left:30px; top:30px">
-        </div>
-        <div class="col-md-2" style="">
-            <img src="/static/img/token_red.png" width="50" height="50" style="">
-            <img src="/static/img/number_{{ $.playerInfo.RedTokens }}.png" width="30" style="">
-        </div>
-        <div class="col-md-2" style="">
-            <img src="/static/img/token_blue.png" width="50" height="50" style="">
-            <img src="/static/img/number_{{ $.playerInfo.BlueTokens }}.png" width="30" style="">
-        </div>
-        <div class="col-md-3"></div>
+    <div class="col-md-12" style="">
+        <ul>
+            <li class="list-inline" style="display: inline-block">
+                <div class="col-md-12" style="padding: 0px" height="120px">
+                    <img src="/static/img/deck.png" width="76" height="106" style="position:relative;">
+                    <img src="/static/img/number_{{ $.deckFirstNumber }}.png" width="30" style="position:absolute; left:6px; top:30px">
+                    <img src="/static/img/number_{{ $.deckSecondNumber }}.png" width="30" style="position:absolute; left:31px; top:30px">
+                </div>
+            </li>
+            <li class="list-inline" style="display: inline-block">
+                <img src="/static/img/token_red.png" width="50" height="50" style="position:relative; top:-30px">
+                <img src="/static/img/number_{{ $.playerInfo.RedTokens }}.png" width="30" style="position:relative; top:-30px">
+            </li>
+            <li class="list-inline" style="display: inline-block">
+                <img src="/static/img/token_blue.png" width="50" height="50" style="position:relative; top:-30px">
+                <img src="/static/img/number_{{ $.playerInfo.BlueTokens }}.png" width="30" style="position:relative; top:-30px">
+            </li>
+        </ul>
     </div>
 </div>
 
