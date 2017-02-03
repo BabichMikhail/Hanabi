@@ -51,7 +51,7 @@ func (this *Game) GetPlayerGameInfo(playerId int) PlayerGameInfo {
 		TableCards:   state.TableCards,
 		PlayersCards: playerState.PlayersCards,
 		BlueTokens:   state.BlueTokens,
-		RedTokens:    state.RedTokens,
+		RedTokens:    MaxRedTokens - state.RedTokens,
 	}
 }
 

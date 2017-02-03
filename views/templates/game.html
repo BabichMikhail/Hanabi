@@ -97,48 +97,11 @@
 </div>
 
 <div id="game-table" class="col-md-12" style="text-align:center"></div>
-<!--<div>
-    <div class="col-md-2" style="text-align:center"></div>
-    <div class="col-md-4" id="player-2" style="text-align:center"></div>
-    <div class="col-md-4" id="player-3" style="text-align:center"></div>
-    <div class="col-md-2" style="text-align:center"></div>
 
-    <div class="col-md-4" id="player-1" style="text-align:center"></div>
-    <div class="col-md-4" id="table" style="text-align:center">
-        <div class="col-md-12">
-            <ul>
-                {{ range $colorName, $color := $.TableColors }}
-                <li id="table-{{ $colorName }}-cards" class="list-inline" style="display: inline-block">
-                    {{ $red := index $.playerInfo.TableCards $color }}
-                    <img src="{{ getCardUrl $color $red.Value }}" width="63" height="88">
-                </li>
-                {{ end }}
-            </ul>
-        </div>
-        <div class="col-md-12">
-            <div class="col-md-3"></div>
-            <div class="col-md-2" style="">
-                <img src="/static/img/deck.png" width="76" height="106" style="position:absolute; left:0px; top:0px">
-                <img src="/static/img/number_{{ $.deckFirstNumber }}.png" width="30" style="position:absolute; left:5px; top:30px">
-                <img src="/static/img/number_{{ $.deckSecondNumber }}.png" width="30" style="position:absolute; left:30px; top:30px">
-            </div>
-            <div class="col-md-2" style="">
-                <img src="/static/img/token_red.png" width="50" height="50" style="">
-                <img src="/static/img/number_{{ $.playerInfo.RedTokens }}.png" width="30" style="">
-            </div>
-            <div class="col-md-2" style="">
-                <img src="/static/img/token_blue.png" width="50" height="50" style="">
-                <img src="/static/img/number_{{ $.playerInfo.BlueTokens }}.png" width="30" style="">
-            </div>
-            <div class="col-md-3"></div>
-        </div>
-
-    </div>
-    <div class="col-md-4" id="player-4" style="text-align:center"></div>
-
-    <div class="col-md-4" style="text-align:center"></div>
-    <div class="col-md-4" id="player-0" style="text-align:center"></div>
-    <div class="col-md-4" style="text-align:center"></div>
-</div>-->
+<div id="used-cards" style="float: center">
+{{ range $idx, $card := $.playerInfo.UsedCards }}
+        <img src="{{ getCardUrl $card.Color $card.Value }}" width="63" height="88">
+{{ end }}
+</div>
 
 <meta name="step" step="{{ .Step }}">
