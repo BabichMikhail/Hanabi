@@ -17,7 +17,7 @@
                 <ul name="basic-cards">
                     {{ range $idx, $card := $cards }}
                     <li class="list-inline" style="display: inline-block">
-                        <img src="{{ getCardUrl $card.Color $card.Value }}"  width="63" height="88">
+                        <img src="{{ getCardUrl $card.Color $card.Value }}" class="myCard">
                         <div>
                         {{ if and $isMyCards $.playerInfo.MyTurn }}
                             <div>
@@ -51,7 +51,7 @@
                 <ul name="additional-cards" class="invisible">
                     {{ range $idx, $card := index $.playerInfo.PlayersCardsInfo $pos }}
                     <li class="list-inline" style="display: inline-block">
-                        <img src="{{ getCardUrl $card.Color $card.Value }}"  width="63" height="88">
+                        <img src="{{ getCardUrl $card.Color $card.Value }}" class="myCard">
                         <div>
                         {{ if and $isMyCards $.playerInfo.MyTurn }}
                             <div>
@@ -99,7 +99,7 @@
             {{ range $colorName, $color := $.TableColors }}
             <li id="table-{{ $colorName }}-cards" class="list-inline" style="display: inline-block">
                 {{ $red := index $.playerInfo.TableCards $color }}
-                <img src="{{ getCardUrl $color $red.Value }}" width="63" height="88">
+                <img src="{{ getCardUrl $color $red.Value }}" class="myCard">
             </li>
             {{ end }}
         </ul>
@@ -129,7 +129,7 @@
 
 <div id="used-cards" style="float: center">
     {{ range $idx, $card := $.playerInfo.UsedCards }}
-    <img src="{{ getCardUrl $card.Color $card.Value }}" width="63" height="88">
+    <img src="{{ getCardUrl $card.Color $card.Value }}" class="myCard">
     {{ end }}
 </div>
 
