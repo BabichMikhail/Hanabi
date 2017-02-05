@@ -42,7 +42,8 @@
             "app": {
                 "DistFile": "app.min.css",
                 "SourceFiles": [
-                    "signin.css"
+                    "signin.css",
+                    "games.css"
                 ],
                 "SkipFiles": []
             }

@@ -164,6 +164,18 @@ function gameHandler() {
         })
     }
 
+    this.ChangeCardsVisible = function() {
+        let basicCards = $('ul[name=basic-cards]')
+        let additionalCards = $('ul[name=additional-cards]')
+        if (basicCards.hasClass('invisible')) {
+            basicCards.removeClass('invisible')
+            additionalCards.addClass('invisible')
+        } else {
+            basicCards.addClass('invisible')
+            additionalCards.removeClass('invisible')
+        }
+    }
+
     this.Cards = this.Init()
 
     let meta = $("meta[name=step]")

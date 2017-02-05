@@ -14,7 +14,7 @@
                 {{ if $isMyCards }}
                 (you)
                 {{ end }}
-                <ul>
+                <ul name="basic-cards">
                     {{ range $idx, $card := $cards }}
                     <li class="list-inline" style="display: inline-block">
                         <img src="{{ getCardUrl $card.Color $card.Value }}"  width="63" height="88">
@@ -48,14 +48,7 @@
                     </li>
                     {{ end }}
                 </ul>
-            </div>
-            <div id="player-cards-info-{{ $pos }}" class="col-md-12" style="display: none">
-                {{ $isMyCards := eq $.playerInfo.Position $pos }}
-                {{ index $.NickNames $pos }}
-                {{ if $isMyCards }}
-                (you)
-                {{ end }}
-                <ul>
+                <ul name="additional-cards" class="invisible">
                     {{ range $idx, $card := index $.playerInfo.PlayersCardsInfo $pos }}
                     <li class="list-inline" style="display: inline-block">
                         <img src="{{ getCardUrl $card.Color $card.Value }}"  width="63" height="88">
@@ -90,6 +83,11 @@
                     {{ end }}
                 </ul>
             </div>
+            {{ if $isMyCards }}
+            <div class="col-md-12">
+                <button class="btn btn-info" onclick="javascript: Game.ChangeCardsVisible()">Information of other players</button>
+            </div>
+            {{ end }}
         </div>
         {{ end }}
     </div>
@@ -130,9 +128,9 @@
 <div id="game-table" class="col-md-12" style="text-align:center"></div>
 
 <div id="used-cards" style="float: center">
-{{ range $idx, $card := $.playerInfo.UsedCards }}
-        <img src="{{ getCardUrl $card.Color $card.Value }}" width="63" height="88">
-{{ end }}
+    {{ range $idx, $card := $.playerInfo.UsedCards }}
+    <img src="{{ getCardUrl $card.Color $card.Value }}" width="63" height="88">
+    {{ end }}
 </div>
 
 <meta name="step" step="{{ .Step }}">
