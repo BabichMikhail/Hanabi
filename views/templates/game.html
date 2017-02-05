@@ -39,7 +39,6 @@
                                 </a>
                             </div>
                             <div>
-
                                 <a href="javascript:Game.InfoCardColor({{ $pos }}, {{ $card.Color }})">
                                     <i class="fa fa-info"> color</i>
                                 </a>
@@ -50,11 +49,43 @@
                     {{ end }}
                 </ul>
             </div>
-            <div id="player-info-{{ $pos }}" class="col-md-12" style="display:none">
+            <div id="player-cards-info-{{ $pos }}" class="col-md-12" style="display: none">
+                {{ $isMyCards := eq $.playerInfo.Position $pos }}
+                {{ index $.NickNames $pos }}
+                {{ if $isMyCards }}
+                (you)
+                {{ end }}
                 <ul>
-                    {{ range $idx, $card := $cards }}
+                    {{ range $idx, $card := index $.playerInfo.PlayersCardsInfo $pos }}
                     <li class="list-inline" style="display: inline-block">
                         <img src="{{ getCardUrl $card.Color $card.Value }}"  width="63" height="88">
+                        <div>
+                        {{ if and $isMyCards $.playerInfo.MyTurn }}
+                            <div>
+                                <a href="javascript:Game.PlayCard({{ $idx }})">
+                                    <i class="fa fa-play"> play</i>
+                                </a>
+                            </div>
+                            <div>
+                                <a href="javascript:Game.DiscardCard({{ $idx }})">
+                                    <i class="fa fa-shopping-basket"> discard</i>
+                                </a>
+                            </div>
+                        {{ end }}
+                        {{ $notMyCards := not $isMyCards }}
+                        {{ if and $notMyCards $.playerInfo.MyTurn }}
+                            <div>
+                                <a href="javascript:Game.InfoCardValue({{ $pos }}, {{ $card.Value }})">
+                                    <i class="fa fa-info"> value</i>
+                                </a>
+                            </div>
+                            <div>
+                                <a href="javascript:Game.InfoCardColor({{ $pos }}, {{ $card.Color }})">
+                                    <i class="fa fa-info"> color</i>
+                                </a>
+                            </div>
+                        {{ end }}
+                        </div>
                     </li>
                     {{ end }}
                 </ul>
