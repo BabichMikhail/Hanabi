@@ -18,11 +18,25 @@ func CreateActiveGame(playerIds []int, gameId int) (game gamePackage.Game, err e
 	_, err = o.QueryTable(ormGame).Filter("id", gameId).Update(orm.Params{
 		"game": game.SprintGame(),
 	})
+
 	if err == nil {
 		o.Commit()
 		return game, nil
 	}
 	o.Rollback()
+	return
+}
+
+func ReadActiveGameById(id int) (game gamePackage.Game, err error) {
+	game, err = ReadGameById(id)
+	if err == nil && game.IsGameOver() {
+		o := orm.NewOrm()
+		o.QueryTable("games").Filter("id", id).Update(orm.Params{
+			"status": lobby.GameInactive,
+		})
+
+		game, err = gamePackage.Game{}, errors.New(fmt.Sprintf("Active game #%d not found", id))
+	}
 	return
 }
 
@@ -37,8 +51,9 @@ func ReadGameById(id int) (game gamePackage.Game, err error) {
 	if err = o.Raw(sql, id).QueryRow(&gameModel); err != nil {
 		return
 	}
+
 	if fmt.Sprintf("%s", gameModel.Json) == "" {
-		err = errors.New(fmt.Sprintf("Active game #%d not found", id))
+		err = errors.New(fmt.Sprintf("Game #%d not found", id))
 		return
 	}
 	json.Unmarshal([]byte(gameModel.Json), &game)

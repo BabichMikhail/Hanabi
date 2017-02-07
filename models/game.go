@@ -3,8 +3,6 @@ package models
 import (
 	"errors"
 	"fmt"
-	"strconv"
-	"strings"
 	"time"
 
 	lobby "github.com/BabichMikhail/Hanabi/engine/lobby"
@@ -90,6 +88,21 @@ func JoinGame(gameId int, userId int) (err error, status string) {
 		Values("?", "?")
 	sql := qb.String()
 	if _, err = o.Raw(sql, userId, gameId).Exec(); err == nil {
+		gamePlayers := GetGamePlayers([]int{gameId})[gameId]
+		qbGames, _ := orm.NewQueryBuilder("mysql")
+		sql := qbGames.Select("players_count").From("games").Where("id = ?").String()
+		var game Game
+		o.Raw(sql, gameId).QueryRow(&game)
+		if game.PlayersCount == len(gamePlayers) {
+			playerIds := []int{}
+			for i := 0; i < len(gamePlayers); i++ {
+				playerIds = append(playerIds, gamePlayers[i].Id)
+			}
+			_, err = CreateActiveGame(playerIds, gameId)
+		}
+	}
+
+	if err == nil {
 		o.Commit()
 		status = lobby.GameStatusName(CheckGame(gameId))
 	} else {
@@ -97,15 +110,6 @@ func JoinGame(gameId int, userId int) (err error, status string) {
 		o.Rollback()
 	}
 	return err, status
-}
-
-// @todo move to utils
-func IntSliceToString(slice []int) string {
-	values := []string{}
-	for _, i := range slice {
-		values = append(values, strconv.Itoa(i))
-	}
-	return strings.Join(values, ", ")
 }
 
 func LeaveGame(gameId int, userId int) (string, error) {
@@ -145,6 +149,7 @@ func LeaveGame(gameId int, userId int) (string, error) {
 			o.Rollback()
 			return "", err
 		}
+
 		if num != 1 {
 			o.Rollback()
 			return "", errors.New(fmt.Sprintf("Security problem with game %d", gameId))
@@ -175,7 +180,10 @@ func GetGamePlayers(gameIds []int) map[int]([]lobby.Player) {
 		o.Raw(sql).QueryRows(&splayers)
 
 		for _, v := range splayers {
-			playersMap[v.GameId] = append(playersMap[v.GameId], lobby.Player{v.UserId, v.NickName})
+			playersMap[v.GameId] = append(playersMap[v.GameId], lobby.Player{
+				Id:       v.UserId,
+				NickName: v.NickName,
+			})
 		}
 	}
 	return playersMap
@@ -267,28 +275,17 @@ type GameStatus struct {
 
 func GetStatuses(userId int) []GameStatus {
 	o := orm.NewOrm()
-	userGames := func(ug []UserGame) string {
-		ans := []string{}
-		for _, g := range ug {
-			ans = append(ans, strconv.Itoa(g.Id))
-		}
-		return strings.Join(ans, ", ")
-	}(getUserGames(userId))
-
 	var statuses []GameStatus
-	if len(userGames) > 0 {
-		qb, _ := orm.NewQueryBuilder("mysql")
-		qb.Select("id, status").
-			From("games").
-			Where("id").In(userGames)
-		sql := qb.String()
+	qb, _ := orm.NewQueryBuilder("mysql")
+	qb.Select("id, status").
+		From("games").
+		Where("status").In(IntSliceToString([]int{lobby.GameActive, lobby.GameWait}))
+	sql := qb.String()
 
-		o.Raw(sql).QueryRows(&statuses)
-		for i, s := range statuses {
-			statuses[i].StatusName = lobby.GameStatusName(s.StatusCode)
-		}
-	} else {
-		statuses = []GameStatus{}
+	o.Raw(sql).QueryRows(&statuses)
+	for i, s := range statuses {
+		statuses[i].StatusName = lobby.GameStatusName(s.StatusCode)
 	}
+
 	return statuses
 }

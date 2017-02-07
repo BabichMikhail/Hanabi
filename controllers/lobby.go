@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	engineLobby "github.com/BabichMikhail/Hanabi/engine/lobby"
+	lobby "github.com/BabichMikhail/Hanabi/engine/lobby"
 	"github.com/BabichMikhail/Hanabi/models"
 	"github.com/beego/wetalk/modules/auth"
 	wetalk "github.com/beego/wetalk/modules/models"
@@ -17,12 +17,12 @@ func (this *LobbyController) GameList() {
 	var user wetalk.User
 	auth.GetUserFromSession(&user, this.Ctx.Input.CruSession)
 	this.Data["user"] = user
-	games := models.GetGameList(engineLobby.GetAllStatuses(), user.Id)
+	games := models.GetGameList([]int{lobby.GameActive, lobby.GameWait}, user.Id)
 
-	copyGames := engineLobby.CopyGameItems(games)
+	copyGames := lobby.CopyGameItems(games)
 	gameCount := len(games)
-	this.Data["gamesLeft"] = engineLobby.RevertGameItems(copyGames[gameCount/2:])
-	this.Data["gamesRight"] = engineLobby.RevertGameItems(copyGames[:gameCount/2])
+	this.Data["gamesLeft"] = lobby.RevertGameItems(copyGames[gameCount/2:])
+	this.Data["gamesRight"] = lobby.RevertGameItems(copyGames[:gameCount/2])
 	this.Data["games"] = games
 
 	this.LayoutSections = make(map[string]string)

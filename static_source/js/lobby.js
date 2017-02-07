@@ -19,7 +19,7 @@ function lobbyHandler() {
                     <td>` + data.game.owner + `</td>
                     <td>` + count  + `</td>
                     <td>
-                        <button type="button" onClick="Lobby.Leave(` + gameId + `);">` + (data.currentUserId == data.game.OwnerId ? `Leave` : `Join`) + `</button>
+                        <button type="button" onClick="Lobby.Leave(` + gameId + `);">Leave</button>
                     </td>
                 </tr>`
                 $("#games").prepend(html)
@@ -96,17 +96,19 @@ function lobbyHandler() {
         }).done(function(data) {
             console.log(data)
             console.log(Lobby.Statuses)
-            if (data.game != null) {
+            let myGames = data.game
+            let allGames = data.allGames
+            if (myGames != null) {
                 for (var i = 0; i < data.game.length; ++i) {
-                    if (Lobby.Statuses[data.game[i].game_id] == null) {
-                        Lobby.Statuses[data.game[i].game_id] = data.game[i]
+                    if (Lobby.Statuses[myGames[i].game_id] == null) {
+                        Lobby.Statuses[myGames[i].game_id] = myGames[i]
                         continue
                     }
-                    let oldStatus = Lobby.Statuses[data.game[i].game_id].status_code
-                    let newStatus = data.game[i].status_code
+                    let oldStatus = Lobby.Statuses[myGames[i].game_id].status_code
+                    let newStatus = myGames[i].status_code
                     if (oldStatus != newStatus) {
-                        Lobby.Statuses[data.game[i].game_id].status_code = newStatus
-                        setTimeout(Lobby.OpenGame, 1000, data.game[i].URL)
+                        Lobby.Statuses[myGames[i].game_id].status_code = newStatus
+                        setTimeout(Lobby.OpenGame, 1000, myGames[i].URL)
                     }
                 }
             }

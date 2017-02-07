@@ -15,18 +15,16 @@ type GameController struct {
 
 func (this *GameController) Game() {
 	id, _ := strconv.Atoi(this.Ctx.Input.Param(":id"))
-	game, err := models.ReadGameById(id)
+	game, err := models.ReadActiveGameById(id)
+
 	if err != nil {
-		gamePlayers := models.GetGamePlayers([]int{id})[id]
-		playerIds := []int{}
-		for i := 0; i < len(gamePlayers); i++ {
-			playerIds = append(playerIds, gamePlayers[i].Id)
-		}
-		game, _ = models.CreateActiveGame(playerIds, id)
+		this.Ctx.Redirect(302, this.URLFor("LobbyController.GameList"))
+		return
 	}
 
 	if game.IsGameOver() {
 		this.Ctx.Redirect(302, this.URLFor("GameController.GameInactive", ":id", id))
+		return
 	}
 
 	userId := auth.GetUserIdFromSession(this.Ctx.Input.CruSession)
@@ -56,9 +54,14 @@ func (this *GameController) Game() {
 func (this *GameController) GameInactive() {
 	id, _ := strconv.Atoi(this.Ctx.Input.Param(":id"))
 
-	game, _ := models.ReadGameById(id)
+	game, err := models.ReadGameById(id)
+	if err != nil {
+		this.Ctx.Redirect(302, this.URLFor("LobbyController.GameList"))
+		return
+	}
 	if !game.IsGameOver() {
 		this.Ctx.Redirect(302, this.URLFor("GameController.Game", ":id", id))
+		return
 	}
 	this.Data["Points"], _ = game.GetPoints()
 	this.Layout = "base.tpl"

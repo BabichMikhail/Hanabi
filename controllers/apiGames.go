@@ -46,7 +46,7 @@ func (this *ApiGameController) GetGameStatuses() {
 
 func (this *ApiGameController) GamePlayCard() {
 	gameId, _ := this.GetInt("game_id")
-	game, err := models.ReadGameById(gameId)
+	game, err := models.ReadActiveGameById(gameId)
 	if this.SetError(err) {
 		return
 	}
@@ -64,7 +64,7 @@ func (this *ApiGameController) GamePlayCard() {
 
 func (this *ApiGameController) GameDiscardCard() {
 	gameId, _ := this.GetInt("game_id")
-	game, err := models.ReadGameById(gameId)
+	game, err := models.ReadActiveGameById(gameId)
 	if this.SetError(err) {
 		return
 	}
@@ -82,7 +82,7 @@ func (this *ApiGameController) GameDiscardCard() {
 
 func (this *ApiGameController) GameInfoCardValue() {
 	gameId, _ := this.GetInt("game_id")
-	game, err := models.ReadGameById(gameId)
+	game, err := models.ReadActiveGameById(gameId)
 	if this.SetError(err) {
 		return
 	}
@@ -96,7 +96,7 @@ func (this *ApiGameController) GameInfoCardValue() {
 
 func (this *ApiGameController) GameInfoCardColor() {
 	gameId, _ := this.GetInt("game_id")
-	game, err := models.ReadGameById(gameId)
+	game, err := models.ReadActiveGameById(gameId)
 	if this.SetError(err) {
 		return
 	}
@@ -110,7 +110,7 @@ func (this *ApiGameController) GameInfoCardColor() {
 
 func (this *ApiGameController) GameCurrentStep() {
 	gameId, _ := this.GetInt("game_id")
-	game, err := models.ReadGameById(gameId)
+	game, err := models.ReadActiveGameById(gameId)
 	if this.SetError(err) {
 		return
 	}
@@ -123,7 +123,7 @@ func (this *ApiGameController) GameCurrentStep() {
 
 func (this *ApiGameController) GameInfo() {
 	gameId, _ := this.GetInt("game_id")
-	game, err := models.ReadGameById(gameId)
+	game, err := models.ReadActiveGameById(gameId)
 	if this.SetError(err) {
 		return
 	}

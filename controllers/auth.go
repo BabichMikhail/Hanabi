@@ -48,6 +48,7 @@ func (this *AuthController) SignUp() {
 	err := auth.RegisterUser(&user, username, email, password1)
 	if err == nil {
 		this.Ctx.Redirect(302, this.URLFor(".SignIn"))
+		return
 	} else {
 		this.Data["err"] = err
 	}
