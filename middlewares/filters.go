@@ -1,6 +1,9 @@
 package middlewares
 
 import (
+	"strconv"
+
+	"github.com/BabichMikhail/Hanabi/models"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/context"
 	"github.com/beego/wetalk/modules/auth"
@@ -17,7 +20,19 @@ func CheckAuth(ctx *context.Context) {
 		return
 	}
 
-	ctx.Redirect(302, "/signin")
+	ctx.Redirect(401, "/signin")
+}
+
+func CheckUserInGame(ctx *context.Context) {
+	userId := auth.GetUserIdFromSession(ctx.Input.CruSession)
+	gameId, _ := strconv.Atoi(ctx.Input.Param(":id"))
+	players := models.GetGamePlayers([]int{gameId})[gameId]
+	for i := 0; i < len(players); i++ {
+		if players[i].Id == userId {
+			return
+		}
+	}
+	ctx.Redirect(302, "/games")
 }
 
 func InitMiddleware() {
@@ -25,4 +40,5 @@ func InitMiddleware() {
 	beego.InsertFilter("/games", beego.BeforeRouter, CheckAuth)
 	beego.InsertFilter("/api/*", beego.BeforeRouter, CheckAuth)
 	beego.InsertFilter("/games/*", beego.BeforeRouter, CheckAuth)
+	beego.InsertFilter("/games/room/:id", beego.BeforeRouter, CheckUserInGame)
 }
