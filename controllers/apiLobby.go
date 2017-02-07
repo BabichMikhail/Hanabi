@@ -77,12 +77,12 @@ func (this *LobbyApiController) GameUpdate() {
 	userId := auth.GetUserIdFromSession(this.Ctx.Input.CruSession)
 	GameStatuses := models.GetStatuses(userId)
 	for i, g := range GameStatuses {
-		GameStatuses[i].URL = this.URLFor("GameController.Game", ":id", g.GameId)
+		GameStatuses[i].URL = this.URLFor("GameController.Game", ":id", g.Game.Id)
 	}
 
 	result := struct {
 		Status       string              `json:"status"`
-		GameStatuses []models.GameStatus `json:"game"`
+		GameStatuses []models.GameStatus `json:"games"`
 	}{StatusSuccess, GameStatuses}
 	this.SetData(&result)
 }

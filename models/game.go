@@ -10,12 +10,12 @@ import (
 )
 
 type Game struct {
-	Id           int       `orm:"auto"`
-	OwnerId      int       `orm:"column(owner_id)"`
-	PlayersCount int       `orm:"column(players_count)"`
-	Status       int       `orm:"column(status);default(4)"`
+	Id           int       `orm:"auto" json:"id"`
+	OwnerId      int       `orm:"column(owner_id)" json:"owner_id"`
+	PlayersCount int       `orm:"column(players_count)" json:"players_count"`
+	Status       int       `orm:"column(status);default(4)" json:"status"`
 	Json         string    `orm:"column(game);null;type(text)"`
-	Created      time.Time `orm:"column(created_at);auto_now_add;type(timestamp)"`
+	CreatedAt    time.Time `orm:"column(created_at);auto_now_add;type(timestamp)" json:"created_at"`
 }
 
 func (g *Game) TableName() string {
@@ -142,12 +142,12 @@ func LeaveGame(gameId int, userId int) (string, error) {
 	action := "leave"
 	if count == 1 {
 		action = "delete"
-		num, err := o.QueryTable("games").
+		num, errDelete := o.QueryTable("games").
 			Filter("id", gameId).
 			Delete()
-		if err != nil {
+		if errDelete != nil {
 			o.Rollback()
-			return "", err
+			return "", errDelete
 		}
 
 		if num != 1 {
@@ -267,24 +267,36 @@ func getUserGames(userId int) []UserGame {
 }
 
 type GameStatus struct {
-	GameId     int    `orm:"column(id)" json:"game_id"`
-	StatusCode int    `orm:"column(status)" json:"status_code"`
-	StatusName string `json:"status_name"`
-	URL        string `json:"URL"`
+	Game       Game           `json:"game"`
+	StatusName string         `json:"status_name"`
+	Players    []lobby.Player `json:"players"`
+	URL        string         `json:"URL"`
 }
 
 func GetStatuses(userId int) []GameStatus {
 	o := orm.NewOrm()
-	var statuses []GameStatus
+	var games []Game
 	qb, _ := orm.NewQueryBuilder("mysql")
-	qb.Select("id, status").
+	qb.Select("id, status, players_count, created_at, owner_id").
 		From("games").
-		Where("status").In(IntSliceToString([]int{lobby.GameActive, lobby.GameWait}))
+		Where("status").In(IntSliceToString([]int{lobby.GameActive, lobby.GameWait})).
+		OrderBy("created_at").Desc()
 	sql := qb.String()
 
-	o.Raw(sql).QueryRows(&statuses)
-	for i, s := range statuses {
-		statuses[i].StatusName = lobby.GameStatusName(s.StatusCode)
+	o.Raw(sql).QueryRows(&games)
+	statuses := []GameStatus{}
+	gameIds := []int{}
+	for _, game := range games {
+		gameIds = append(gameIds, game.Id)
+	}
+
+	players := GetGamePlayers(gameIds)
+	for _, game := range games {
+		statuses = append(statuses, GameStatus{
+			Game:       game,
+			Players:    players[game.Id],
+			StatusName: lobby.GameStatusName(game.Status),
+		})
 	}
 
 	return statuses

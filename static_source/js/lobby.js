@@ -63,7 +63,6 @@ function lobbyHandler() {
     }
 
     this.OpenGame = function(URL) {
-        location.reload()
         var win = window.open(URL, '_blank')
         win.focus()
     }
@@ -75,10 +74,8 @@ function lobbyHandler() {
             data: {}
         }).done(function(data) {
             console.log(data)
-            if (data.status == "success") {
-                if (data.game_status == "active") {
-                    setTimeout(Lobby.OpenGame, 1000, data.URL)
-                }
+            if (data.status == "success" && data.game_status == "active") {
+                setTimeout(Lobby.OpenGame, 1000, data.URL)
             }
             location.reload()
         }).fail(function(data) {
@@ -94,24 +91,43 @@ function lobbyHandler() {
             url: "/api/lobby/status",
             data: {}
         }).done(function(data) {
-            console.log(data)
+            console.log(data.game)
             console.log(Lobby.Statuses)
-            let myGames = data.game
-            let allGames = data.allGames
-            if (myGames != null) {
-                for (var i = 0; i < data.game.length; ++i) {
-                    if (Lobby.Statuses[myGames[i].game_id] == null) {
-                        Lobby.Statuses[myGames[i].game_id] = myGames[i]
+            let games = data.games
+            if (games != null) {
+                for (var i = 0; i < games.length; ++i) {
+                    if (Lobby.Statuses[games[i].game_id] == null) {
+                        Lobby.Statuses[games[i].game_id] = games[i]
                         continue
                     }
-                    let oldStatus = Lobby.Statuses[myGames[i].game_id].status_code
-                    let newStatus = myGames[i].status_code
+                    let oldStatus = Lobby.Statuses[games[i].game_id].status_code
+                    let newStatus = games[i].status_code
                     if (oldStatus != newStatus) {
-                        Lobby.Statuses[myGames[i].game_id].status_code = newStatus
-                        setTimeout(Lobby.OpenGame, 1000, myGames[i].URL)
+                        Lobby.Statuses[games[i].game_id].status_code = newStatus
+                        setTimeout(Lobby.OpenGame, 1000, games[i].URL)
                     }
                 }
             }
+
+            let html = ``
+            for (i = 0; i < games.length; ++i) {
+                playersHtml = ``
+                for (j = 0; j < games[i].players; ++j) {
+                    playersHtml += (j > 0 ? ` ` : ``) + games[i].players[j].nick_name
+                }
+                statusHtml =
+                    games[i].status_name == `active`
+                        ? `<a href="` + games[i].URL + `">GO</a>`
+                        : `<button type="button" onclick="Lobby.Leave(` + games[i].game.id + `);">Leave</button>`
+                html += `<tr id = "game-` + games[i].game.id + `">
+                    <th scope="row">` + games[i].game.id + `</th>
+                    <td></td>
+                    <td>` + playersHtml + `</td>
+                    <td>` + games[i].game.players_count + `</td>
+                    <td>` + statusHtml + `</td>
+                </tr>`
+            }
+            $("#games").html(html)
             setTimeout(Lobby.Update, 10000)
         }).fail(function(data) {
             alert("UPDATE FAIL")
@@ -146,9 +162,9 @@ function lobbyHandler() {
         }).done(function(data) {
             console.log(data)
             Lobby.Statuses = []
-            if (data.game != null) {
-                for (var i = 0; i < data.game.length; ++i) {
-                    Lobby.Statuses[data.game[i].game_id] = data.game[i]
+            if (data.games != null) {
+                for (var i = 0; i < data.games.length; ++i) {
+                    Lobby.Statuses[data.games[i].game_id] = data.games[i]
                 }
             }
             setTimeout(Lobby.Update, 5000)
