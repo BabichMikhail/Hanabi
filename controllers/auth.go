@@ -59,6 +59,7 @@ func (this *AuthController) SignOut() {
 	this.Ctx.Redirect(302, this.URLFor(".SignIn"))
 }
 
+// @remove it
 func (this *AuthController) UserCurrent() {
 	var user wetalk.User
 	auth.GetUserFromSession(&user, this.Ctx.Input.CruSession)

@@ -22,5 +22,5 @@ func init() {
 	beego.Router("/api/games/step", &controllers.ApiGameController{}, "get:GameCurrentStep")
 	beego.Router("/api/games/info", &controllers.ApiGameController{}, "get:GameInfo")
 
-	beego.Router("/api/users/current", &controllers.AuthController{}, "get:UserCurrent")
+	beego.Router("/api/users/current", &controllers.LobbyApiController{}, "get:MyInfo")
 }

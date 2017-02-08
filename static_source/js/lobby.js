@@ -62,6 +62,21 @@ function lobbyHandler() {
         })
     }
 
+    this.LoadUser = function() {
+        $.ajax({
+            type: "GET",
+            url: "/api/users/current",
+            data: {}
+        }).done(function(data) {
+            console.log(data)
+            if (data.status == "success") {
+                Lobby.User = data.user
+            }
+        }).fail(function(data) {
+            alert("LEAVE FAIL")
+        })
+    }
+
     this.OpenGame = function(URL) {
         var win = window.open(URL, '_blank')
         win.focus()
@@ -91,39 +106,56 @@ function lobbyHandler() {
             url: "/api/lobby/status",
             data: {}
         }).done(function(data) {
-            console.log(data.game)
-            console.log(Lobby.Statuses)
+            if (typeof Lobby.User == 'undefined') {
+                setTimeout(Lobby.Update, 10000)
+                return
+            }
+            console.log(data.games)
             let games = data.games
             if (games != null) {
                 for (var i = 0; i < games.length; ++i) {
-                    if (Lobby.Statuses[games[i].game_id] == null) {
-                        Lobby.Statuses[games[i].game_id] = games[i]
+                    let game = games[i].game
+                    if (Lobby.Statuses[game.game_id] == null) {
+                        Lobby.Statuses[game.game_id] = game
                         continue
                     }
-                    let oldStatus = Lobby.Statuses[games[i].game_id].status_code
-                    let newStatus = games[i].status_code
+                    let oldStatus = Lobby.Statuses[game.game_id].status_code
+                    let newStatus = game.status_code
                     if (oldStatus != newStatus) {
-                        Lobby.Statuses[games[i].game_id].status_code = newStatus
+                        Lobby.Statuses[game.game_id].status_code = newStatus
                         setTimeout(Lobby.OpenGame, 1000, games[i].URL)
                     }
                 }
             }
 
             let html = ``
-            for (i = 0; i < games.length; ++i) {
+            for (let i = 0; i < games.length; ++i) {
                 playersHtml = ``
-                for (j = 0; j < games[i].players; ++j) {
-                    playersHtml += (j > 0 ? ` ` : ``) + games[i].players[j].nick_name
+                let userIn = false
+                let game = games[i]
+                let ownerName = ''
+                for (let j = 0; j < game.players.length; ++j) {
+                    playersHtml += (j > 0 ? ` ` : ``) + game.players[j].nick_name
+                    if (game.players[j].id == Lobby.User.id) {
+                        userIn = true
+                    }
+                    if (game.players[j].id == game.game.owner_id) {
+                        ownerName = game.players[j].nick_name
+                    }
                 }
+
                 statusHtml =
                     games[i].status_name == `active`
-                        ? `<a href="` + games[i].URL + `">GO</a>`
-                        : `<button type="button" onclick="Lobby.Leave(` + games[i].game.id + `);">Leave</button>`
-                html += `<tr id = "game-` + games[i].game.id + `">
-                    <th scope="row">` + games[i].game.id + `</th>
-                    <td></td>
-                    <td>` + playersHtml + `</td>
-                    <td>` + games[i].game.players_count + `</td>
+                        ? `<a href="` + game.URL + `">GO</a>`
+                        : (userIn
+                            ? `<button type="button" onclick="Lobby.Leave(` + game.game.id + `)">Leave</button>`
+                            : `<button type="button" onclick="Lobby.Join(` + game.game.id + `)">Join</button>`
+                        )
+                html += `<tr id = "game-` + game.game.id + `">
+                    <th scope="row">` + game.game.id + `</th>
+                    <td>` + ownerName + `</td>
+                    <td><p>` + playersHtml + `</p></td>
+                    <td>` + game.game.players_count + `</td>
                     <td>` + statusHtml + `</td>
                 </tr>`
             }
@@ -180,4 +212,5 @@ function lobbyHandler() {
 
 if (window.location.pathname == "/games") {
     window.Lobby = new lobbyHandler()
+    window.Lobby.LoadUser()
 }

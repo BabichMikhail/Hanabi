@@ -95,3 +95,19 @@ func (this *LobbyApiController) GameUsers() {
 	}{StatusSuccess, models.GetGamePlayers([]int{id})[id]}
 	this.SetData(&result)
 }
+
+type UserInfo struct {
+	Id       int    `json:"id"`
+	NickName string `json:"nick_name"`
+}
+
+func (this *LobbyApiController) MyInfo() {
+	var user wetalk.User
+	auth.GetUserFromSession(&user, this.Ctx.Input.CruSession)
+	userResult := UserInfo{user.Id, user.NickName}
+	result := struct {
+		Status string   `json:"status"`
+		User   UserInfo `json:"user"`
+	}{StatusSuccess, userResult}
+	this.SetData(&result)
+}
