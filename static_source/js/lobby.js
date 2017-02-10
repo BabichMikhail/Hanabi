@@ -114,16 +114,16 @@ function lobbyHandler() {
             let games = data.games
             if (games != null) {
                 for (var i = 0; i < games.length; ++i) {
-                    let game = games[i].game
-                    if (Lobby.Statuses[game.game_id] == null) {
-                        Lobby.Statuses[game.game_id] = game
+                    let game = games[i]
+                    if (Lobby.Statuses[game.id] == null) {
+                        Lobby.Statuses[game.id] = game
                         continue
                     }
-                    let oldStatus = Lobby.Statuses[game.game_id].status_code
+                    let oldStatus = Lobby.Statuses[game.id].status_code
                     let newStatus = game.status_code
                     if (oldStatus != newStatus) {
-                        Lobby.Statuses[game.game_id].status_code = newStatus
-                        setTimeout(Lobby.OpenGame, 1000, games[i].URL)
+                        Lobby.Statuses[game.id].status_code = newStatus
+                        setTimeout(Lobby.OpenGame, 1000, game.URL)
                     }
                 }
             }
@@ -139,23 +139,20 @@ function lobbyHandler() {
                     if (game.players[j].id == Lobby.User.id) {
                         userIn = true
                     }
-                    if (game.players[j].id == game.game.owner_id) {
-                        ownerName = game.players[j].nick_name
-                    }
                 }
 
                 statusHtml =
                     games[i].status_name == `active`
                         ? `<a href="` + game.URL + `">GO</a>`
                         : (userIn
-                            ? `<button type="button" onclick="Lobby.Leave(` + game.game.id + `)">Leave</button>`
-                            : `<button type="button" onclick="Lobby.Join(` + game.game.id + `)">Join</button>`
+                            ? `<button type="button" onclick="Lobby.Leave(` + game.id + `)">Leave</button>`
+                            : `<button type="button" onclick="Lobby.Join(` + game.id + `)">Join</button>`
                         )
-                html += `<tr id = "game-` + game.game.id + `">
-                    <th scope="row">` + game.game.id + `</th>
-                    <td>` + ownerName + `</td>
+                html += `<tr id = "game-` + game.id + `">
+                    <th scope="row">` + game.id + `</th>
+                    <td>` + game.owner_name + `</td>
                     <td><p>` + playersHtml + `</p></td>
-                    <td>` + game.game.players_count + `</td>
+                    <td>` + game.player_count + `</td>
                     <td>` + statusHtml + `</td>
                 </tr>`
             }

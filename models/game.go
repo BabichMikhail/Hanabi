@@ -10,12 +10,12 @@ import (
 )
 
 type Game struct {
-	Id           int       `orm:"auto" json:"id"`
-	OwnerId      int       `orm:"column(owner_id)" json:"owner_id"`
-	PlayersCount int       `orm:"column(players_count)" json:"players_count"`
-	Status       int       `orm:"column(status);default(4)" json:"status"`
-	Json         string    `orm:"column(game);null;type(text)"`
-	CreatedAt    time.Time `orm:"column(created_at);auto_now_add;type(timestamp)" json:"created_at"`
+	Id          int       `orm:"auto" json:"id"`
+	OwnerId     int       `orm:"column(owner_id)" json:"owner_id"`
+	PlayerCount int       `orm:"column(player_count)" json:"player_count"`
+	Status      int       `orm:"column(status);default(4)" json:"status"`
+	Json        string    `orm:"column(game);null;type(text)"`
+	CreatedAt   time.Time `orm:"column(created_at);auto_now_add;type(timestamp)" json:"created_at"`
 }
 
 func (g *Game) TableName() string {
@@ -32,7 +32,7 @@ func NewGame(userId int, playersCount int, status int) (id int) {
 	o := orm.NewOrm()
 	o.Begin()
 	qb, _ := orm.NewQueryBuilder("mysql")
-	qb.InsertInto("games", "owner_id", "players_count", "status", "created_at").
+	qb.InsertInto("games", "owner_id", "player_count", "status", "created_at").
 		Values("?", "?", "?", "CURRENT_TIMESTAMP")
 	sql := qb.String()
 	if res, err := o.Raw(sql, userId, playersCount, status).Exec(); err == nil {
@@ -66,14 +66,14 @@ func ActivateGame(gameId int) int {
 func CheckGame(gameId int) (status int) {
 	o := orm.NewOrm()
 	qb, _ := orm.NewQueryBuilder("mysql")
-	qb.Select("players_count, status").
+	qb.Select("player_count, status").
 		From("games").
 		Where("id = ?")
 	sql := qb.String()
 	var g Game
 	o.Raw(sql, gameId).QueryRow(&g)
 	currentPlayers := len(GetGamePlayers([]int{gameId})[gameId])
-	if g.PlayersCount == currentPlayers {
+	if g.PlayerCount == currentPlayers {
 		status = ActivateGame(gameId)
 	} else {
 		status = g.Status
@@ -90,10 +90,10 @@ func JoinGame(gameId int, userId int) (err error, status string) {
 	if _, err = o.Raw(sql, userId, gameId).Exec(); err == nil {
 		gamePlayers := GetGamePlayers([]int{gameId})[gameId]
 		qbGames, _ := orm.NewQueryBuilder("mysql")
-		sql := qbGames.Select("players_count").From("games").Where("id = ?").String()
+		sql := qbGames.Select("player_count").From("games").Where("id = ?").String()
 		var game Game
 		o.Raw(sql, gameId).QueryRow(&game)
-		if game.PlayersCount == len(gamePlayers) {
+		if game.PlayerCount == len(gamePlayers) {
 			playerIds := []int{}
 			for i := 0; i < len(gamePlayers); i++ {
 				playerIds = append(playerIds, gamePlayers[i].Id)
@@ -195,7 +195,7 @@ func GetGameList(status []int, userId int) (games []lobby.GameItem) {
 	args := IntSliceToString(status)
 	qb, _ := orm.NewQueryBuilder("mysql")
 	qb.Select(
-		"g.id", "g.players_count as places", "g.owner_id as owner_id",
+		"g.id", "g.player_count as places", "g.owner_id as owner_id",
 		"u.nick_name as owner", "g.status", "g.created_at").
 		From("games g").
 		InnerJoin("user u").
@@ -267,37 +267,38 @@ func getUserGames(userId int) []UserGame {
 }
 
 type GameStatus struct {
-	Game       Game           `json:"game"`
-	StatusName string         `json:"status_name"`
-	Players    []lobby.Player `json:"players"`
-	URL        string         `json:"URL"`
+	Id          int            `json:"id" orm:"column(id)"`
+	PlayerCount int            `json:"player_count" orm:"column(player_count)"`
+	OwnerId     int            `json:"owner_id" orm:"column(owner_id)"`
+	OwnerName   string         `json:"owner_name" orm:"column(owner_name)"`
+	Status      int            `json:"status" orm:"column(status)"`
+	StatusName  string         `json:"status_name"`
+	CreatedAt   time.Time      `json:"created_at" orm:"column(created_at)"`
+	Players     []lobby.Player `json:"players"`
+	URL         string         `json:"URL"`
 }
 
 func GetStatuses(userId int) []GameStatus {
 	o := orm.NewOrm()
-	var games []Game
+	var games []GameStatus
 	qb, _ := orm.NewQueryBuilder("mysql")
-	qb.Select("id, status, players_count, created_at, owner_id").
-		From("games").
+	qb.Select("g.id, g.status, g.player_count, g.created_at, g.owner_id, u.nick_name as owner_name").
+		From("games g").
+		InnerJoin("user u").On("u.id = g.owner_id").
 		Where("status").In(IntSliceToString([]int{lobby.GameActive, lobby.GameWait})).
 		OrderBy("created_at").Desc()
 	sql := qb.String()
-
 	o.Raw(sql).QueryRows(&games)
-	statuses := []GameStatus{}
+
 	gameIds := []int{}
 	for _, game := range games {
 		gameIds = append(gameIds, game.Id)
 	}
 
 	players := GetGamePlayers(gameIds)
-	for _, game := range games {
-		statuses = append(statuses, GameStatus{
-			Game:       game,
-			Players:    players[game.Id],
-			StatusName: lobby.GameStatusName(game.Status),
-		})
+	for i, game := range games {
+		games[i].Players = players[game.Id]
 	}
 
-	return statuses
+	return games
 }

@@ -9,11 +9,11 @@ import (
 	wetalk "github.com/beego/wetalk/modules/models"
 )
 
-type LobbyApiController struct {
+type ApiLobbyController struct {
 	ApiController
 }
 
-func (this *LobbyApiController) GameCreate() {
+func (this *ApiLobbyController) GameCreate() {
 	var user wetalk.User
 	playersCount, _ := this.GetInt("playersCount")
 	auth.GetUserFromSession(&user, this.Ctx.Input.CruSession)
@@ -33,7 +33,7 @@ func (this *LobbyApiController) GameCreate() {
 	this.SetData(&result)
 }
 
-func (this *LobbyApiController) GameJoin() {
+func (this *ApiLobbyController) GameJoin() {
 	id, _ := strconv.Atoi(this.Ctx.Input.Param(":id"))
 	userId := auth.GetUserIdFromSession(this.Ctx.Input.CruSession)
 	err, gameStatus := models.JoinGame(id, userId)
@@ -49,7 +49,7 @@ func (this *LobbyApiController) GameJoin() {
 	this.SetData(&result)
 }
 
-func (this *LobbyApiController) GameLeave() {
+func (this *ApiLobbyController) GameLeave() {
 	id, _ := strconv.Atoi(this.Ctx.Input.Param(":id"))
 	userId := auth.GetUserIdFromSession(this.Ctx.Input.CruSession)
 	action, err := models.LeaveGame(id, userId)
@@ -73,11 +73,11 @@ func ConvertStringArrayToIntArray(s []string) []int {
 	return ans
 }
 
-func (this *LobbyApiController) GameUpdate() {
+func (this *ApiLobbyController) GameUpdate() {
 	userId := auth.GetUserIdFromSession(this.Ctx.Input.CruSession)
 	GameStatuses := models.GetStatuses(userId)
 	for i, g := range GameStatuses {
-		GameStatuses[i].URL = this.URLFor("GameController.Game", ":id", g.Game.Id)
+		GameStatuses[i].URL = this.URLFor("GameController.Game", ":id", g.Id)
 	}
 
 	result := struct {
@@ -87,7 +87,7 @@ func (this *LobbyApiController) GameUpdate() {
 	this.SetData(&result)
 }
 
-func (this *LobbyApiController) GameUsers() {
+func (this *ApiLobbyController) GameUsers() {
 	id, _ := strconv.Atoi(this.Ctx.Input.Param(":id"))
 	result := struct {
 		Status  string               `json:"status"`
@@ -101,7 +101,7 @@ type UserInfo struct {
 	NickName string `json:"nick_name"`
 }
 
-func (this *LobbyApiController) MyInfo() {
+func (this *ApiLobbyController) MyInfo() {
 	var user wetalk.User
 	auth.GetUserFromSession(&user, this.Ctx.Input.CruSession)
 	userResult := UserInfo{user.Id, user.NickName}

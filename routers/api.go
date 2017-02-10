@@ -6,11 +6,11 @@ import (
 )
 
 func init() {
-	beego.Router("/api/lobby/create", &controllers.LobbyApiController{}, "post:GameCreate")
-	beego.Router("/api/lobby/status", &controllers.LobbyApiController{}, "get:GameUpdate")
-	beego.Router("/api/lobby/join/:id", &controllers.LobbyApiController{}, "post:GameJoin")
-	beego.Router("/api/lobby/leave/:id", &controllers.LobbyApiController{}, "post:GameLeave")
-	beego.Router("/api/lobby/users/:id", &controllers.LobbyApiController{}, "get:GameUsers")
+	beego.Router("/api/lobby/create", &controllers.ApiLobbyController{}, "post:GameCreate")
+	beego.Router("/api/lobby/status", &controllers.ApiLobbyController{}, "get:GameUpdate")
+	beego.Router("/api/lobby/join/:id", &controllers.ApiLobbyController{}, "post:GameJoin")
+	beego.Router("/api/lobby/leave/:id", &controllers.ApiLobbyController{}, "post:GameLeave")
+	beego.Router("/api/lobby/users/:id", &controllers.ApiLobbyController{}, "get:GameUsers")
 
 	beego.Router("/api/games/cards", &controllers.ApiGameController{}, "get:GetGameCards")
 	beego.Router("/api/games/statuses", &controllers.ApiGameController{}, "get:GetGameStatuses")
@@ -22,5 +22,5 @@ func init() {
 	beego.Router("/api/games/step", &controllers.ApiGameController{}, "get:GameCurrentStep")
 	beego.Router("/api/games/info", &controllers.ApiGameController{}, "get:GameInfo")
 
-	beego.Router("/api/users/current", &controllers.LobbyApiController{}, "get:MyInfo")
+	beego.Router("/api/users/current", &controllers.ApiLobbyController{}, "get:MyInfo")
 }

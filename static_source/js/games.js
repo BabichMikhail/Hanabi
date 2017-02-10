@@ -19,7 +19,7 @@ function gameHandler() {
             type: "POST",
             url: "/api/games/action/play",
             data: {
-                game_id: Game.Id,
+                game_id: Game.id,
                 card_position: cardPosition
             }
         }).done(function(data) {
@@ -35,7 +35,7 @@ function gameHandler() {
             type: "POST",
             url: "/api/games/action/discard",
             data: {
-                game_id: Game.Id,
+                game_id: Game.id,
                 card_position: cardPosition,
             },
         }).done(function(data) {
@@ -51,7 +51,7 @@ function gameHandler() {
             type: "POST",
             url: "/api/games/action/info/value",
             data: {
-                game_id: Game.Id,
+                game_id: Game.id,
                 player_position: playerPosition,
                 card_value: cardValue,
             },
@@ -68,7 +68,7 @@ function gameHandler() {
             type: "POST",
             url: "/api/games/action/info/color",
             data: {
-                game_id: Game.Id,
+                game_id: Game.id,
                 player_position: playerPosition,
                 card_color: cardColor,
             },
@@ -85,7 +85,7 @@ function gameHandler() {
             type: "GET",
             url: "/api/games/info",
             data: {
-                game_id: Game.Id,
+                game_id: Game.id,
             },
         }).done(function(data) {
             Game.playerCount = data.player_count
@@ -153,7 +153,7 @@ function gameHandler() {
             type: "GET",
             url: "/api/games/step",
             data: {
-                game_id: Game.Id,
+                game_id: Game.id,
             },
         }).done(function(data) {
             let meta = $("meta[name=step]")
@@ -180,7 +180,7 @@ function gameHandler() {
 
     let meta = $("meta[name=step]")
     this.CurrentStep = meta.attr("step")
-    this.Id = window.location.pathname.match(/\d+/)[0]
+    this.id = window.location.pathname.match(/\d+/)[0]
 
     return this
 }
