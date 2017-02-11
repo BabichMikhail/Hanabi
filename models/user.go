@@ -39,3 +39,10 @@ func (p *Player) TableUnique() [][]string {
 		[]string{"user_id", "game_id"},
 	}
 }
+
+func (p *Player) TableIndex() [][]string {
+	return [][]string{
+		[]string{"game_id"},
+		[]string{"user_id"},
+	}
+}
