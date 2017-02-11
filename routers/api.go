@@ -10,6 +10,7 @@ func init() {
 	beego.Router("/api/lobby/games/active", &controllers.ApiLobbyController{}, "get:GetActiveGames")
 	beego.Router("/api/lobby/games/my", &controllers.ApiLobbyController{}, "get:GetMyGames")
 	beego.Router("/api/lobby/games/all", &controllers.ApiLobbyController{}, "get:GetAllGames")
+	beego.Router("/api/lobby/games/finished", &controllers.ApiLobbyController{}, "get:GetFinishedGames")
 	beego.Router("/api/lobby/join/:id", &controllers.ApiLobbyController{}, "post:GameJoin")
 	beego.Router("/api/lobby/leave/:id", &controllers.ApiLobbyController{}, "post:GameLeave")
 	beego.Router("/api/lobby/users/:id", &controllers.ApiLobbyController{}, "get:GameUsers")

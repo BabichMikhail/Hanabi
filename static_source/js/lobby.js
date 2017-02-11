@@ -160,35 +160,56 @@ function lobbyHandler() {
             $("#games").html(html)
             setTimeout(Lobby.Update, 10000)
         }).fail(function(data) {
-            alert("UPDATE FAIL")
+            alert("UPDATE LOBBY FAIL")
         })
     }
 
-    this.UpdateMyGames = function() {
-
-    }
-
-    this.UpdateAllGames = function() {
-
+    this.UpdateGames = function(url, idName) {
+        $.ajax({
+            type: "GET",
+            url: url,
+            data: {}
+        }).done(function(data) {
+            html = ``
+            games = data.games
+            for (let i = 0; i < games.length; ++i) {
+                game = games[i]
+                playersHtml = ``
+                for (let j = 0; j < game.players.length; ++j) {
+                    playersHtml += (j != 0 ? ` ` : ``) + game.players[j].nick_name
+                }
+                html += `<div class="col-md-2">
+                    <div class="card text-center">
+                        <div class="card-block">
+                            <h4 class="card-title">Game #` + game.id + `</h4>
+                            <p class="card-text">Creator: ` + game.owner_name + `
+                            <p class="card-text">Status: ` + game.status_name + `</p>
+                            <p class="card-text">Places: ` + game.player_count + `</p>
+                            <p class="card-text">Players: ` + playersHtml + `</p>
+                        </div>
+                    </div>
+                </div>`
+            }
+            $("#" + idName).html(html)
+            setTimeout(Lobby.Update, 10000)
+        }).fail(function(data) {
+            alert("UPDATE GAMES FAIL")
+        })
     }
 
     this.Update = function() {
-        if (Lobby.State == "lobby") {
-            Lobby.UpdateLobby()
-        } else if (Lobby.State == "lobby-my-games") {
-            Lobby.UpdateMyGames()
-        } else if (Lobby.State == "lobby-all-games") {
-            Lobby.UpdateAllGames()
-        }
+        Lobby.Tabs[Lobby.State].Update()
     }
 
     this.SetActive = function(elem, idName) {
         $("a[class='nav-link active']").removeClass("active")
         elem.classList.add("active")
-        $("#lobby").addClass("invisible")
-        $("#lobby-my-games").addClass("invisible")
-        $("#lobby-all-games").addClass("invisible")
+        for (let state in Lobby.Tabs) {
+            $("#" + state).addClass("invisible")
+        }
         $("#" + idName).removeClass("invisible")
+        Lobby.State = idName
+        Lobby.Update()
     }
 
     this.LoadUserList = function(id) {
@@ -231,6 +252,37 @@ function lobbyHandler() {
     }
 
     this.Init()
+
+    this.Tabs = {
+        "lobby-main": {
+            State: "lobby-main",
+            Url: "api/lobby/games/active",
+            Update: function() {
+                return Lobby.UpdateLobby(this.Url, this.State)
+            },
+        },
+        "lobby-my-games": {
+            State: "lobby-my-games",
+            Url: "/api/lobby/games/my",
+            Update: function() {
+                return Lobby.UpdateGames(this.Url, this.State)
+            },
+        },
+        "lobby-all-games": {
+            State: "lobby-all-games",
+            Url: "/api/lobby/games/all",
+            Update: function() {
+                return Lobby.UpdateGames(this.Url, this.State)
+            },
+        },
+        "lobby-finished-games": {
+            State: "lobby-finished-games",
+            Url: "/api/lobby/games/finished",
+            Update: function() {
+                return Lobby.UpdateGames(this.Url, this.State)
+            },
+        },
+    }
 
     return this
 }

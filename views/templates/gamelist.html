@@ -1,5 +1,5 @@
 {{ template "../components/navtabs.html" }}
-<div id="lobby">
+<div id="lobby-main">
     <div id="queue-1" name="queue" class="col-md-2">
         {{ range $idx, $game := .gamesLeft }}
         {{ if $game.UserIn }}
@@ -88,3 +88,4 @@
 </div>
 <div id="lobby-my-games" class="invisible"></div>
 <div id="lobby-all-games" class="invisible"></div>
+<div id="lobby-finished-games" class="invisible"></div>

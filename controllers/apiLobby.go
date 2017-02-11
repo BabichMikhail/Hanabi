@@ -106,6 +106,12 @@ func (this *ApiLobbyController) GetAllGames() {
 	this.SetGameData(games)
 }
 
+func (this *ApiLobbyController) GetFinishedGames() {
+	games := models.GetFinishedGames()
+	this.SetGameURLs(games)
+	this.SetGameData(games)
+}
+
 func (this *ApiLobbyController) GameUsers() {
 	id, _ := strconv.Atoi(this.Ctx.Input.Param(":id"))
 	result := struct {

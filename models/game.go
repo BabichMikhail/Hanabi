@@ -303,11 +303,20 @@ func getGames(gameStatuses []int) (games []LobbyGame) {
 	return
 }
 
+func GetFinishedGames() (games []LobbyGame) {
+	return getGames([]int{lobby.GameInactive})
+}
+
 func GetMyGames(userId int) (games []LobbyGame) {
-	games = getGames(lobby.GetAllStatuses())
-	for i, _ := range games {
-		for j, _ := range games[i].Players {
-			games[i].UserIn = games[i].UserIn || games[i].Players[j].Id == userId
+	gamesAll := getGames(lobby.GetAllStatuses())
+
+	for i, _ := range gamesAll {
+		for j, _ := range gamesAll[i].Players {
+			if gamesAll[i].Players[j].Id == userId {
+				gamesAll[i].UserIn = true
+				games = append(games, gamesAll[i])
+				break
+			}
 		}
 	}
 	return
