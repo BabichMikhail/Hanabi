@@ -1,7 +1,4 @@
-<ul class="nav nav-tabs">
-    <li class="nav-item"><a class="nav-link active" href="#">Lobby</a></li>
-    <li class="nav-item"><a class="nav-link" href="#">All Games</a></li>
-</ul>
+{{ template "../components/navtabs.html" }}
 <div id="queue-1" name="queue" class="col-md-2">
     {{ range $idx, $game := .gamesLeft }}
     {{ if $game.UserIn }}
