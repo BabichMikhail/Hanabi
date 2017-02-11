@@ -16,4 +16,6 @@ func init() {
 
 	beego.Router("/games/room/:id", &controllers.GameController{}, "get,post:Game")
 	beego.Router("/games/inactive/:id", &controllers.GameController{}, "get,post:GameInactive")
+
+	beego.Router("/games/view/:id", &controllers.GameViewController{}, "get:GameView")
 }

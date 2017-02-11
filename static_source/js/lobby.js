@@ -186,6 +186,10 @@ function lobbyHandler() {
                             <p class="card-text">Status: ` + game.status_name + `</p>
                             <p class="card-text">Places: ` + game.player_count + `</p>
                             <p class="card-text">Players: ` + playersHtml + `</p>
+                            ` + (game.status == 4
+                                ? `<a class="card-link" href="/games/view/` + game.id + `">Replay</a>`
+                                : ``
+                            ) + `
                         </div>
                     </div>
                 </div>`
