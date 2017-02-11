@@ -298,6 +298,7 @@ func getGames(gameStatuses []int) (games []LobbyGame) {
 	players := GetGamePlayers(gameIds)
 	for i, game := range games {
 		games[i].Players = players[game.Id]
+		games[i].StatusName = lobby.GameStatusName(game.Status)
 	}
 
 	return
