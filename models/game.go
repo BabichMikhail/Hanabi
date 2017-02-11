@@ -219,12 +219,12 @@ func GetGameList(status []int, userId int) (games []lobby.GameItem) {
 	}
 	playersMap := GetGamePlayers(ids)
 	userGames := getUserGames(userId)
-	userInMap := map[int]bool{}
+	userInGame := map[int]bool{}
 	for _, v := range userGames {
-		userInMap[v.Id] = true
+		userInGame[v.Id] = true
 	}
 	for i, g := range games {
-		games[i].UserIn = userInMap[g.Id] == true
+		games[i].UserIn = userInGame[g.Id] == true
 		games[i].Players = playersMap[g.Id]
 		games[i].PlayerCount = gamesMap[g.Id]
 	}
@@ -266,7 +266,7 @@ func getUserGames(userId int) []UserGame {
 	return userGames
 }
 
-type GameStatus struct {
+type LobbyGame struct {
 	Id          int            `json:"id" orm:"column(id)"`
 	PlayerCount int            `json:"player_count" orm:"column(player_count)"`
 	OwnerId     int            `json:"owner_id" orm:"column(owner_id)"`
@@ -274,18 +274,18 @@ type GameStatus struct {
 	Status      int            `json:"status" orm:"column(status)"`
 	StatusName  string         `json:"status_name"`
 	CreatedAt   time.Time      `json:"created_at" orm:"column(created_at)"`
+	UserIn      bool           `json:"user_in"`
 	Players     []lobby.Player `json:"players"`
 	URL         string         `json:"URL"`
 }
 
-func GetStatuses(userId int) []GameStatus {
+func getGames(gameStatuses []int) (games []LobbyGame) {
 	o := orm.NewOrm()
-	var games []GameStatus
 	qb, _ := orm.NewQueryBuilder("mysql")
 	qb.Select("g.id, g.status, g.player_count, g.created_at, g.owner_id, u.nick_name as owner_name").
 		From("games g").
 		InnerJoin("user u").On("u.id = g.owner_id").
-		Where("status").In(IntSliceToString([]int{lobby.GameActive, lobby.GameWait})).
+		Where("status").In(IntSliceToString(gameStatuses)).
 		OrderBy("created_at").Desc()
 	sql := qb.String()
 	o.Raw(sql).QueryRows(&games)
@@ -300,5 +300,23 @@ func GetStatuses(userId int) []GameStatus {
 		games[i].Players = players[game.Id]
 	}
 
-	return games
+	return
+}
+
+func GetMyGames(userId int) (games []LobbyGame) {
+	games = getGames(lobby.GetAllStatuses())
+	for i, _ := range games {
+		for j, _ := range games[i].Players {
+			games[i].UserIn = games[i].UserIn || games[i].Players[j].Id == userId
+		}
+	}
+	return
+}
+
+func GetAllGames() (games []LobbyGame) {
+	return getGames([]int{lobby.GameActive, lobby.GameWait})
+}
+
+func GetActiveGames() (games []LobbyGame) {
+	return getGames([]int{lobby.GameActive, lobby.GameWait})
 }

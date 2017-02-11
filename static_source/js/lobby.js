@@ -99,15 +99,16 @@ function lobbyHandler() {
     }
 
     this.Statuses = null
+    this.State = "lobby"
 
-    this.Update = function() {
+    this.UpdateLobby = function() {
         $.ajax({
             type: "GET",
-            url: "/api/lobby/status",
+            url: "/api/lobby/games/active",
             data: {}
         }).done(function(data) {
             if (typeof Lobby.User == 'undefined') {
-                setTimeout(Lobby.Update, 10000)
+                setTimeout(Lobby.Update, 3000)
                 return
             }
             console.log(data.games)
@@ -151,7 +152,7 @@ function lobbyHandler() {
                 html += `<tr id = "game-` + game.id + `">
                     <th scope="row">` + game.id + `</th>
                     <td>` + game.owner_name + `</td>
-                    <td><p>` + playersHtml + `</p></td>
+                    <td>` + playersHtml + `</td>
                     <td>` + game.player_count + `</td>
                     <td>` + statusHtml + `</td>
                 </tr>`
@@ -161,6 +162,33 @@ function lobbyHandler() {
         }).fail(function(data) {
             alert("UPDATE FAIL")
         })
+    }
+
+    this.UpdateMyGames = function() {
+
+    }
+
+    this.UpdateAllGames = function() {
+
+    }
+
+    this.Update = function() {
+        if (Lobby.State == "lobby") {
+            Lobby.UpdateLobby()
+        } else if (Lobby.State == "lobby-my-games") {
+            Lobby.UpdateMyGames()
+        } else if (Lobby.State == "lobby-all-games") {
+            Lobby.UpdateAllGames()
+        }
+    }
+
+    this.SetActive = function(elem, idName) {
+        $("a[class='nav-link active']").removeClass("active")
+        elem.classList.add("active")
+        $("#lobby").addClass("invisible")
+        $("#lobby-my-games").addClass("invisible")
+        $("#lobby-all-games").addClass("invisible")
+        $("#" + idName).removeClass("invisible")
     }
 
     this.LoadUserList = function(id) {
@@ -186,13 +214,13 @@ function lobbyHandler() {
     this.Init = function () {
         $.ajax({
             type: "GET",
-            url: "/api/lobby/status",
+            url: "/api/lobby/games/active",
             data: {}
         }).done(function(data) {
             console.log(data)
             Lobby.Statuses = []
             if (data.games != null) {
-                for (var i = 0; i < data.games.length; ++i) {
+                for (let i = 0; i < data.games.length; ++i) {
                     Lobby.Statuses[data.games[i].game_id] = data.games[i]
                 }
             }
