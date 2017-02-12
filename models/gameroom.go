@@ -28,25 +28,34 @@ func CreateActiveGame(playerIds []int, gameId int) (game gamePackage.Game, err e
 }
 
 func ReadActiveGameById(id int) (game gamePackage.Game, err error) {
-	game, err = ReadGameById(id)
-	if err == nil && game.IsGameOver() {
-		o := orm.NewOrm()
-		o.QueryTable("games").Filter("id", id).Update(orm.Params{
-			"status": lobby.GameInactive,
-		})
+	return ReadGameByIdWithStatuses(id, []int{lobby.GameActive})
+}
 
-		game, err = gamePackage.Game{}, errors.New(fmt.Sprintf("Active game #%d not found", id))
-	}
-	return
+func ReadInactiveGameById(id int) (game gamePackage.Game, err error) {
+	return ReadGameByIdWithStatuses(id, []int{lobby.GameInactive})
 }
 
 func ReadGameById(id int) (game gamePackage.Game, err error) {
-	o := orm.NewOrm()
 	qb, _ := orm.NewQueryBuilder("mysql")
 	qb.Select("game").
 		From("games").
 		Where("id = ?")
 	sql := qb.String()
+	return readGameByQuery(sql, id)
+}
+
+func ReadGameByIdWithStatuses(id int, statuses []int) (game gamePackage.Game, err error) {
+	qb, _ := orm.NewQueryBuilder("mysql")
+	qb.Select("game").
+		From("games").
+		Where("id = ?").
+		And("status").In(IntSliceToString(statuses))
+	sql := qb.String()
+	return readGameByQuery(sql, id)
+}
+
+func readGameByQuery(sql string, id int) (game gamePackage.Game, err error) {
+	o := orm.NewOrm()
 	var gameModel Game
 	if err = o.Raw(sql, id).QueryRow(&gameModel); err != nil {
 		return
