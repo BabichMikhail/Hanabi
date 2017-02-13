@@ -5,5 +5,6 @@
 {{ .Header }}
 {{ .LayoutContent }}
 {{ template "components/footer.html" }}
+{{ .Scripts }}
     </body>
 </html>

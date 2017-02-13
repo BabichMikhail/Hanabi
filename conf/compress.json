@@ -19,7 +19,8 @@
                 "SourceFiles": [
                     "lobby.js",
                     "games.js",
-                    "users.js"
+                    "users.js",
+                    "view.js"
                 ]
             }
         }
