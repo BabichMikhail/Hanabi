@@ -20,6 +20,15 @@ const (
 	Orange
 )
 
+var Colors = []CardColor{
+	NoneColor,
+	Red,
+	Blue,
+	Green,
+	Yellow,
+	Orange,
+}
+
 type CardValue int
 
 const (
@@ -30,6 +39,15 @@ const (
 	Four
 	Five
 )
+
+var Values = []CardValue{
+	NoneValue,
+	One,
+	Two,
+	Three,
+	Four,
+	Five,
+}
 
 func RandomCardsPermutation(cards []*Card) {
 	for i := len(cards) - 1; i >= 0; i-- {

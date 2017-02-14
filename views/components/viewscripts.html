@@ -1,7 +1,6 @@
 <script type="text/javascript">
     $(function() {
         View = new viewHandler()
-        View.games = [];
         View.stepCount = {{ len $.Game.Actions }}
 
         View.actions = [
@@ -13,7 +12,8 @@
         {{ $initState := $.Game.InitState }}
         {{ range $idx, $card := $initState.Deck }}
             View.NewCard({{ $card.Color }}, {{ $card.KnownColor }}, {{ $card.Value }}, {{ $card.KnownValue }}),
-        {{ end }}]
+        {{ end }}
+        ]
         View.currentStep = 0
 
         let playerStates = [
@@ -38,5 +38,14 @@
             usedCards: [],
             playerStates: playerStates,
         }
+
+        View.noneColor = {{ $.NoneColor }}
+        View.noneValue = {{ $.NoneValue }}
+        {{ range $idx, $url := $.CardUrls }}
+        View.AddCardUrl({{ $url.Url }}, {{ $url.Color }}, {{ $url.Value }})
+        {{ end }}
+        View.MakeTable()
+        console.log(View.games[0])
     });
+
 </script>

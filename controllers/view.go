@@ -3,6 +3,7 @@ package controllers
 import (
 	"strconv"
 
+	engineGame "github.com/BabichMikhail/Hanabi/engine/game"
 	"github.com/BabichMikhail/Hanabi/models"
 	"github.com/beego/wetalk/modules/auth"
 	wetalk "github.com/beego/wetalk/modules/models"
@@ -10,6 +11,12 @@ import (
 
 type GameViewController struct {
 	BaseController
+}
+
+type CardUrl struct {
+	Color engineGame.CardColor
+	Value engineGame.CardValue
+	Url   string
 }
 
 func (this *GameViewController) GameView() {
@@ -28,4 +35,19 @@ func (this *GameViewController) GameView() {
 	this.LayoutSections = make(map[string]string)
 	this.LayoutSections["Header"] = "components/navbar.html"
 	this.LayoutSections["Scripts"] = "components/viewscripts.html"
+
+	var urls []CardUrl
+	for _, color := range engineGame.Colors {
+		for _, value := range engineGame.Values {
+			urls = append(urls, CardUrl{
+				Color: color,
+				Value: value,
+				Url:   engineGame.GetCardUrlByValueAndColor(color, value),
+			})
+		}
+	}
+
+	this.Data["CardUrls"] = urls
+	this.Data["NoneColor"] = engineGame.NoneColor
+	this.Data["NoneValue"] = engineGame.NoneValue
 }
