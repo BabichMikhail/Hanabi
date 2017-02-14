@@ -76,10 +76,29 @@ function viewHandler() {
             </div>`
         }
 
-        tmpHtml = ``
+        let tmpHtml = ``
         for (let i = 0; i < htmlPlayers.length; ++i) {
             tmpHtml += htmlPlayers[i]
         }
+        tmpHtml += `<div class="col-md-12">
+            <ul>
+                <li class="list-inline" style="display: inline-block">
+                    <div class="col-md-12" style="padding: 0px" height="120px">
+                        <img src="/static/img/deck.png" width="76" height="106" style="position:relative;">
+                        <img src="/static/img/number_3.png" width="30" style="position:absolute; left:6px; top:30px">
+                        <img src="/static/img/number_8.png" width="30" style="position:absolute; left:31px; top:30px">
+                    </div>
+                </li>
+                <li class="list-inline" style="display: inline-block">
+                    <img src="/static/img/token_red.png" style="position: relative; top: -30px" width="50" height="50">
+                    <img src="/static/img/number_0.png" style="position: relative; top: -30px" width="30">
+                </li>
+                <li class="list-inline" style="display: inline-block">
+                    <img src="/static/img/token_blue.png" style="position: relative; top: -30px" width="50" height="50">
+                    <img src="/static/img/number_6.png" style="position: relative; top: -30px" width="30">
+                </li>
+            </ul>
+        </div>`
         $("#users").html(tmpHtml)
     }
 
