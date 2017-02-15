@@ -66,7 +66,7 @@ function viewHandler() {
                     <img class="myCard" src="` + View.GetCardUrlByCard(cards[j]) + `">
                 </li>`
             }
-            htmlPlayers[i] = `<ul id="basic-cards-` + i + `" name="basic-cards">
+            htmlPlayers[i] = View.players[game.playerStates[i].playerId] + `<ul id="basic-cards-` + i + `" name="basic-cards">
                 ` + cardsBasicHtml + `</ul>`
             htmlPlayers[i] += `<ul id="additional-cards-` + i + `" name="additional-cards" class="invisible">
                 ` + cardsAdditionalHtml + `</ul>`

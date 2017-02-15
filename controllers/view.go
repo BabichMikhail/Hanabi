@@ -47,6 +47,7 @@ func (this *GameViewController) GameView() {
 		}
 	}
 
+	this.Data["Players"] = models.GetGamePlayers([]int{id})[id]
 	this.Data["CardUrls"] = urls
 	this.Data["MaxRedTokens"] = engineGame.MaxRedTokens
 	this.Data["MaxBlueTokens"] = engineGame.MaxBlueTokens

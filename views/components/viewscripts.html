@@ -52,6 +52,11 @@
             {{ end }}
         }
 
+        View.players = {
+            {{ range $idx, $player := $.Players }}
+            {{ $player.Id }}: {{ $player.NickName }},
+            {{ end }}
+        }
         View.noneColor = {{ $.NoneColor }}
         View.noneValue = {{ $.NoneValue }}
         View.maxRedTokens = {{ $.MaxRedTokens}}
