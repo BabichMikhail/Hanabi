@@ -37,10 +37,25 @@
             currentPosition: {{ $initState.CurrentPosition }},
             usedCards: [],
             playerStates: playerStates,
+            tableCards: {
+                {{ range $colorName, $color := $.TableColors }}
+                {{ $card := index $initState.TableCards $color }}
+                {{ $card.Color }}: View.NewCard({{ $card.Color }}, {{ $card.KnownColor }}, {{ $card.Value }}, {{ $card.KnownValue }}),
+                {{ end }}
+            },
+            deck: deck,
+
+        }
+        View.colors = {
+            {{ range $colorName, $color := $.TableColors }}
+            {{ $colorName }}: {{ $color }},
+            {{ end }}
         }
 
         View.noneColor = {{ $.NoneColor }}
         View.noneValue = {{ $.NoneValue }}
+        View.maxRedTokens = {{ $.MaxRedTokens}}
+        View.maxBlueTokens = {{ $.MaxRedTokens}}
         {{ range $idx, $url := $.CardUrls }}
         View.AddCardUrl({{ $url.Url }}, {{ $url.Color }}, {{ $url.Value }})
         {{ end }}

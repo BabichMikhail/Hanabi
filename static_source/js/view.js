@@ -76,30 +76,78 @@ function viewHandler() {
             </div>`
         }
 
-        let tmpHtml = ``
-        for (let i = 0; i < htmlPlayers.length; ++i) {
-            tmpHtml += htmlPlayers[i]
-        }
-        tmpHtml += `<div class="col-md-12">
-            <ul>
-                <li class="list-inline" style="display: inline-block">
-                    <div class="col-md-12" style="padding: 0px" height="120px">
-                        <img src="/static/img/deck.png" width="76" height="106" style="position:relative;">
-                        <img src="/static/img/number_3.png" width="30" style="position:absolute; left:6px; top:30px">
-                        <img src="/static/img/number_8.png" width="30" style="position:absolute; left:31px; top:30px">
-                    </div>
-                </li>
-                <li class="list-inline" style="display: inline-block">
-                    <img src="/static/img/token_red.png" style="position: relative; top: -30px" width="50" height="50">
-                    <img src="/static/img/number_0.png" style="position: relative; top: -30px" width="30">
-                </li>
-                <li class="list-inline" style="display: inline-block">
-                    <img src="/static/img/token_blue.png" style="position: relative; top: -30px" width="50" height="50">
-                    <img src="/static/img/number_6.png" style="position: relative; top: -30px" width="30">
-                </li>
-            </ul>
+        let tableHtml = `<div id="table-pos" class="col-md-12" style="text-align: center">
+            <div class="col-md-12">
+                <ul>
+                    <li id="table-blue-cards" class="list-inline" style="display: inline-block">
+                        <img src="` + View.GetCardUrlByCardIgnoreKnown(game.tableCards[View.colors["blue"]]) + `" class="myCard">
+                    </li>
+                    <li id="table-green-cards" class="list-inline" style="display: inline-block">
+                        <img src="` + View.GetCardUrlByCardIgnoreKnown(game.tableCards[View.colors["green"]]) + `" class="myCard">
+                    </li>
+                    <li id="table-orange-cards" class="list-inline" style="display: inline-block">
+                        <img src="` + View.GetCardUrlByCardIgnoreKnown(game.tableCards[View.colors["orange"]]) + `" class="myCard">
+                    </li>
+                    <li id="table-red-cards" class="list-inline" style="display: inline-block">
+                        <img src="` + View.GetCardUrlByCardIgnoreKnown(game.tableCards[View.colors["red"]]) + `" class="myCard">
+                    </li>
+                    <li id="table-yellow-cards" class="list-inline" style="display: inline-block">
+                        <img src="` + View.GetCardUrlByCardIgnoreKnown(game.tableCards[View.colors["yellow"]]) + `" class="myCard">
+                    </li>
+                </ul>
+            </div>
+            <div class="col-md-12">
+                <ul>
+                    <li class="list-inline" style="display: inline-block">
+                        <div class="col-md-12" style="padding: 0px" height="120px">
+                            <img src="/static/img/deck.png" width="76" height="106" style="position:relative;">
+                            <img src="/static/img/number_` + Math.floor(game.deck.length / 10) + `.png" width="30" style="position:absolute; left:6px; top:30px">
+                            <img src="/static/img/number_` + game.deck.length % 10 + `.png" width="30" style="position:absolute; left:31px; top:30px">
+                        </div>
+                    </li>
+                    <li class="list-inline" style="display: inline-block">
+                        <img src="/static/img/token_red.png" style="position: relative; top: -30px" width="50" height="50">
+                        <img src="/static/img/number_` + (View.maxRedTokens - game.redTokens) + `.png" style="position: relative; top: -30px" width="30">
+                    </li>
+                    <li class="list-inline" style="display: inline-block">
+                        <img src="/static/img/token_blue.png" style="position: relative; top: -30px" width="50" height="50">
+                        <img src="/static/img/number_` + game.blueTokens + `.png" style="position: relative; top: -30px" width="30">
+                    </li>
+                </ul>
+            </div>
         </div>`
-        $("#users").html(tmpHtml)
+
+        let html = ""
+        if (game.playerStates.length == 2) {
+            html += `
+                <div class="col-md-12" style="text-align:center" id="player-1">` + htmlPlayers[1] + `</div>
+                <div class="col-md-12" id="table">` + tableHtml + `</div>
+                <div class="col-md-12" style="text-align:center" id="player-0">` + htmlPlayers[0] + `</div>`
+        } else if (game.playerStates.length == 3) {
+            html += `
+                <div class="col-md-6" style="text-align:center" id="player-1">` + htmlPlayers[1] + `</div>
+                <div class="col-md-6" style="text-align:center" id="player-2">` + htmlPlayers[2] + `</div>
+                <div class="col-md-12" id="table">` + tableHtml + `</div>
+                <div class="col-md-12" style="text-align:center" id="player-0">` + htmlPlayers[0] + `</div>`
+        } else if (game.playerStates.length == 4) {
+            html += `
+                <div class="col-md-12" style="text-align:center" id="player-2">` + htmlPlayers[2] + `</div>
+                <div class="col-md-4" style="text-align:center" id="player-1">` + htmlPlayers[1] + `</div>
+                <div class="col-md-4" id="table">` + tableHtml + `</div>
+                <div class="col-md-4" style="text-align:center" id="player-3">` + htmlPlayers[3] + `</div>
+                <div class="col-md-12" style="text-align:center" id="player-0">` + htmlPlayers[0] + `</div>`
+        } else if (game.playerStates.length == 5) {
+            html += `
+                <div class="col-md-2"></div>
+                <div class="col-md-4" style="text-align:center" id="player-2">` + htmlPlayers[2] + `</div>
+                <div class="col-md-4" style="text-align:center" id="player-3">` + htmlPlayers[3] + `</div>
+                <div class="col-md-2"></div>
+                <div class="col-md-4" style="text-align:center" id="player-1">` + htmlPlayers[1] + `</div>
+                <div class="col-md-4" id="table">` + tableHtml + `</div>
+                <div class="col-md-4" style="text-align:center" id="player-4">` + htmlPlayers[4] + `</div>
+                <div class="col-md-12" style="text-align:center" id="player-0">` + htmlPlayers[0] + `</div>`
+        }
+        $("#users").html(html)
     }
 
     return this

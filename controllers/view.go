@@ -48,6 +48,9 @@ func (this *GameViewController) GameView() {
 	}
 
 	this.Data["CardUrls"] = urls
+	this.Data["MaxRedTokens"] = engineGame.MaxRedTokens
+	this.Data["MaxBlueTokens"] = engineGame.MaxBlueTokens
 	this.Data["NoneColor"] = engineGame.NoneColor
 	this.Data["NoneValue"] = engineGame.NoneValue
+	this.Data["TableColors"] = engineGame.GetTableColorOrder()
 }
