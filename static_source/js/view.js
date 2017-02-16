@@ -20,11 +20,82 @@ function viewHandler() {
         }
     }
 
-    this.MakeGame = function(step) {
-        if (typeof View.games[step - 1] == 'undefined') {
-            this.MakeGame(step - 1)
+    this.CalculateGame = function(step) {
+        if (typeof View.games[step] != 'undefined') {
+            return
         }
-        // @todo
+        if (step > 0 && typeof View.games[step - 1] == 'undefined') {
+            this.CalculateGame(step - 1)
+        }
+
+        // game_i + action_i = game_(i + 1)
+        let action = View.actions[step - 1]
+        let game = jQuery.extend(true, {}, View.games[step - 1]);
+        if (action.type == View.actionTypes["infoValue"]) {
+            for (let i = 0; i < game.playerStates[action.pos].playerCards.length; ++i) {
+                if (game.playerStates[action.pos].playerCards[i].value == action.value) {
+                    game.playerStates[action.pos].playerCards[i].knownValue = true
+                }
+            }
+            --game.blueTokens
+        } else if (action.type == View.actionTypes["infoColor"]) {
+            for (let i = 0; i < game.playerStates[action.pos].playerCards.length; ++i) {
+                if (game.playerStates[action.pos].playerCards[i].value == action.value) {
+                    game.playerStates[action.pos].playerCards[i].knownValue = true
+                }
+            }
+            --game.blueTokens
+        } else if (action.type == View.actionTypes["discard"]) {
+            let oldCard = game.playerStates[action.pos].playerCards[action.value]
+            game.playerStates[action.pos].playerCards.splice(action.value, 1)
+            if (game.deck.length > 0) {
+                let newCard = game.deck.pop()
+                game.playerStates[action.pos].playerCards.push(newCard)
+            }
+            ++game.blueTokens
+            game.usedCards.push(oldCard)
+        } else if (action.type == View.actionTypes["play"]) {
+            let oldCard = game.playerStates[action.pos].playerCards[action.value]
+            game.playerStates[action.pos].playerCards.splice(action.value, 1)
+            if (game.deck.length > 0) {
+                let newCard = game.deck.pop()
+                game.playerStates[action.pos].playerCards.push(newCard)
+            }
+            if (game.tableCards[oldCard.color].value + 1 == oldCard.value) {
+                game.tableCards[oldCard.color] = oldCard
+                if (oldCard.value == 5 && game.blueTokens < View.maxBlueTokens) {
+                    ++game.blueTokens
+                }
+            } else {
+                game.usedCards.push(oldCard)
+                --game.redTokens
+            }
+        }
+        View.currentStep = step
+        View.games[step] = game
+    }
+
+    this.MakeNextGame = function() {
+        if (View.action.length >= View.currentStep) {
+            return
+        }
+        View.currentStep++
+        View.MakeTable()
+    }
+
+    this.MakePrevGame = function() {
+        if (View.currentStep <= 0) {
+            return
+        }
+        View.currentStep--
+        View.MakeTable()
+    }
+
+    this.MakeGame = function(step) {
+        if (typeof View.games[step] == 'undefined') {
+            this.CalculateGame(step)
+        }
+        View.MakeTable()
     }
 
     this.cardUrls = []
@@ -47,7 +118,7 @@ function viewHandler() {
     }
 
     this.MakeTable = function() {
-        if (typeof View.games[View.currentStep] == 'undefined') {c
+        if (typeof View.games[View.currentStep] == 'undefined') {
             View.MakeGame(View.currentStep)
         }
         game = View.games[View.currentStep]
@@ -55,7 +126,7 @@ function viewHandler() {
         let htmlTable = ``
         let htmlPlayers = []
         for (let i = 0; i < game.playerStates.length; ++i) {
-            cards = game.playerStates[i].playerCards[i]
+            cards = game.playerStates[i].playerCards
             cardsBasicHtml = ``
             cardsAdditionalHtml = ``
             for (let j = 0; j < cards.length; ++j) {
@@ -66,8 +137,8 @@ function viewHandler() {
                     <img class="myCard" src="` + View.GetCardUrlByCard(cards[j]) + `">
                 </li>`
             }
-            htmlPlayers[i] = View.players[game.playerStates[i].playerId] + `<ul id="basic-cards-` + i + `" name="basic-cards">
-                ` + cardsBasicHtml + `</ul>`
+            htmlPlayers[i] = View.players[game.playerStates[i].playerId] +
+                `<ul id="basic-cards-` + i + `" name="basic-cards">` + cardsBasicHtml + `</ul>`
             htmlPlayers[i] += `<ul id="additional-cards-` + i + `" name="additional-cards" class="invisible">
                 ` + cardsAdditionalHtml + `</ul>`
             htmlPlayers[i] = `<div id="player-pos-` + i + `" class="col-md-12">

@@ -21,12 +21,9 @@
             playerId: {{ $state.PlayerId }},
             playerPosition: {{ $state.PlayerPosition }},
             playerCards: [
-            {{ range $idx, $cardArray := $state.PlayersCards }}
-                [
-                {{ range $idx, $card := $cardArray }}
-                    View.NewCard({{ $card.Color }}, {{ $card.KnownColor }}, {{ $card.Value }}, {{ $card.KnownValue }}),
-                {{ end }}
-                ],
+            {{ $cardArray := index $state.PlayersCards $idx }}
+            {{ range $i, $card := $cardArray }}
+                View.NewCard({{ $card.Color }}, {{ $card.KnownColor }}, {{ $card.Value }}, {{ $card.KnownValue }}),
             {{ end }}
             ],
         },{{ end }}
@@ -61,11 +58,18 @@
         View.noneValue = {{ $.NoneValue }}
         View.maxRedTokens = {{ $.MaxRedTokens}}
         View.maxBlueTokens = {{ $.MaxRedTokens}}
+        View.actionTypes = {
+            infoValue: {{ index $.ActionTypes "infoColor" }},
+            infoColor: {{ index $.ActionTypes "infoValue" }},
+            discard: {{ index $.ActionTypes "discard" }},
+            play: {{ index $.ActionTypes "play" }},
+        }
         {{ range $idx, $url := $.CardUrls }}
         View.AddCardUrl({{ $url.Url }}, {{ $url.Color }}, {{ $url.Value }})
         {{ end }}
         View.MakeTable()
         console.log(View.games[0])
+        console.log(View)
     });
 
 </script>

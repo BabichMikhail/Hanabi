@@ -54,4 +54,10 @@ func (this *GameViewController) GameView() {
 	this.Data["NoneColor"] = engineGame.NoneColor
 	this.Data["NoneValue"] = engineGame.NoneValue
 	this.Data["TableColors"] = engineGame.GetTableColorOrder()
+	this.Data["ActionTypes"] = map[string]int{
+		"infoColor": engineGame.TypeActionInformationColor,
+		"infoValue": engineGame.TypeActionInformationValue,
+		"discard":   engineGame.TypeActionDiscard,
+		"play":      engineGame.TypeActionPlaying,
+	}
 }
