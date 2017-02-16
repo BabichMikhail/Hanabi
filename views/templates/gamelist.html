@@ -1,31 +1,13 @@
 {{ template "../components/navtabs.html" }}
-<div id="lobby-main">
-    <div id="queue-1" name="queue" class="col-md-2">
-        {{ range $idx, $game := .gamesLeft }}
-        {{ if $game.UserIn }}
-        <div id="queue-game-{{ $game.Id }}" class="card text-center">
-            <div class="card-block">
-                <h4 class="card-title">Game #{{ $game.Id}}</h4>
-                <p class="card-text">Status: {{ $game.Status }}</p>
-                <p class="card-text">Places: {{ $game.PlayerPlaces }}</p>
-                <p class="card-text">
-                    Players:
-                    {{ range $i, $player := $game.Players }}
-                    {{ $player.NickName }}
-                    {{ end }}
-                </p>
-            </div>
-        </div>
-        {{ end }}
-        {{ end }}
-    </div>
-    <div class="col-md-8">
+<div class="container">
+    <div class="col-md-12">
         <table class="table table-striped">
             <thead>
-                <th></th>
-                <th>Owner</th>
+                <th>#</th>
+                <th>Creator</th>
                 <th>Users</th>
-                <th>Limit</th>
+                <th>Places</th>
+                <th>Status</th>
                 <th></th>
             </thead>
             <tbody id="games">
@@ -41,17 +23,18 @@
                     <td>
                         {{ $game.PlayerPlaces }}
                     </td>
+                    <td>{{ $game.Status }}</td>
                     <td>
                         {{ if $game.UserIn }}
                         {{ if compare $game.Status "active" }}
-                        <a href="{{ urlfor "GameController.Game" ":id" $game.Id }}">GO</a>
+                        <a class="btn-link" href="{{ urlfor "GameController.Game" ":id" $game.Id }}">Go</a>
                         {{ else }}
-                        <button type="button" onclick="Lobby.Leave({{ $game.Id }});">Leave</button>
+                        <a class="btn-link" href="#" onclick="Lobby.Leave({{ $game.Id }});">Leave</a>
                         {{ end}}
                         {{ else }}
                         {{ if compare $game.Status "active" }}
                         {{ else }}
-                        <button type="button" onclick="Lobby.Join({{ $game.Id }});">Join</button>
+                        <a class="btn-link" href="#" onclick="Lobby.Join({{ $game.Id }});">Join</a>
                         {{ end }}
                         {{ end }}
                     </td>
@@ -66,26 +49,4 @@
             <input type="number" min="2" max="5" class="form-control" name="playersCount" placeholder="Players count 2..5"/>
         </div>
     </div>
-    <div id="queue-2" name="queue" class="col-md-2">
-        {{ range $idx, $game := .gamesRight }}
-        {{ if $game.UserIn }}
-        <div id="queue-game-{{ $game.Id }}" class="card text-center">
-            <div class="card-block">
-                <h4 class="card-title">Game #{{ $game.Id}}</h4>
-                <p class="card-text">Status: {{ $game.Status }}</p>
-                <p class="card-text">Places: {{ $game.PlayerPlaces }}</p>
-                <p class="card-text">
-                    Players:
-                    {{ range $i, $player := $game.Players }}
-                    {{ $player.NickName }}
-                    {{ end }}
-                </p>
-            </div>
-        </div>
-        {{ end }}
-        {{ end }}
-    </div>
 </div>
-<div id="lobby-my-games" class="invisible"></div>
-<div id="lobby-all-games" class="invisible"></div>
-<div id="lobby-finished-games" class="invisible"></div>

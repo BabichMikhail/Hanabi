@@ -12,30 +12,21 @@ function lobbyHandler() {
         }).done(function(data) {
             console.log(data)
             if (data.status == "success") {
+                if (Lobby.State == "lobby-finished-games") {
+                    return
+                }
                 let gameId = data.game.id
                 let html = `<tr id="game-` +  gameId + `">
                     <th scope="row">` + gameId + `</th>
                     <td>` + data.game.owner + `</td>
                     <td>` + data.game.owner + `</td>
                     <td>` + count  + `</td>
+                    <td>wait</td>
                     <td>
-                        <button type="button" onClick="Lobby.Leave(` + gameId + `);">Leave</button>
+                        <a class="btn-link" href="#" onclick="Lobby.Leave(` + gameId + `)">Leave</button>
                     </td>
                 </tr>`
                 $("#games").prepend(html)
-
-                queueHtml = `<div id="queue-game-` +  gameId + `" class="card text-center">
-                    <div class="card-block">
-                        <h4 class="card-title">Game #` + gameId + `</h4>
-                        <p class="card-text">Status: ` + data.game.status + `</p>
-                        <p class="card-text">Places: ` + count + `</p>
-                        <p class="card-text">Players: ` + data.game.owner + `</p>
-                    </div>
-                </div>`
-                let childLeft = $('#queue-1')
-                let childRight = $('#queue-2')
-                let elem = childLeft[0].childElementCount > childRight[0].childElementCount ? childRight : childLeft
-                elem.append(queueHtml)
             }
         }).fail(function(data) {
             alert("CREATE FAIL")
@@ -52,9 +43,8 @@ function lobbyHandler() {
             if (data.status == "success") {
                 if (data.action == "delete") {
                     $("#game-" + id).remove()
-                    $("#queue-game-" + id).remove()
                 } else {
-                    location.reload()
+                    Lobby.Update()
                 }
             }
         }).fail(function(data) {
@@ -92,7 +82,7 @@ function lobbyHandler() {
             if (data.status == "success" && data.game_status == "active") {
                 setTimeout(Lobby.OpenGame, 1000, data.URL)
             }
-            location.reload()
+            Lobby.Update()
         }).fail(function(data) {
             alert("JOIN FAIL")
         })
@@ -101,100 +91,43 @@ function lobbyHandler() {
     this.Statuses = null
     this.State = "lobby"
 
-    this.UpdateLobby = function() {
-        $.ajax({
-            type: "GET",
-            url: "/api/lobby/games/active",
-            data: {}
-        }).done(function(data) {
-            if (typeof Lobby.User == 'undefined') {
-                setTimeout(Lobby.Update, 3000)
-                return
-            }
-            console.log(data.games)
-            let games = data.games
-            if (games != null) {
-                for (var i = 0; i < games.length; ++i) {
-                    let game = games[i]
-                    if (Lobby.Statuses[game.id] == null) {
-                        Lobby.Statuses[game.id] = game
-                        continue
-                    }
-                    let oldStatus = Lobby.Statuses[game.id].status_code
-                    let newStatus = game.status_code
-                    if (oldStatus != newStatus) {
-                        Lobby.Statuses[game.id].status_code = newStatus
-                        setTimeout(Lobby.OpenGame, 1000, game.URL)
-                    }
-                }
-            }
-
-            let html = ``
-            for (let i = 0; i < games.length; ++i) {
-                playersHtml = ``
-                let userIn = false
-                let game = games[i]
-                let ownerName = ''
-                for (let j = 0; j < game.players.length; ++j) {
-                    playersHtml += (j > 0 ? ` ` : ``) + game.players[j].nick_name
-                    if (game.players[j].id == Lobby.User.id) {
-                        userIn = true
-                    }
-                }
-
-                statusHtml =
-                    games[i].status_name == `active`
-                        ? `<a href="` + game.URL + `">GO</a>`
-                        : (userIn
-                            ? `<button type="button" onclick="Lobby.Leave(` + game.id + `)">Leave</button>`
-                            : `<button type="button" onclick="Lobby.Join(` + game.id + `)">Join</button>`
-                        )
-                html += `<tr id = "game-` + game.id + `">
-                    <th scope="row">` + game.id + `</th>
-                    <td>` + game.owner_name + `</td>
-                    <td>` + playersHtml + `</td>
-                    <td>` + game.player_count + `</td>
-                    <td>` + statusHtml + `</td>
-                </tr>`
-            }
-            $("#games").html(html)
-            setTimeout(Lobby.Update, 10000)
-        }).fail(function(data) {
-            alert("UPDATE LOBBY FAIL")
-        })
-    }
-
     this.UpdateGames = function(url, idName) {
         $.ajax({
             type: "GET",
             url: url,
             data: {}
         }).done(function(data) {
-            html = ``
+            newHtml = ``
             games = data.games
             for (let i = 0; i < games.length; ++i) {
                 game = games[i]
                 playersHtml = ``
+                let userIn = false
                 for (let j = 0; j < game.players.length; ++j) {
                     playersHtml += (j != 0 ? ` ` : ``) + game.players[j].nick_name
+                    userIn |= Lobby.User.nick_name == game.players[j].nick_name
                 }
-                html += `<div class="col-md-2">
-                    <div class="card text-center">
-                        <div class="card-block">
-                            <h4 class="card-title">Game #` + game.id + `</h4>
-                            <p class="card-text">Creator: ` + game.owner_name + `
-                            <p class="card-text">Status: ` + game.status_name + `</p>
-                            <p class="card-text">Places: ` + game.player_count + `</p>
-                            <p class="card-text">Players: ` + playersHtml + `</p>
-                            ` + (game.status == 4
-                                ? `<a class="card-link" href="/games/view/` + game.id + `">Replay</a>`
-                                : ``
-                            ) + `
-                        </div>
-                    </div>
-                </div>`
+                let actionHtml = ``
+                if (game.status_name == "inactive") {
+                    actionHtml = `<a class="btn-link" href="/games/view/` + game.id + `">Replay</a>`
+                } else if (game.status_name == "wait") {
+                    actionHtml = userIn
+                        ? `<a class="btn-link" href="#" onclick="Lobby.Leave(` + game.id + `)">Leave</a>`
+                        : `<a class="btn-link" href="#" onclick="Lobby.Join(` + game.id + `)">Join</a>`
+                } else if (game.status_name == "active") {
+                    actionHtml = `<a class="btn-link" href="/games/room/` + game.id + `">Go</a>`
+                }
+
+                newHtml += `<tr id="game-` + game.id + `">
+                    <th scope="row">` + game.id + `</th>
+                    <td>` + game.owner_name + `</td>
+                    <td>` + playersHtml + `</td>
+                    <td>` + game.player_count + `</td>
+                    <td>` + game.status_name + `</td>
+                    <td>` + actionHtml + `</td>
+                </tr>`
             }
-            $("#" + idName).html(html)
+            $("#games").html(newHtml)
             setTimeout(Lobby.Update, 10000)
         }).fail(function(data) {
             alert("UPDATE GAMES FAIL")
@@ -208,10 +141,6 @@ function lobbyHandler() {
     this.SetActive = function(elem, idName) {
         $("a[class='nav-link active']").removeClass("active")
         elem.classList.add("active")
-        for (let state in Lobby.Tabs) {
-            $("#" + state).addClass("invisible")
-        }
-        $("#" + idName).removeClass("invisible")
         Lobby.State = idName
         Lobby.Update()
     }
@@ -256,13 +185,14 @@ function lobbyHandler() {
     }
 
     this.Init()
+    this.State = "lobby-main"
 
     this.Tabs = {
         "lobby-main": {
             State: "lobby-main",
             Url: "api/lobby/games/active",
             Update: function() {
-                return Lobby.UpdateLobby(this.Url, this.State)
+                return Lobby.UpdateGames(this.Url, this.State)
             },
         },
         "lobby-my-games": {
