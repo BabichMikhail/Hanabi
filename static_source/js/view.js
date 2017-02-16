@@ -76,7 +76,7 @@ function viewHandler() {
     }
 
     this.MakeNextGame = function() {
-        if (View.action.length >= View.currentStep) {
+        if (View.currentStep >= View.actions.length) {
             return
         }
         View.currentStep++
