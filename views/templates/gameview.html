@@ -1,3 +1,12 @@
+<nav class="navbar navbar-light bg-faded">
+    <button class="btn btn-sm align-middle btn-outline-secondary" type="button" onclick="View.MakePrevGame()">Prev</button>
+    {{ range $idx, $action := $.Game.Actions }}
+    <button class="btn btn-sm align-middle btn-outline-secondary" type="button" onclick="View.MakeGame({{ $idx }})">{{ $idx }}</button>
+    {{ end }}
+    <button class="btn btn-sm align-middle btn-outline-secondary" type="button" onclick="View.MakeGame({{ len $.Game.Actions }})">{{ len $.Game.Actions }}</button>
+    <button class="btn btn-sm align-middle btn-outline-secondary" type="button" onclick="View.MakeNextGame()">Next</button>
+</nav>
+
 <div id="view-box">
     <div id="users">
 
