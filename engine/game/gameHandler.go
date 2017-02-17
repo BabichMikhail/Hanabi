@@ -14,11 +14,13 @@ type Game struct {
 	CurrentState GameState `json:"current_state"`
 	Actions      []Action  `json:"actions"`
 	Seed         int64     `json:"seed"`
+	Points       int       `json:"points"`
 }
 
 func NewGame(ids []int) Game {
 	this := new(Game)
 	this.Seed = time.Now().UTC().UnixNano()
+	this.Points = 0
 	rand.Seed(this.Seed)
 	cards := []*Card{}
 	values := []CardValue{One, One, One, Two, Two, Three, Three, Four, Four, Five}
@@ -56,13 +58,20 @@ func (this *Game) GetPlayerPositionById(id int) (pos int, err error) {
 }
 
 func (this *Game) GetPoints() (points int, err error) {
+	if this.Points != 0 {
+		return this.Points, nil
+	}
 	if !this.IsGameOver() {
 		return 0, errors.New("Game not is over")
 	}
 	points, err = this.CurrentState.GetPoints()
+	this.Points = points
 	return
 }
 
 func (this *Game) IsGameOver() bool {
+	if this.Points > 0 {
+		return true
+	}
 	return this.CurrentState.IsGameOver()
 }
