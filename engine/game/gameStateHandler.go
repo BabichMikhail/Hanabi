@@ -131,3 +131,31 @@ func (this GameState) Copy() GameState {
 
 	return newState
 }
+
+func (state *GameState) IsGameOver() bool {
+	if state.RedTokens == 0 {
+		return true
+	}
+
+	cardInHands := 0
+	for i := 0; i < len(state.PlayerStates[0].PlayersCards); i++ {
+		cardInHands += len(state.PlayerStates[0].PlayersCards[i])
+	}
+	if cardInHands == state.PlayerCount*(state.GetCardCount()-1) {
+		return true
+	}
+
+	for _, card := range state.TableCards {
+		if card.Value != Five {
+			return false
+		}
+	}
+	return true
+}
+
+func (state *GameState) GetPoints() (points int, err error) {
+	for _, card := range state.TableCards {
+		points += card.GetPoints()
+	}
+	return
+}
