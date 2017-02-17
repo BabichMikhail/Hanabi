@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math/rand"
+	"time"
 )
 
 type Game struct {
@@ -11,10 +13,13 @@ type Game struct {
 	InitState    GameState `json:"init_state"`
 	CurrentState GameState `json:"current_state"`
 	Actions      []Action  `json:"actions"`
+	Seed         int64     `json:"seed"`
 }
 
 func NewGame(ids []int) Game {
 	this := new(Game)
+	this.Seed = time.Now().UTC().UnixNano()
+	rand.Seed(this.Seed)
 	cards := []*Card{}
 	values := []CardValue{One, One, One, Two, Two, Three, Three, Four, Four, Five}
 	colors := []CardColor{Red, Blue, Green, Yellow, Orange}
@@ -54,7 +59,8 @@ func (this *Game) GetPoints() (points int, err error) {
 	if !this.IsGameOver() {
 		return 0, errors.New("Game not is over")
 	}
-	return this.CurrentState.GetPoints()
+	points, err = this.CurrentState.GetPoints()
+	return
 }
 
 func (this *Game) IsGameOver() bool {
