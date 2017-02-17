@@ -20,7 +20,7 @@ func CheckAuth(ctx *context.Context) {
 		return
 	}
 
-	ctx.Redirect(401, "/signin")
+	ctx.Redirect(302, "/signin")
 }
 
 func CheckUserInGame(ctx *context.Context) {
