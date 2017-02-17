@@ -99,6 +99,9 @@ function lobbyHandler() {
         }).done(function(data) {
             newHtml = ``
             games = data.games
+            if (!games) {
+                games = []
+            }
             for (let i = 0; i < games.length; ++i) {
                 game = games[i]
                 playersHtml = ``
