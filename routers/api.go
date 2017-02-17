@@ -16,7 +16,6 @@ func init() {
 	beego.Router("/api/lobby/users/:id", &controllers.ApiLobbyController{}, "get:GameUsers")
 
 	beego.Router("/api/games/cards", &controllers.ApiGameController{}, "get:GetGameCards")
-	beego.Router("/api/games/statuses", &controllers.ApiGameController{}, "get:GetGameStatuses")
 
 	beego.Router("/api/games/action/play", &controllers.ApiGameController{}, "post:GamePlayCard")
 	beego.Router("/api/games/action/discard", &controllers.ApiGameController{}, "post:GameDiscardCard")

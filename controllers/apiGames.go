@@ -1,8 +1,6 @@
 package controllers
 
 import (
-	"strconv"
-
 	gamePackage "github.com/BabichMikhail/Hanabi/engine/game"
 	"github.com/BabichMikhail/Hanabi/models"
 	"github.com/beego/wetalk/modules/auth"
@@ -25,23 +23,6 @@ func (this *ApiGameController) GetGameCards() {
 		Values map[gamePackage.CardValue]string `json:"values"`
 	}{StatusSuccess, card.GetColors(), card.GetValues()}
 	this.SetData(&result)
-}
-
-func (this *ApiGameController) GetGameStatuses() {
-	id, _ := strconv.Atoi(this.Ctx.Input.Param(":id"))
-	gamePlayers := models.GetGamePlayers([]int{id})[id]
-	playerIds := []int{}
-	for i := 0; i < len(gamePlayers); i++ {
-		playerIds = append(playerIds, gamePlayers[i].Id)
-	}
-
-	game, err := models.ReadGameById(id)
-	if err != nil {
-		game, _ = models.CreateActiveGame(playerIds, id)
-	}
-	userId := auth.GetUserIdFromSession(this.Ctx.Input.CruSession)
-	playerInfo := game.GetPlayerGameInfo(userId)
-	this.SetData(&playerInfo)
 }
 
 func (this *ApiGameController) GamePlayCard() {
