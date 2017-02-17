@@ -15,13 +15,20 @@ type Action struct {
 	Value          int        `json:"value"`
 }
 
+func (game *Game) AppendAction(action Action, err error) (Action, error) {
+	if err == nil {
+		game.Actions = append(game.Actions, action)
+	}
+	return action, err
+}
+
 func (state *GameState) NewAction(actionType ActionType, playerPosition int, value int) Action {
 	action := Action{
 		ActionType:     actionType,
 		PlayerPosition: playerPosition,
 		Value:          value,
 	}
-	state.Actions = append(state.Actions, action)
+	//*state.Actions = append(*state.Actions, action)
 	state.IncreaseStep()
 	return action
 }

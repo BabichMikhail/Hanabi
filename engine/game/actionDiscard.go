@@ -3,7 +3,7 @@ package game
 import "errors"
 
 func (game *Game) NewActionDiscard(playerPosition int, cardPosition int) (Action, error) {
-	return game.CurrentState.NewActionDiscard(playerPosition, cardPosition)
+	return game.AppendAction(game.CurrentState.NewActionDiscard(playerPosition, cardPosition))
 }
 
 func (state *GameState) NewActionDiscard(playerPosition int, cardPosition int) (Action, error) {

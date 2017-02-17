@@ -3,7 +3,7 @@ package game
 import "errors"
 
 func (game *Game) NewActionPlaying(playerPosition int, cardPosition int) (Action, error) {
-	return game.CurrentState.NewActionPlaying(playerPosition, cardPosition)
+	return game.AppendAction(game.CurrentState.NewActionPlaying(playerPosition, cardPosition))
 }
 
 func (state *GameState) NewActionPlaying(playerPosition int, cardPosition int) (Action, error) {
