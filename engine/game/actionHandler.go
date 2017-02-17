@@ -15,18 +15,18 @@ type Action struct {
 	Value          int        `json:"value"`
 }
 
-func (this *Game) NewAction(actionType ActionType, playerPosition int, value int) {
+func (state *GameState) NewAction(actionType ActionType, playerPosition int, value int) Action {
 	action := Action{
 		ActionType:     actionType,
 		PlayerPosition: playerPosition,
 		Value:          value,
 	}
-	this.Actions = append(this.Actions, action)
-	this.IncreaseStep()
+	state.Actions = append(state.Actions, action)
+	state.IncreaseStep()
+	return action
 }
 
-func (this *Game) IncreaseStep() {
-	state := &this.CurrentState
+func (state *GameState) IncreaseStep() {
 	state.Step++
 	state.CurrentPosition++
 	if state.CurrentPosition/state.PlayerCount == 1 {

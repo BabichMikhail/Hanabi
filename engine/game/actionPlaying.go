@@ -2,10 +2,13 @@ package game
 
 import "errors"
 
-func (this *Game) NewActionPlaying(playerPosition int, cardPosition int) error {
-	state := &this.CurrentState
+func (game *Game) NewActionPlaying(playerPosition int, cardPosition int) (Action, error) {
+	return game.CurrentState.NewActionPlaying(playerPosition, cardPosition)
+}
+
+func (state *GameState) NewActionPlaying(playerPosition int, cardPosition int) (Action, error) {
 	if state.RedTokens == 0 {
-		return errors.New("No red tokens")
+		return Action{}, errors.New("No red tokens")
 	}
 
 	card := state.PlayerStates[0].PlayersCards[playerPosition][cardPosition]
@@ -48,6 +51,6 @@ func (this *Game) NewActionPlaying(playerPosition int, cardPosition int) error {
 		}
 	}
 
-	this.NewAction(TypeActionPlaying, playerPosition, cardPosition)
-	return nil
+	action := state.NewAction(TypeActionPlaying, playerPosition, cardPosition)
+	return action, nil
 }

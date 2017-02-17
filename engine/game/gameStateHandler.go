@@ -18,6 +18,7 @@ type GameState struct {
 	UsedCards       []Card             `json:"used_cards"`
 	TableCards      map[CardColor]Card `json:"table_cards"`
 	PlayerStates    []PlayerState      `json:"player_state"`
+	Actions         []Action           `json:"actions"`
 }
 
 type Pair struct {
@@ -63,7 +64,7 @@ func (this *GameState) GetCardCount() int {
 	return 5
 }
 
-func NewGameState(ids []int, pcards []*Card, playerCount int) GameState {
+func NewGameState(ids []int, pcards []*Card, playerCount int, actions []Action) GameState {
 	this := GameState{
 		CurrentPosition: 0,
 		BlueTokens:      MaxBlueTokens,
@@ -72,6 +73,7 @@ func NewGameState(ids []int, pcards []*Card, playerCount int) GameState {
 		Round:           0,
 		PlayerCount:     playerCount,
 		UsedCards:       []Card{},
+		Actions:         actions,
 	}
 
 	this.TableCards = map[CardColor]Card{
@@ -107,6 +109,7 @@ func (this GameState) Copy() GameState {
 		Step:            this.Step,
 		Round:           this.Round,
 		PlayerCount:     this.PlayerCount,
+		Actions:         this.Actions,
 	}
 
 	newState.TableCards = map[CardColor]Card{

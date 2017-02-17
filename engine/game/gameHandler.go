@@ -31,12 +31,13 @@ func NewGame(ids []int) Game {
 		}
 	}
 	RandomCardsPermutation(cards)
-	ids = RandomIntPermutation(ids)
+	RandomIntPermutation(ids)
 	this.PlayerCount = len(ids)
-	state := NewGameState(ids, cards, this.PlayerCount)
+	this.Actions = []Action{}
+	state := NewGameState(ids, cards, this.PlayerCount, this.Actions)
 	this.InitState = state
 	this.CurrentState = state.Copy()
-	this.Actions = []Action{}
+
 	return *this
 }
 

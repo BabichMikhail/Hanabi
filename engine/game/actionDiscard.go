@@ -2,10 +2,13 @@ package game
 
 import "errors"
 
-func (this *Game) NewActionDiscard(playerPosition int, cardPosition int) error {
-	state := &this.CurrentState
+func (game *Game) NewActionDiscard(playerPosition int, cardPosition int) (Action, error) {
+	return game.CurrentState.NewActionDiscard(playerPosition, cardPosition)
+}
+
+func (state *GameState) NewActionDiscard(playerPosition int, cardPosition int) (Action, error) {
 	if state.BlueTokens == MaxBlueTokens {
-		return errors.New("Too many blue tokens")
+		return Action{}, errors.New("Too many blue tokens")
 	}
 
 	for i := 0; i < state.PlayerCount; i++ {
@@ -29,6 +32,6 @@ func (this *Game) NewActionDiscard(playerPosition int, cardPosition int) error {
 	}
 
 	state.BlueTokens++
-	this.NewAction(TypeActionDiscard, playerPosition, cardPosition)
-	return nil
+	action := state.NewAction(TypeActionDiscard, playerPosition, cardPosition)
+	return action, nil
 }
