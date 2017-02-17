@@ -6,3 +6,4 @@ tmp
 static/js/*
 static/css/*
 node_modules/*
+conf/app.conf
