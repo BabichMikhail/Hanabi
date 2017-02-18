@@ -10,12 +10,17 @@ import (
 )
 
 type Game struct {
-	Id          int       `orm:"auto" json:"id"`
-	OwnerId     int       `orm:"column(owner_id)" json:"owner_id"`
-	PlayerCount int       `orm:"column(player_count)" json:"player_count"`
-	Status      int       `orm:"column(status);default(4)" json:"status"`
-	Json        string    `orm:"column(game);null;type(text)"`
-	CreatedAt   time.Time `orm:"column(created_at);auto_now_add;type(timestamp)" json:"created_at"`
+	Id           int        `orm:"auto" json:"id"`
+	OwnerId      int        `orm:"column(owner_id)" json:"owner_id"`
+	PlayerCount  int        `orm:"column(player_count)" json:"player_count"`
+	Status       int        `orm:"column(status);default(4)" json:"status"`
+	Points       int        `orm:"column(points);default(0)"`
+	Seed         int64      `orm:"column(seed)"`
+	InitState    *GameState `orm:"-"`
+	CurrentState *GameState `orm:"-"`
+	Actions      []*Action  `orm:"-"`
+	Json         string     `orm:"column(game);null;type(text)"`
+	CreatedAt    time.Time  `orm:"column(created_at);auto_now_add;type(timestamp)" json:"created_at"`
 }
 
 func (g *Game) TableName() string {
@@ -113,6 +118,7 @@ func JoinGame(gameId int, userId int) (err error, status string) {
 }
 
 func LeaveGame(gameId int, userId int) (string, error) {
+	// @todo fix leave from active game
 	o := orm.NewOrm()
 
 	exist := o.QueryTable("players").
@@ -120,7 +126,7 @@ func LeaveGame(gameId int, userId int) (string, error) {
 		Filter("user_id", userId).
 		Exist()
 	if !exist {
-		return "", errors.New(fmt.Sprintf("User %d not fount in game %d", userId, gameId))
+		return "", errors.New(fmt.Sprintf("User %d not found in game %d", userId, gameId))
 	}
 
 	count, err := o.QueryTable("players").
@@ -232,10 +238,6 @@ func GetGameList(status []int, userId int) (games []lobby.GameItem) {
 	return
 }
 
-type UserGame struct {
-	Id int `orm:"column(game_id)"`
-}
-
 type PlayerCount struct {
 	Id    int `orm:"column(game_id)"`
 	Count int `orm:"column(count)"`
@@ -252,6 +254,10 @@ func getPlayersCount(ids []int) []PlayerCount {
 	var playersCount []PlayerCount
 	o.Raw(sql).QueryRows(&playersCount)
 	return playersCount
+}
+
+type UserGame struct {
+	Id int `orm:"column(game_id)"`
 }
 
 func getUserGames(userId int) []UserGame {

@@ -22,4 +22,6 @@ func RegisterDatabase(driverName string, dataSource string, maxIdle int, maxOpen
 func registerModels() {
 	orm.RegisterModel(new(Game))
 	orm.RegisterModel(new(Player))
+	orm.RegisterModel(new(GameState))
+	orm.RegisterModel(new(Action))
 }
