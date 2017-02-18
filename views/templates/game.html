@@ -1,6 +1,7 @@
 <div>
     <div id="user-cards" class="col-md-12">
-        {{ range $pos, $cards := $.playerInfo.PlayersCards }}
+        {{ range $pos, $cards := $.playerInfo.PlayerCards }}
+
         <div id="player-pos-{{ $pos }}">
             <div id="player-cards-{{ $pos }}" class="col-md-12">
                 {{ $isMyCards := eq $.playerInfo.Position $pos }}
@@ -43,7 +44,7 @@
                     {{ end }}
                 </ul>
                 <ul name="additional-cards" class="invisible">
-                    {{ range $idx, $card := index $.playerInfo.PlayersCardsInfo $pos }}
+                    {{ range $idx, $card := index $.playerInfo.PlayerCardsInfo $pos }}
                     <li class="list-inline" style="display: inline-block">
                         <img src="{{ getCardUrl $card.Color $card.Value }}" class="myCard">
                         <div>

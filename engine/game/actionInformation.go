@@ -7,8 +7,8 @@ func (state *GameState) NewActionInformation(playerPosition int, value int, acti
 		return Action{}, errors.New("No blue tokens")
 	}
 
-	for i := 0; i < len(state.PlayerStates[playerPosition].PlayersCards[playerPosition]); i++ {
-		actionFunc(&state.PlayerStates[playerPosition].PlayersCards[playerPosition][i], value)
+	for i := 0; i < len(state.PlayerStates[playerPosition].PlayerCards); i++ {
+		actionFunc(&state.PlayerStates[playerPosition].PlayerCards[i], value)
 	}
 
 	state.BlueTokens--

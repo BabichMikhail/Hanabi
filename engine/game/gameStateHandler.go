@@ -138,8 +138,8 @@ func (state *GameState) IsGameOver() bool {
 	}
 
 	cardInHands := 0
-	for i := 0; i < len(state.PlayerStates[0].PlayersCards); i++ {
-		cardInHands += len(state.PlayerStates[0].PlayersCards[i])
+	for i := 0; i < len(state.PlayerStates); i++ {
+		cardInHands += len(state.PlayerStates[i].PlayerCards)
 	}
 	if cardInHands == state.PlayerCount*(state.GetCardCount()-1) {
 		return true
