@@ -15,7 +15,7 @@ type Game struct {
 	PlayerCount  int        `orm:"column(player_count)" json:"player_count"`
 	Status       int        `orm:"column(status);default(4)" json:"status"`
 	Points       int        `orm:"column(points);default(0)"`
-	Seed         int64      `orm:"column(seed)"`
+	Seed         int64      `orm:"column(seed);null"`
 	InitState    *GameState `orm:"-"`
 	CurrentState *GameState `orm:"-"`
 	Actions      []*Action  `orm:"-"`
@@ -118,22 +118,35 @@ func JoinGame(gameId int, userId int) (err error, status string) {
 }
 
 func LeaveGame(gameId int, userId int) (string, error) {
-	// @todo fix leave from active game
 	o := orm.NewOrm()
 
-	exist := o.QueryTable("players").
-		Filter("game_id", gameId).
-		Filter("user_id", userId).
-		Exist()
-	if !exist {
-		return "", errors.New(fmt.Sprintf("User %d not found in game %d", userId, gameId))
-	}
-
-	count, err := o.QueryTable("players").
-		Filter("game_id", gameId).
-		Count()
+	var players []Player
+	qbPlayers, _ := orm.NewQueryBuilder("mysql")
+	qbPlayers.Select("user_id").From("players").Where("game_id = ?")
+	_, err := o.Raw(qbPlayers.String(), gameId).QueryRows(&players)
 	if err != nil {
 		return "", err
+	}
+
+	var game Game
+	qbGame, _ := orm.NewQueryBuilder("mysql")
+	qbGame.Select("status, player_count").From("games").Where("id = ?")
+	err = o.Raw(qbGame.String(), gameId).QueryRow(&game)
+	if err != nil {
+		return "", err
+	}
+
+	if game.Status != int(lobby.GameWait) {
+		return "", errors.New(fmt.Sprintf("User #%d can't leave game #%d", userId, gameId))
+	}
+
+	exist := false
+	for _, player := range players {
+		exist = exist || player.UserId == userId
+	}
+
+	if !exist {
+		return "", errors.New(fmt.Sprintf("User #%d not found in game #%d", userId, gameId))
 	}
 
 	o.Begin()
@@ -146,7 +159,7 @@ func LeaveGame(gameId int, userId int) (string, error) {
 		return "", err
 	}
 	action := "leave"
-	if count == 1 {
+	if len(players) == 1 {
 		action = "delete"
 		num, errDelete := o.QueryTable("games").
 			Filter("id", gameId).
