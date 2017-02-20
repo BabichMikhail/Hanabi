@@ -49,7 +49,7 @@ function viewHandler() {
             let oldCard = game.playerStates[action.pos].playerCards[action.value]
             game.playerStates[action.pos].playerCards.splice(action.value, 1)
             if (game.deck.length > 0) {
-                let newCard = game.deck.pop()
+                let newCard = game.deck.shift()
                 game.playerStates[action.pos].playerCards.push(newCard)
             }
             ++game.blueTokens
@@ -58,7 +58,7 @@ function viewHandler() {
             let oldCard = game.playerStates[action.pos].playerCards[action.value]
             game.playerStates[action.pos].playerCards.splice(action.value, 1)
             if (game.deck.length > 0) {
-                let newCard = game.deck.pop()
+                let newCard = game.deck.shift()
                 game.playerStates[action.pos].playerCards.push(newCard)
             }
             if (game.tableCards[oldCard.color].value + 1 == oldCard.value) {
