@@ -15,7 +15,6 @@ const (
 type GameState struct {
 	Deck            []Card             `json:"deck"`
 	Round           int                `json:"round"`
-	PlayerCount     int                `json:"player_count"`
 	Step            int                `json:"step"`
 	BlueTokens      int                `json:"blue_tokens"`
 	RedTokens       int                `json:"red_tokens"`
@@ -62,20 +61,19 @@ func SetMostColourfulPlayerCardsAtZeroPlace(pcards []*[]Card) [][]Card {
 }
 
 func (this *GameState) GetCardCount() int {
-	if this.PlayerCount >= 4 {
+	if len(this.PlayerStates) >= 4 {
 		return 4
 	}
 	return 5
 }
 
-func NewGameState(ids []int, pcards []*Card, playerCount int) GameState {
+func NewGameState(ids []int, pcards []*Card) GameState {
 	this := GameState{
 		CurrentPosition: 0,
 		BlueTokens:      MaxBlueTokens,
 		RedTokens:       MaxRedTokens,
 		Step:            0,
 		Round:           0,
-		PlayerCount:     playerCount,
 		UsedCards:       []Card{},
 	}
 
@@ -111,7 +109,6 @@ func (this *GameState) Copy() GameState {
 		RedTokens:       this.RedTokens,
 		Step:            this.Step,
 		Round:           this.Round,
-		PlayerCount:     this.PlayerCount,
 	}
 
 	newState.TableCards = map[CardColor]Card{
@@ -155,7 +152,7 @@ func (state *GameState) IsGameOver() bool {
 	for i := 0; i < len(state.PlayerStates); i++ {
 		cardInHands += len(state.PlayerStates[i].PlayerCards)
 	}
-	if cardInHands == state.PlayerCount*(state.GetCardCount()-1) {
+	if cardInHands == len(state.PlayerStates)*(state.GetCardCount()-1) {
 		return true
 	}
 

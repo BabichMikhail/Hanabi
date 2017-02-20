@@ -27,7 +27,6 @@ func (this *GameViewController) GameView() {
 	this.Data["user"] = user
 
 	id, _ := strconv.Atoi(this.Ctx.Input.Param(":id"))
-	//game, err := models.ReadInactiveGameById(id)
 	var err error
 	this.Data["InitState"], err = models.ReadInitialGameState(id)
 	if err != nil {
@@ -39,7 +38,6 @@ func (this *GameViewController) GameView() {
 		this.Ctx.Redirect(302, this.URLFor("LobbyController.GameList"))
 	}
 
-	//this.Data["Game"] = game
 	this.LayoutSections = make(map[string]string)
 	this.LayoutSections["Header"] = "components/navbar.html"
 	this.LayoutSections["Scripts"] = "components/viewscripts.html"

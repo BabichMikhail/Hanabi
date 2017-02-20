@@ -122,6 +122,6 @@ func (this *ApiGameController) GameInfo() {
 		Status         string `json:"status"`
 		Count          int    `json:"player_count"`
 		PlayerPosition int    `json:"player_position"`
-	}{StatusSuccess, state.PlayerCount, playerPosition}
+	}{StatusSuccess, len(state.PlayerStates), playerPosition}
 	this.SetData(&result)
 }

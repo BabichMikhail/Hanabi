@@ -36,7 +36,7 @@ func (state *GameState) NewAction(actionType ActionType, playerPosition int, val
 func (state *GameState) IncreaseStep() {
 	state.Step++
 	state.CurrentPosition++
-	if state.CurrentPosition/state.PlayerCount == 1 {
+	if state.CurrentPosition/len(state.PlayerStates) == 1 {
 		state.CurrentPosition = 0
 		state.Round++
 	}

@@ -63,7 +63,7 @@ func (state *GameState) GetPlayerGameInfo(playerId int) PlayerGameInfo {
 
 	return PlayerGameInfo{
 		MyTurn:          state.CurrentPosition == playerPosition,
-		PlayerCount:     state.PlayerCount,
+		PlayerCount:     len(state.PlayerStates),
 		Position:        playerPosition,
 		Step:            state.Step,
 		Round:           state.Round,
