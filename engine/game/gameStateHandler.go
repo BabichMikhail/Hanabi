@@ -89,8 +89,8 @@ func NewGameState(ids []int, pcards []*Card) GameState {
 	allPlayerPCards := []*[]Card{}
 	for i := 0; i < len(ids); i++ {
 		userCards := pcards[0:cardCount]
-		pcards = append(pcards[:0], pcards[cardCount:]...)
 		cards := DereferenceCard(userCards)
+		pcards = pcards[cardCount:]
 		allPlayerPCards = append(allPlayerPCards, &cards)
 	}
 	allPlayerCards := SetMostColourfulPlayerCardsAtZeroPlace(allPlayerPCards)
