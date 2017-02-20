@@ -1,85 +1,42 @@
 package models
 
 import (
-	"encoding/json"
-	"errors"
-	"fmt"
-
 	gamePackage "github.com/BabichMikhail/Hanabi/engine/game"
 	lobby "github.com/BabichMikhail/Hanabi/engine/lobby"
 	"github.com/astaxie/beego/orm"
 )
 
-func CreateActiveGame(playerIds []int, gameId int) (game gamePackage.Game, err error) {
+func CreateActiveGame(playerIds []int, gameId int) (game *gamePackage.Game, err error) {
 	game = gamePackage.NewGame(playerIds)
 	o := orm.NewOrm()
 	o.Begin()
 	var ormGame Game
 	_, err = o.QueryTable(ormGame).Filter("id", gameId).Update(orm.Params{
-		"game": game.SprintGame(),
+		"seed": game.Seed,
 	})
-
-	if err == nil {
-		o.Commit()
-		return game, nil
+	if err != nil {
+		o.Rollback()
+		return game, err
 	}
-	o.Rollback()
-	return
-}
 
-func ReadActiveGameById(id int) (game gamePackage.Game, err error) {
-	return ReadGameByIdWithStatuses(id, []int{lobby.GameActive})
-}
+	if err = NewGameState(gameId, &game.InitState, true); err != nil {
+		o.Rollback()
+		return game, err
+	}
 
-func ReadInactiveGameById(id int) (game gamePackage.Game, err error) {
-	return ReadGameByIdWithStatuses(id, []int{lobby.GameInactive})
-}
-
-func ReadGameById(id int) (game gamePackage.Game, err error) {
-	qb, _ := orm.NewQueryBuilder("mysql")
-	qb.Select("game").
-		From("games").
-		Where("id = ?")
-	sql := qb.String()
-	return readGameByQuery(sql, id)
-}
-
-func ReadGameByIdWithStatuses(id int, statuses []int) (game gamePackage.Game, err error) {
-	qb, _ := orm.NewQueryBuilder("mysql")
-	qb.Select("game").
-		From("games").
-		Where("id = ?").
-		And("status").In(IntSliceToString(statuses))
-	sql := qb.String()
-	return readGameByQuery(sql, id)
-}
-
-func readGameByQuery(sql string, id int) (game gamePackage.Game, err error) {
-	o := orm.NewOrm()
-	var gameModel Game
-	if err = o.Raw(sql, id).QueryRow(&gameModel); err != nil {
+	if err = NewGameState(gameId, &game.CurrentState, false); err != nil {
+		o.Rollback()
 		return
 	}
 
-	if fmt.Sprintf("%s", gameModel.Json) == "" {
-		err = errors.New(fmt.Sprintf("Game #%d not found", id))
-		return
-	}
-	json.Unmarshal([]byte(gameModel.Json), &game)
-	return
+	o.Commit()
+	return game, err
 }
 
-func UpdateCurrentGameById(gameId int, game gamePackage.Game) (err error) {
+func SetGameInactiveStatus(gameId int) {
 	o := orm.NewOrm()
-	activeGame := new(Game)
-	activeGame.Id = gameId
-	if err = o.Read(activeGame); err != nil {
-		return err
-	}
-	if game.IsGameOver() {
-		activeGame.Status = lobby.GameInactive
-	}
-	activeGame.Json = game.SprintGame()
-	_, err = o.Update(activeGame, "game")
-	return
+	var ormGame Game
+	o.QueryTable(ormGame).Filter("id", gameId).Update(orm.Params{
+		"status": lobby.GameInactive,
+	})
 }

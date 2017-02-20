@@ -50,3 +50,10 @@ func ReadActions(gameId int) ([]gamePackage.Action, error) {
 	}
 	return gameActions, err
 }
+
+func GetActionCount(gameId int) (int, error) {
+	o := orm.NewOrm()
+	count64, err := o.QueryTable(Action{}).Filter("game_id", gameId).OrderBy("id").Count()
+	count := int(count64)
+	return count, err
+}

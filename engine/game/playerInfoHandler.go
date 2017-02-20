@@ -16,8 +16,11 @@ type PlayerGameInfo struct {
 	RedTokens       int                `json:"red_tokens"`
 }
 
-func (this *Game) GetPlayerGameInfo(playerId int) PlayerGameInfo {
-	state := &this.CurrentState
+func (game *Game) GetPlayerGameInfo(playerId int) PlayerGameInfo {
+	return game.CurrentState.GetPlayerGameInfo(playerId)
+}
+
+func (state *GameState) GetPlayerGameInfo(playerId int) PlayerGameInfo {
 	var playerPosition int
 	for i := 0; i < len(state.PlayerStates); i++ {
 		if state.PlayerStates[i].PlayerId == playerId {
@@ -60,7 +63,7 @@ func (this *Game) GetPlayerGameInfo(playerId int) PlayerGameInfo {
 
 	return PlayerGameInfo{
 		MyTurn:          state.CurrentPosition == playerPosition,
-		PlayerCount:     this.PlayerCount,
+		PlayerCount:     state.PlayerCount,
 		Position:        playerPosition,
 		Step:            state.Step,
 		Round:           state.Round,

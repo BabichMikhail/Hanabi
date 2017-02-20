@@ -1,15 +1,15 @@
 <script type="text/javascript">
     $(function() {
         View = new viewHandler()
-        View.stepCount = {{ len $.Game.Actions }}
+        View.stepCount = {{ len $.Actions }}
 
         View.actions = [
-        {{ range $idx, $action := $.Game.Actions }}
+        {{ range $idx, $action := $.Actions }}
             View.NewAction({{ $action.ActionType }}, {{ $action.PlayerPosition }}, {{ $action.Value }}),
         {{ end }}
         ]
         deck = [
-        {{ $initState := $.Game.InitState }}
+        {{ $initState := $.InitState }}
         {{ range $idx, $card := $initState.Deck }}
             View.NewCard({{ $card.Color }}, {{ $card.KnownColor }}, {{ $card.Value }}, {{ $card.KnownValue }}),
         {{ end }}
@@ -21,8 +21,7 @@
             playerId: {{ $state.PlayerId }},
             playerPosition: {{ $state.PlayerPosition }},
             playerCards: [
-            {{ $cardArray := index $state.PlayersCards $idx }}
-            {{ range $i, $card := $cardArray }}
+            {{ range $i, $card := $state.PlayerCards }}
                 View.NewCard({{ $card.Color }}, {{ $card.KnownColor }}, {{ $card.Value }}, {{ $card.KnownValue }}),
             {{ end }}
             ],

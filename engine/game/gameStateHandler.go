@@ -1,6 +1,11 @@
 package game
 
-import "sort"
+import (
+	"encoding/json"
+	"errors"
+	"fmt"
+	"sort"
+)
 
 const (
 	MaxBlueTokens = 8
@@ -99,7 +104,7 @@ func NewGameState(ids []int, pcards []*Card, playerCount int) GameState {
 	return this
 }
 
-func (this GameState) Copy() GameState {
+func (this *GameState) Copy() GameState {
 	newState := GameState{
 		CurrentPosition: this.CurrentPosition,
 		BlueTokens:      this.BlueTokens,
@@ -132,6 +137,15 @@ func (this GameState) Copy() GameState {
 	return newState
 }
 
+func (state *GameState) GetPlayerPositionById(id int) (pos int, err error) {
+	for i := 0; i < len(state.PlayerStates); i++ {
+		if state.PlayerStates[i].PlayerId == id {
+			return i, nil
+		}
+	}
+	return -1, errors.New("Player not found")
+}
+
 func (state *GameState) IsGameOver() bool {
 	if state.RedTokens == 0 {
 		return true
@@ -158,4 +172,12 @@ func (state *GameState) GetPoints() (points int, err error) {
 		points += card.GetPoints()
 	}
 	return
+}
+
+func (state *GameState) Sprint() string {
+	b, err := json.Marshal(state)
+	if err != nil {
+		return ""
+	}
+	return fmt.Sprint(string(b))
 }

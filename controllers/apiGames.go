@@ -27,89 +27,93 @@ func (this *ApiGameController) GetGameCards() {
 
 func (this *ApiGameController) GamePlayCard() {
 	gameId, _ := this.GetInt("game_id")
-	game, err := models.ReadActiveGameById(gameId)
+	state, err := models.ReadCurrentGameState(gameId)
 	if this.SetError(err) {
 		return
 	}
 
-	playerPosition, err := game.GetPlayerPositionById(auth.GetUserIdFromSession(this.Ctx.Input.CruSession))
+	playerPosition, err := state.GetPlayerPositionById(auth.GetUserIdFromSession(this.Ctx.Input.CruSession))
 	if this.SetError(err) {
 		return
 	}
 
 	cardPosition, _ := this.GetInt("card_position")
-	game.NewActionPlaying(playerPosition, cardPosition)
-	models.UpdateCurrentGameById(gameId, game)
+	action, _ := state.NewActionPlaying(playerPosition, cardPosition)
+	models.NewAction(gameId, action)
+	models.UpdateGameState(gameId, state)
 	this.SetSuccessResponse()
 }
 
 func (this *ApiGameController) GameDiscardCard() {
 	gameId, _ := this.GetInt("game_id")
-	game, err := models.ReadActiveGameById(gameId)
+	state, err := models.ReadCurrentGameState(gameId)
 	if this.SetError(err) {
 		return
 	}
 
-	playerPosition, err := game.GetPlayerPositionById(auth.GetUserIdFromSession(this.Ctx.Input.CruSession))
+	playerPosition, err := state.GetPlayerPositionById(auth.GetUserIdFromSession(this.Ctx.Input.CruSession))
 	if this.SetError(err) {
 		return
 	}
 
 	cardPosition, _ := this.GetInt("card_position")
-	game.NewActionDiscard(playerPosition, cardPosition)
-	models.UpdateCurrentGameById(gameId, game)
+	action, _ := state.NewActionDiscard(playerPosition, cardPosition)
+	models.NewAction(gameId, action)
+	models.UpdateGameState(gameId, state)
 	this.SetSuccessResponse()
 }
 
 func (this *ApiGameController) GameInfoCardValue() {
 	gameId, _ := this.GetInt("game_id")
-	game, err := models.ReadActiveGameById(gameId)
+	state, err := models.ReadCurrentGameState(gameId)
 	if this.SetError(err) {
 		return
 	}
 
 	playerPosition, _ := this.GetInt("player_position")
 	cardValue, _ := this.GetInt("card_value")
-	game.NewActionInformationValue(playerPosition, gamePackage.CardValue(cardValue))
-	models.UpdateCurrentGameById(gameId, game)
+	action, _ := state.NewActionInformationValue(playerPosition, gamePackage.CardValue(cardValue))
+	models.NewAction(gameId, action)
+	models.UpdateGameState(gameId, state)
 	this.SetSuccessResponse()
 }
 
 func (this *ApiGameController) GameInfoCardColor() {
 	gameId, _ := this.GetInt("game_id")
-	game, err := models.ReadActiveGameById(gameId)
+	state, err := models.ReadCurrentGameState(gameId)
 	if this.SetError(err) {
 		return
 	}
 
 	playerPosition, _ := this.GetInt("player_position")
 	cardColor, _ := this.GetInt("card_color")
-	game.NewActionInformationColor(playerPosition, gamePackage.CardColor(cardColor))
-	models.UpdateCurrentGameById(gameId, game)
+	action, _ := state.NewActionInformationColor(playerPosition, gamePackage.CardColor(cardColor))
+	models.NewAction(gameId, action)
+	models.UpdateGameState(gameId, state)
 	this.SetSuccessResponse()
 }
 
 func (this *ApiGameController) GameCurrentStep() {
 	gameId, _ := this.GetInt("game_id")
-	game, err := models.ReadActiveGameById(gameId)
+	count, err := models.GetActionCount(gameId)
 	if this.SetError(err) {
 		return
 	}
 	result := struct {
 		Status string `json:"status"`
 		Step   int    `json:"step"`
-	}{StatusSuccess, len(game.Actions)}
+	}{StatusSuccess, count}
 	this.SetData(&result)
 }
 
 func (this *ApiGameController) GameInfo() {
 	gameId, _ := this.GetInt("game_id")
-	game, err := models.ReadActiveGameById(gameId)
+	state, err := models.ReadCurrentGameState(gameId)
 	if this.SetError(err) {
 		return
 	}
 
-	playerPosition, err := game.GetPlayerPositionById(auth.GetUserIdFromSession(this.Ctx.Input.CruSession))
+	playerPosition, err := state.GetPlayerPositionById(auth.GetUserIdFromSession(this.Ctx.Input.CruSession))
 	if this.SetError(err) {
 		return
 	}
@@ -118,6 +122,6 @@ func (this *ApiGameController) GameInfo() {
 		Status         string `json:"status"`
 		Count          int    `json:"player_count"`
 		PlayerPosition int    `json:"player_position"`
-	}{StatusSuccess, game.PlayerCount, playerPosition}
+	}{StatusSuccess, state.PlayerCount, playerPosition}
 	this.SetData(&result)
 }

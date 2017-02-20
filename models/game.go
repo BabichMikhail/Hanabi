@@ -19,7 +19,6 @@ type Game struct {
 	InitState    *GameState `orm:"-"`
 	CurrentState *GameState `orm:"-"`
 	Actions      []*Action  `orm:"-"`
-	Json         string     `orm:"column(game);null;type(text)"`
 	CreatedAt    time.Time  `orm:"column(created_at);auto_now_add;type(timestamp)" json:"created_at"`
 }
 

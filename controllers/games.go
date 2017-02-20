@@ -15,25 +15,26 @@ type GameController struct {
 
 func (this *GameController) Game() {
 	id, _ := strconv.Atoi(this.Ctx.Input.Param(":id"))
-	game, err := models.ReadActiveGameById(id)
+	state, err := models.ReadCurrentGameState(id)
 
 	if err != nil {
 		this.Ctx.Redirect(302, this.URLFor("LobbyController.GameList"))
 		return
 	}
 
-	if game.IsGameOver() {
+	if state.IsGameOver() {
+		models.SetGameInactiveStatus(id)
 		this.Ctx.Redirect(302, this.URLFor("GameController.GameInactive", ":id", id))
 		return
 	}
 
 	userId := auth.GetUserIdFromSession(this.Ctx.Input.CruSession)
-	playerInfo := game.GetPlayerGameInfo(userId)
+	playerInfo := state.GetPlayerGameInfo(userId)
 	this.Data["playerInfo"] = playerInfo
 	this.Data["deckFirstNumber"] = playerInfo.DeckSize / 10
 	this.Data["deckSecondNumber"] = playerInfo.DeckSize % 10
 
-	this.Data["Step"] = len(game.Actions)
+	this.Data["Step"], _ = models.GetActionCount(id)
 	this.Layout = "base.tpl"
 	this.TplName = "templates/game.html"
 
@@ -44,8 +45,8 @@ func (this *GameController) Game() {
 	this.LayoutSections["Header"] = "components/navbar.html"
 	this.Data["TableColors"] = engineGame.GetTableColorOrder()
 	playerNickNames := []string{}
-	for i := 0; i < len(game.CurrentState.PlayerStates); i++ {
-		nickName := models.GetUserNickNameById(game.CurrentState.PlayerStates[i].PlayerId)
+	for i := 0; i < len(state.PlayerStates); i++ {
+		nickName := models.GetUserNickNameById(state.PlayerStates[i].PlayerId)
 		playerNickNames = append(playerNickNames, nickName)
 	}
 	this.Data["NickNames"] = playerNickNames
@@ -54,16 +55,16 @@ func (this *GameController) Game() {
 func (this *GameController) GameInactive() {
 	id, _ := strconv.Atoi(this.Ctx.Input.Param(":id"))
 
-	game, err := models.ReadGameById(id)
+	state, err := models.ReadCurrentGameState(id)
 	if err != nil {
 		this.Ctx.Redirect(302, this.URLFor("LobbyController.GameList"))
 		return
 	}
-	if !game.IsGameOver() {
+	if !state.IsGameOver() {
 		this.Ctx.Redirect(302, this.URLFor("GameController.Game", ":id", id))
 		return
 	}
-	this.Data["Points"], _ = game.GetPoints()
+	this.Data["Points"], _ = state.GetPoints()
 	this.Layout = "base.tpl"
 	this.TplName = "templates/gameinactive.html"
 

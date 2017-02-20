@@ -12,10 +12,9 @@ func (state *GameState) NewActionPlaying(playerPosition int, cardPosition int) (
 	}
 
 	card := state.PlayerStates[playerPosition].PlayerCards[cardPosition]
+	card.SetKnown(true)
 
-	var success bool
-	if success = state.TableCards[card.Color].Value+1 == card.Value; success {
-		card.SetKnown(true)
+	if state.TableCards[card.Color].Value+1 == card.Value {
 		state.TableCards[card.Color] = Card{
 			Color:      card.Color,
 			KnownColor: true,
@@ -27,28 +26,15 @@ func (state *GameState) NewActionPlaying(playerPosition int, cardPosition int) (
 		}
 	} else {
 		state.RedTokens--
+		state.UsedCards = append(state.UsedCards, card)
 	}
 
-	for i := 0; i < state.PlayerCount; i++ {
-		playerState := &state.PlayerStates[i]
-		if i == playerPosition {
-			oldCard := playerState.PlayerCards[cardPosition]
-			oldCard.SetKnown(true)
-			if !success {
-				state.UsedCards = append(state.UsedCards, oldCard)
-			}
-		}
-		playerState.PlayerCards = append(playerState.PlayerCards[:cardPosition], playerState.PlayerCards[cardPosition+1:]...)
-	}
-
+	playerState := &state.PlayerStates[playerPosition]
+	playerState.PlayerCards = append(playerState.PlayerCards[:cardPosition], playerState.PlayerCards[cardPosition+1:]...)
 	if len(state.Deck) > 0 {
-		card := state.Deck[0]
+		newCard := state.Deck[0]
 		state.Deck = state.Deck[1:]
-		for i := 0; i < state.PlayerCount; i++ {
-			playerState := &state.PlayerStates[i]
-			card.SetKnown(i != playerPosition)
-			playerState.PlayerCards = append(playerState.PlayerCards, card)
-		}
+		playerState.PlayerCards = append(playerState.PlayerCards, newCard)
 	}
 
 	action := state.NewAction(TypeActionPlaying, playerPosition, cardPosition)

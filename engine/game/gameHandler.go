@@ -2,7 +2,6 @@ package game
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"math/rand"
 	"time"
@@ -17,7 +16,7 @@ type Game struct {
 	Points       int       `json:"points"`
 }
 
-func NewGame(ids []int) Game {
+func NewGame(ids []int) *Game {
 	this := new(Game)
 	this.Seed = time.Now().UTC().UnixNano()
 	this.Points = 0
@@ -38,7 +37,7 @@ func NewGame(ids []int) Game {
 	this.InitState = state
 	this.CurrentState = state.Copy()
 
-	return *this
+	return this
 }
 
 func (this *Game) SprintGame() string {
@@ -49,30 +48,25 @@ func (this *Game) SprintGame() string {
 	return fmt.Sprintln(string(b))
 }
 
-func (this *Game) GetPlayerPositionById(id int) (pos int, err error) {
-	for i := 0; i < len(this.CurrentState.PlayerStates); i++ {
-		if this.CurrentState.PlayerStates[i].PlayerId == id {
-			return i, nil
-		}
-	}
-	return -1, errors.New("Player not found")
+func (game *Game) GetPlayerPositionById(id int) (pos int, err error) {
+	return game.CurrentState.GetPlayerPositionById(id)
 }
 
-func (this *Game) GetPoints() (points int, err error) {
-	if this.Points != 0 {
-		return this.Points, nil
+func (game *Game) GetPoints() (points int, err error) {
+	if game.Points != 0 {
+		return game.Points, nil
 	}
-	if !this.IsGameOver() {
-		return 0, errors.New("Game not is over")
+
+	points, err = game.CurrentState.GetPoints()
+	if game.IsGameOver() {
+		game.Points = points
 	}
-	points, err = this.CurrentState.GetPoints()
-	this.Points = points
 	return
 }
 
-func (this *Game) IsGameOver() bool {
-	if this.Points > 0 {
+func (game *Game) IsGameOver() bool {
+	if game.Points > 0 {
 		return true
 	}
-	return this.CurrentState.IsGameOver()
+	return game.CurrentState.IsGameOver()
 }

@@ -2,7 +2,6 @@ package models
 
 import (
 	"encoding/json"
-	"fmt"
 
 	gamePackage "github.com/BabichMikhail/Hanabi/engine/game"
 	"github.com/astaxie/beego/orm"
@@ -34,11 +33,10 @@ func (gs *GameState) TableUnique() [][]string {
 
 func NewGameState(gameId int, gameState *gamePackage.GameState, isInit bool) error {
 	o := orm.NewOrm()
-	bytes, _ := json.Marshal(gameState)
 	state := &GameState{
 		GameId: gameId,
 		IsInit: isInit,
-		Json:   fmt.Sprint(bytes),
+		Json:   gameState.Sprint(),
 	}
 	_, err := o.Insert(state)
 	return err
@@ -46,10 +44,11 @@ func NewGameState(gameId int, gameState *gamePackage.GameState, isInit bool) err
 
 func ReadCurrentGameState(gameId int) (gameState gamePackage.GameState, err error) {
 	o := orm.NewOrm()
-	state := new(GameState)
-	state.GameId = gameId
-	state.IsInit = false
-	if err = o.Read(state); err == nil {
+	qb, _ := orm.NewQueryBuilder("mysql")
+	qb.Select("json").From("game_states").Where("game_id = ?").And("is_init_state = ?")
+	var state GameState
+
+	if err = o.Raw(qb.String(), gameId, false).QueryRow(&state); err == nil {
 		err = json.Unmarshal([]byte(state.Json), &gameState)
 	}
 	return
@@ -57,10 +56,10 @@ func ReadCurrentGameState(gameId int) (gameState gamePackage.GameState, err erro
 
 func ReadInitialGameState(gameId int) (gameState gamePackage.GameState, err error) {
 	o := orm.NewOrm()
-	state := new(GameState)
-	state.GameId = gameId
-	state.IsInit = true
-	if err = o.Read(state); err == nil {
+	qb, _ := orm.NewQueryBuilder("mysql")
+	qb.Select("json").From("game_states").Where("game_id = ?").And("is_init_state = ?")
+	var state GameState
+	if err = o.Raw(qb.String(), gameId, true).QueryRow(&state); err == nil {
 		err = json.Unmarshal([]byte(state.Json), &gameState)
 	}
 	return
@@ -68,10 +67,9 @@ func ReadInitialGameState(gameId int) (gameState gamePackage.GameState, err erro
 
 func UpdateGameState(gameId int, gameState gamePackage.GameState) error {
 	o := orm.NewOrm()
-	state := new(GameState)
-	state.GameId = gameId
-	state.IsInit = false
-	state.Json = fmt.Sprint(json.Marshal(gameState))
-	_, err := o.Update(state, "json")
+	_, err := o.QueryTable("game_states").Filter("game_id", gameId).Filter("is_init_state", false).Update(orm.Params{
+		"json": gameState.Sprint(),
+	})
 	return err
+
 }
