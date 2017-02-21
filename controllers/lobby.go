@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	lobby "github.com/BabichMikhail/Hanabi/engine/lobby"
 	"github.com/BabichMikhail/Hanabi/models"
 	"github.com/beego/wetalk/modules/auth"
 	wetalk "github.com/beego/wetalk/modules/models"
@@ -17,7 +16,7 @@ func (this *LobbyController) GameList() {
 	var user wetalk.User
 	auth.GetUserFromSession(&user, this.Ctx.Input.CruSession)
 	this.Data["user"] = user
-	this.Data["games"] = models.GetGameList([]int{lobby.GameActive, lobby.GameWait}, user.Id)
+	this.Data["games"] = models.GetGameList([]int{models.StatusActive, models.StatusWait}, user.Id)
 
 	this.LayoutSections = make(map[string]string)
 	this.LayoutSections["Header"] = "components/navbar.html"

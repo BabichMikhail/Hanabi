@@ -2,7 +2,6 @@ package models
 
 import (
 	gamePackage "github.com/BabichMikhail/Hanabi/engine/game"
-	lobby "github.com/BabichMikhail/Hanabi/engine/lobby"
 	"github.com/astaxie/beego/orm"
 )
 
@@ -13,7 +12,7 @@ func CreateActiveGame(playerIds []int, gameId int) (game *gamePackage.Game, err 
 	var ormGame Game
 	_, err = o.QueryTable(ormGame).Filter("id", gameId).Update(orm.Params{
 		"seed":   game.Seed,
-		"status": lobby.GameActive,
+		"status": StatusActive,
 	})
 	if err != nil {
 		o.Rollback()
@@ -38,6 +37,6 @@ func SetGameInactiveStatus(gameId int) {
 	o := orm.NewOrm()
 	var ormGame Game
 	o.QueryTable(ormGame).Filter("id", gameId).Update(orm.Params{
-		"status": lobby.GameInactive,
+		"status": StatusInactive,
 	})
 }

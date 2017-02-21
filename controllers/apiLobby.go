@@ -3,7 +3,6 @@ package controllers
 import (
 	"strconv"
 
-	engineLobby "github.com/BabichMikhail/Hanabi/engine/lobby"
 	"github.com/BabichMikhail/Hanabi/models"
 	"github.com/beego/wetalk/modules/auth"
 	wetalk "github.com/beego/wetalk/modules/models"
@@ -17,19 +16,24 @@ func (this *ApiLobbyController) GameCreate() {
 	var user wetalk.User
 	playersCount, _ := this.GetInt("playersCount")
 	auth.GetUserFromSession(&user, this.Ctx.Input.CruSession)
-	id := models.NewGame(user.Id, playersCount, engineLobby.GameWait)
-	game, err := engineLobby.MakeGame(id, user)
+	game, err := models.NewGame(user.Id, playersCount, models.StatusWait)
 	if this.SetError(err) {
 		return
 	}
 
 	userId := auth.GetUserIdFromSession(this.Ctx.Input.CruSession)
+	data := struct {
+		Id          int                  `json:"id"`
+		Owner       string               `json:"owner"`
+		Status      string               `json:"status"`
+		Players     []models.LobbyPlayer `json:"players"`
+		UserId      int                  `json:"currentUserId"`
+		RedirectURL string               `json:"redirectURL"`
+	}{game.Id, game.Owner, game.Status, game.Players, userId, this.URLFor("GameController.Game", ":id", game.Id)}
 	result := struct {
-		Status      string           `json:"status"`
-		Game        engineLobby.Game `json:"game"`
-		UserId      int              `json:"currentUserId"`
-		RedirectURL string           `json:"redirectURL"`
-	}{StatusSuccess, game, userId, this.URLFor("GameController.Game", ":id", id)}
+		Status string      `json:"status"`
+		Data   interface{} `json:"data"`
+	}{StatusSuccess, data}
 	this.SetData(&result)
 }
 

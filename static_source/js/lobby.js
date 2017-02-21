@@ -15,13 +15,14 @@ function lobbyHandler() {
                 if (Lobby.State == "lobby-finished-games") {
                     return
                 }
-                let gameId = data.game.id
+                gameData = data.data
+                let gameId = gameData.id
                 let html = `<tr id="game-` +  gameId + `">
                     <th scope="row">` + gameId + `</th>
-                    <td>` + data.game.owner + `</td>
-                    <td>` + data.game.owner + `</td>
+                    <td>` + gameData.owner + `</td>
+                    <td>` + gameData.owner + `</td>
                     <td>` + count  + `</td>
-                    <td>wait</td>
+                    <td>` + gameData.status + `</td>
                     <td>
                         <a class="btn-link" href="#" onclick="Lobby.Leave(` + gameId + `)">Leave</button>
                     </td>
