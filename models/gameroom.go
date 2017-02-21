@@ -12,7 +12,8 @@ func CreateActiveGame(playerIds []int, gameId int) (game *gamePackage.Game, err 
 	o.Begin()
 	var ormGame Game
 	_, err = o.QueryTable(ormGame).Filter("id", gameId).Update(orm.Params{
-		"seed": game.Seed,
+		"seed":   game.Seed,
+		"status": lobby.GameActive,
 	})
 	if err != nil {
 		o.Rollback()

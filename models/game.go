@@ -57,34 +57,6 @@ func NewGame(userId int, playersCount int, status int) (id int) {
 	return
 }
 
-func ActivateGame(gameId int) int {
-	o := orm.NewOrm()
-	game := new(Game)
-	game.Id = gameId
-	o.Read(game)
-	game.Status = lobby.GameActive
-	o.Update(game)
-	return game.Status
-}
-
-func CheckGame(gameId int) (status int) {
-	o := orm.NewOrm()
-	qb, _ := orm.NewQueryBuilder("mysql")
-	qb.Select("player_count, status").
-		From("games").
-		Where("id = ?")
-	sql := qb.String()
-	var g Game
-	o.Raw(sql, gameId).QueryRow(&g)
-	currentPlayers := len(GetGamePlayers([]int{gameId})[gameId])
-	if g.PlayerCount == currentPlayers {
-		status = ActivateGame(gameId)
-	} else {
-		status = g.Status
-	}
-	return status
-}
-
 func JoinGame(gameId int, userId int) (err error, status string) {
 	o := orm.NewOrm()
 	qb, _ := orm.NewQueryBuilder("mysql")
@@ -97,22 +69,21 @@ func JoinGame(gameId int, userId int) (err error, status string) {
 		sql := qbGames.Select("player_count").From("games").Where("id = ?").String()
 		var game Game
 		o.Raw(sql, gameId).QueryRow(&game)
+		status = lobby.GameStatusName(lobby.GameWait)
 		if game.PlayerCount == len(gamePlayers) {
 			playerIds := []int{}
 			for i := 0; i < len(gamePlayers); i++ {
 				playerIds = append(playerIds, gamePlayers[i].Id)
 			}
 			_, err = CreateActiveGame(playerIds, gameId)
+			status = lobby.GameStatusName(lobby.GameActive)
 		}
-	}
-
-	if err == nil {
 		o.Commit()
-		status = lobby.GameStatusName(CheckGame(gameId))
 	} else {
 		status = ""
 		o.Rollback()
 	}
+
 	return err, status
 }
 
