@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	gamePackage "github.com/BabichMikhail/Hanabi/engine/game"
+	gamePackage "github.com/BabichMikhail/Hanabi/game"
 	"github.com/BabichMikhail/Hanabi/models"
 	"github.com/beego/wetalk/modules/auth"
 )

@@ -3,7 +3,7 @@ package models
 import (
 	"encoding/json"
 
-	gamePackage "github.com/BabichMikhail/Hanabi/engine/game"
+	gamePackage "github.com/BabichMikhail/Hanabi/game"
 	"github.com/astaxie/beego/orm"
 )
 

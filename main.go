@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	gamePackage "github.com/BabichMikhail/Hanabi/engine/game"
+	gamePackage "github.com/BabichMikhail/Hanabi/game"
 	"github.com/BabichMikhail/Hanabi/middlewares"
 	"github.com/BabichMikhail/Hanabi/models"
 	_ "github.com/BabichMikhail/Hanabi/routers"
