@@ -148,26 +148,6 @@ function lobbyHandler() {
         Lobby.Update()
     }
 
-    this.LoadUserList = function(id) {
-        $.ajax({
-            type: "GET",
-            url: "/api/lobby/users/"  + id,
-            data: {}
-        }).done(function(data) {
-            console.log(data)
-            if (data.status == "success") {
-                let html = "<ul>"
-                for (let i = 0; i < data.players.length; ++i) {
-                    html += "<li>" + data.players[i].nick_name + "</li>";
-                }
-                html += "</ul>"
-                $("#users-" + id).html(html)
-            }
-        }).fail(function(data) {
-            alert("GET USERS FAIL")
-        })
-    }
-
     this.Init = function () {
         $.ajax({
             type: "GET",

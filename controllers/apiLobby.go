@@ -112,15 +112,6 @@ func (this *ApiLobbyController) GetFinishedGames() {
 	this.SetGameData(games)
 }
 
-func (this *ApiLobbyController) GameUsers() {
-	id, _ := strconv.Atoi(this.Ctx.Input.Param(":id"))
-	result := struct {
-		Status  string               `json:"status"`
-		Players []engineLobby.Player `json:"players"`
-	}{StatusSuccess, models.GetGamePlayers([]int{id})[id]}
-	this.SetData(&result)
-}
-
 type UserInfo struct {
 	Id       int    `json:"id"`
 	NickName string `json:"nick_name"`
