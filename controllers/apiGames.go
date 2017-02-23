@@ -42,6 +42,7 @@ func (this *ApiGameController) GamePlayCard() {
 	models.NewAction(gameId, action)
 	models.UpdateGameState(gameId, state)
 	this.SetSuccessResponse()
+	go models.CheckAI(gameId)
 }
 
 func (this *ApiGameController) GameDiscardCard() {
@@ -61,6 +62,7 @@ func (this *ApiGameController) GameDiscardCard() {
 	models.NewAction(gameId, action)
 	models.UpdateGameState(gameId, state)
 	this.SetSuccessResponse()
+	go models.CheckAI(gameId)
 }
 
 func (this *ApiGameController) GameInfoCardValue() {
@@ -76,6 +78,7 @@ func (this *ApiGameController) GameInfoCardValue() {
 	models.NewAction(gameId, action)
 	models.UpdateGameState(gameId, state)
 	this.SetSuccessResponse()
+	go models.CheckAI(gameId)
 }
 
 func (this *ApiGameController) GameInfoCardColor() {
@@ -91,6 +94,7 @@ func (this *ApiGameController) GameInfoCardColor() {
 	models.NewAction(gameId, action)
 	models.UpdateGameState(gameId, state)
 	this.SetSuccessResponse()
+	go models.CheckAI(gameId)
 }
 
 func (this *ApiGameController) GameCurrentStep() {
