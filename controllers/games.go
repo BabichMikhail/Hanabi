@@ -35,7 +35,7 @@ func (this *GameController) Game() {
 	this.Data["deckSecondNumber"] = playerInfo.DeckSize % 10
 
 	this.Data["Step"], _ = models.GetActionCount(id)
-	this.Layout = "base.tpl"
+	this.SetBaseLayout()
 	this.TplName = "templates/game.html"
 
 	var user wetalk.User
@@ -65,7 +65,7 @@ func (this *GameController) GameInactive() {
 		return
 	}
 	this.Data["Points"], _ = state.GetPoints()
-	this.Layout = "base.tpl"
+	this.SetBaseLayout()
 	this.TplName = "templates/gameinactive.html"
 
 	var user wetalk.User

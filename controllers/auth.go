@@ -15,7 +15,7 @@ type AuthController struct {
 }
 
 func (this *AuthController) SignIn() {
-	this.Layout = "base.tpl"
+	this.SetBaseLayout()
 	this.TplName = "templates/signin.html"
 	if !this.Ctx.Input.IsPost() {
 		return
@@ -46,7 +46,7 @@ func checkReservedUsernames(username string) error {
 }
 
 func (this *AuthController) SignUp() {
-	this.Layout = "base.tpl"
+	this.SetBaseLayout()
 	this.TplName = "templates/signup.html"
 	if !this.Ctx.Input.IsPost() {
 		return

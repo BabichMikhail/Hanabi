@@ -20,7 +20,7 @@ type CardUrl struct {
 }
 
 func (this *GameViewController) GameView() {
-	this.Layout = "base.tpl"
+	this.SetBaseLayout()
 	this.TplName = "templates/gameview.html"
 	var user wetalk.User
 	auth.GetUserFromSession(&user, this.Ctx.Input.CruSession)

@@ -11,7 +11,7 @@ type LobbyController struct {
 }
 
 func (this *LobbyController) GameList() {
-	this.Layout = "base.tpl"
+	this.SetBaseLayout()
 	this.TplName = "templates/gamelist.html"
 	var user wetalk.User
 	auth.GetUserFromSession(&user, this.Ctx.Input.CruSession)
