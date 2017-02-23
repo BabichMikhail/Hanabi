@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"errors"
+	"fmt"
+	"regexp"
 
 	"github.com/beego/wetalk/modules/auth"
 	wetalk "github.com/beego/wetalk/modules/models"
@@ -29,6 +31,20 @@ func (this *AuthController) SignIn() {
 	}
 }
 
+func checkReservedUsernames(username string) error {
+	reservedPatterns := []string{
+		"AI_.*",
+	}
+	for _, pattern := range reservedPatterns {
+		r, _ := regexp.Compile(pattern)
+
+		if r.MatchString(username) {
+			return errors.New(fmt.Sprintf("Can't register user with username which matched to pattern: %s", pattern))
+		}
+	}
+	return nil
+}
+
 func (this *AuthController) SignUp() {
 	this.Layout = "base.tpl"
 	this.TplName = "templates/signup.html"
@@ -36,6 +52,10 @@ func (this *AuthController) SignUp() {
 		return
 	}
 	username := this.GetString("username")
+	if err := checkReservedUsernames(username); err != nil {
+		this.Data["err"] = err
+		return
+	}
 	email := this.GetString("email")
 	password1 := this.GetString("password")
 	password2 := this.GetString("confirmpassword")
