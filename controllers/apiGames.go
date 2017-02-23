@@ -38,9 +38,7 @@ func (this *ApiGameController) GamePlayCard() {
 	}
 
 	cardPosition, _ := this.GetInt("card_position")
-	action, _ := state.NewActionPlaying(playerPosition, cardPosition)
-	models.NewAction(gameId, action)
-	models.UpdateGameState(gameId, state)
+	models.ApplyAction(gameId, gamePackage.TypeActionPlaying, playerPosition, cardPosition)
 	this.SetSuccessResponse()
 	go models.CheckAI(gameId)
 }
@@ -58,41 +56,35 @@ func (this *ApiGameController) GameDiscardCard() {
 	}
 
 	cardPosition, _ := this.GetInt("card_position")
-	action, _ := state.NewActionDiscard(playerPosition, cardPosition)
-	models.NewAction(gameId, action)
-	models.UpdateGameState(gameId, state)
+	models.ApplyAction(gameId, gamePackage.TypeActionDiscard, playerPosition, cardPosition)
 	this.SetSuccessResponse()
 	go models.CheckAI(gameId)
 }
 
 func (this *ApiGameController) GameInfoCardValue() {
 	gameId, _ := this.GetInt("game_id")
-	state, err := models.ReadCurrentGameState(gameId)
+	playerPosition, _ := this.GetInt("player_position")
+	cardValue, _ := this.GetInt("card_value")
+
+	err := models.ApplyAction(gameId, gamePackage.TypeActionInformationValue, playerPosition, cardValue)
 	if this.SetError(err) {
 		return
 	}
 
-	playerPosition, _ := this.GetInt("player_position")
-	cardValue, _ := this.GetInt("card_value")
-	action, _ := state.NewActionInformationValue(playerPosition, gamePackage.CardValue(cardValue))
-	models.NewAction(gameId, action)
-	models.UpdateGameState(gameId, state)
 	this.SetSuccessResponse()
 	go models.CheckAI(gameId)
 }
 
 func (this *ApiGameController) GameInfoCardColor() {
 	gameId, _ := this.GetInt("game_id")
-	state, err := models.ReadCurrentGameState(gameId)
+	playerPosition, _ := this.GetInt("player_position")
+	cardColor, _ := this.GetInt("card_color")
+
+	err := models.ApplyAction(gameId, gamePackage.TypeActionInformationColor, playerPosition, cardColor)
 	if this.SetError(err) {
 		return
 	}
 
-	playerPosition, _ := this.GetInt("player_position")
-	cardColor, _ := this.GetInt("card_color")
-	action, _ := state.NewActionInformationColor(playerPosition, gamePackage.CardColor(cardColor))
-	models.NewAction(gameId, action)
-	models.UpdateGameState(gameId, state)
 	this.SetSuccessResponse()
 	go models.CheckAI(gameId)
 }
@@ -103,6 +95,7 @@ func (this *ApiGameController) GameCurrentStep() {
 	if this.SetError(err) {
 		return
 	}
+
 	result := struct {
 		Status string `json:"status"`
 		Step   int    `json:"step"`
