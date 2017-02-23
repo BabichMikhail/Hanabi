@@ -6,22 +6,37 @@ import (
 )
 
 func init() {
-	beego.Router("/api/lobby/create", &controllers.ApiLobbyController{}, "post:GameCreate")
-	beego.Router("/api/lobby/games/active", &controllers.ApiLobbyController{}, "get:GetActiveGames")
-	beego.Router("/api/lobby/games/my", &controllers.ApiLobbyController{}, "get:GetMyGames")
-	beego.Router("/api/lobby/games/all", &controllers.ApiLobbyController{}, "get:GetAllGames")
-	beego.Router("/api/lobby/games/finished", &controllers.ApiLobbyController{}, "get:GetFinishedGames")
-	beego.Router("/api/lobby/join/:id", &controllers.ApiLobbyController{}, "post:GameJoin")
-	beego.Router("/api/lobby/leave/:id", &controllers.ApiLobbyController{}, "post:GameLeave")
+	NSApi := beego.NewNamespace("/api",
+		// @todo add auth filter for api
+		beego.NSNamespace("/lobby",
+			beego.NSRouter("/create", &controllers.ApiLobbyController{}, "post:GameCreate"),
+			beego.NSRouter("/join/:id", &controllers.ApiLobbyController{}, "post:GameJoin"),
+			beego.NSRouter("/leave/:id", &controllers.ApiLobbyController{}, "post:GameLeave"),
+			beego.NSNamespace("/games",
+				beego.NSRouter("/active", &controllers.ApiLobbyController{}, "get:GetActiveGames"),
+				beego.NSRouter("/my", &controllers.ApiLobbyController{}, "get:GetMyGames"),
+				beego.NSRouter("/all", &controllers.ApiLobbyController{}, "get:GetAllGames"),
+				beego.NSRouter("/finished", &controllers.ApiLobbyController{}, "get:GetFinishedGames"),
+			),
+		),
 
-	beego.Router("/api/games/cards", &controllers.ApiGameController{}, "get:GetGameCards")
+		beego.NSNamespace("/games",
+			beego.NSRouter("/cards", &controllers.ApiGameController{}, "get:GetGameCards"),
 
-	beego.Router("/api/games/action/play", &controllers.ApiGameController{}, "post:GamePlayCard")
-	beego.Router("/api/games/action/discard", &controllers.ApiGameController{}, "post:GameDiscardCard")
-	beego.Router("/api/games/action/info/value", &controllers.ApiGameController{}, "post:GameInfoCardValue")
-	beego.Router("/api/games/action/info/color", &controllers.ApiGameController{}, "post:GameInfoCardColor")
-	beego.Router("/api/games/step", &controllers.ApiGameController{}, "get:GameCurrentStep")
-	beego.Router("/api/games/info", &controllers.ApiGameController{}, "get:GameInfo")
+			beego.NSNamespace("/action",
+				beego.NSRouter("/play", &controllers.ApiGameController{}, "post:GamePlayCard"),
+				beego.NSRouter("/discard", &controllers.ApiGameController{}, "post:GameDiscardCard"),
+				beego.NSRouter("/info/value", &controllers.ApiGameController{}, "post:GameInfoCardValue"),
+				beego.NSRouter("/info/color", &controllers.ApiGameController{}, "post:GameInfoCardColor"),
+			),
 
-	beego.Router("/api/users/current", &controllers.ApiLobbyController{}, "get:MyInfo")
+			beego.NSRouter("/step", &controllers.ApiGameController{}, "get:GameCurrentStep"),
+			beego.NSRouter("/info", &controllers.ApiGameController{}, "get:GameInfo"),
+		),
+
+		beego.NSRouter("/users/current", &controllers.ApiLobbyController{}, "get:MyInfo"),
+	)
+
+	beego.AddNamespace(NSApi)
+
 }
