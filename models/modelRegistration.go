@@ -24,4 +24,5 @@ func registerModels() {
 	orm.RegisterModel(new(Player))
 	orm.RegisterModel(new(GameState))
 	orm.RegisterModel(new(Action))
+	orm.RegisterModel(new(AIUser))
 }

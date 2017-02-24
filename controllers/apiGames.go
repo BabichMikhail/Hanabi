@@ -95,7 +95,6 @@ func (this *ApiGameController) GameCurrentStep() {
 	if this.SetError(err) {
 		return
 	}
-
 	result := struct {
 		Status string `json:"status"`
 		Step   int    `json:"step"`

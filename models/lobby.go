@@ -55,6 +55,9 @@ type PlayerCount struct {
 
 func getPlayerCount(ids []int) []PlayerCount {
 	o := orm.NewOrm()
+	if len(ids) == 0 {
+		return []PlayerCount{}
+	}
 	qb, _ := orm.NewQueryBuilder("mysql")
 	qb.Select("game_id", "count(user_id) as count").
 		From("players").

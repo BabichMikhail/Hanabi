@@ -74,6 +74,8 @@ func NewGame(userId int, playersCount int, status int) (gameItem LobbyGameItem, 
 func JoinGame(gameId int, userId int) (err error, status string) {
 	o := orm.NewOrm()
 	qb, _ := orm.NewQueryBuilder("mysql")
+	// @todo insert first player right
+	//o.Begin()
 	qb.InsertInto("players", "user_id", "game_id").
 		Values("?", "?")
 	sql := qb.String()
@@ -92,10 +94,10 @@ func JoinGame(gameId int, userId int) (err error, status string) {
 			_, err = CreateActiveGame(playerIds, gameId)
 			status = StatusName(StatusActive)
 		}
-		o.Commit()
+		//o.Commit()
 	} else {
 		status = ""
-		o.Rollback()
+		//o.Rollback()
 	}
 
 	return err, status

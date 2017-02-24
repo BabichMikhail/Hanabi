@@ -16,11 +16,11 @@ func GetUserNickNameById(id int) string {
 		From("user").
 		Where("id = ?")
 	sql := qb.String()
-	var nickName string
-	if err := o.Raw(sql, id).QueryRow(&nickName); err != nil {
+	var user wetalk.User
+	if err := o.Raw(sql, id).QueryRow(&user); err != nil {
 		return ""
 	} else {
-		return nickName
+		return user.NickName
 	}
 }
 
