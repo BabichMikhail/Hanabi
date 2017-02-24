@@ -29,8 +29,9 @@ func DefaultUsernamePrefix(AIType int) string {
 	}
 }
 
-func NewAI(gameInfo game.PlayerGameInfo, aiType int) *AI {
+func NewAI(playerInfo game.PlayerGameInfo, aiType int) *AI {
 	ai := new(AI)
+	ai.PlayerInfo = playerInfo
 	ai.setAvailableActions()
 	ai.Type = aiType
 	return ai

@@ -46,12 +46,15 @@ func getParams(actionType game.ActionType) (game.ActionType, func(*game.Card) in
 
 func (ai *AI) setAvailableInfomationActions() {
 	actionTypes := []game.ActionType{game.TypeActionInformationColor, game.TypeActionInformationValue}
+	if ai.PlayerInfo.BlueTokens == 0 {
+		return
+	}
 	for _, actionType := range actionTypes {
 		actionType, cardF := getParams(actionType)
-		var values map[key]struct {
+		values := map[key]struct {
 			Count        int
 			UsefullCount int
-		}
+		}{}
 		playerInfo := &ai.PlayerInfo
 		playersCardInfo := playerInfo.PlayerCardsInfo
 		for i, cards := range playerInfo.PlayerCards {
