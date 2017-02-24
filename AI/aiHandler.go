@@ -18,6 +18,17 @@ type AI struct {
 	Type       int                 `json:"ai_type"`
 }
 
+const AI_NamePrefix = "AI_"
+
+func DefaultUsernamePrefix(AIType int) string {
+	switch AIType {
+	case AI_RandomAction:
+		return AI_NamePrefix + "RandomAction"
+	default:
+		return AI_NamePrefix + "Any"
+	}
+}
+
 func NewAI(gameInfo game.PlayerGameInfo, aiType int) *AI {
 	ai := new(AI)
 	ai.setAvailableActions()
