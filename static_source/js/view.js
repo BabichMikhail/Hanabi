@@ -92,9 +92,10 @@ function viewHandler() {
     }
 
     this.MakeGame = function(step) {
-        if (typeof View.games[step] == 'undefined') {
-            this.CalculateGame(step)
+        if (step <= 0 || step > View.actions.length) {
+            return
         }
+        View.currentStep = step
         View.MakeTable()
     }
 
@@ -119,7 +120,7 @@ function viewHandler() {
 
     this.MakeTable = function() {
         if (typeof View.games[View.currentStep] == 'undefined') {
-            View.MakeGame(View.currentStep)
+            View.CalculateGame(View.currentStep)
         }
         game = View.games[View.currentStep]
 
