@@ -66,14 +66,14 @@ func (user *AIUser) TableName() string {
 	return "ai_users"
 }
 
-func GetAIUserIds(AIType int) (ids []int, err error) {
+func GetAIUserIds(AIType, playerCount int) (ids []int, err error) {
 	o := orm.NewOrm()
 	qb, _ := orm.NewQueryBuilder("mysql")
 	qb.Select("u.id").From("user u").
 		InnerJoin("ai_users aiu").On("u.id = aiu.user_id").
 		Where("u.user_name LIKE 'AI\\_%'").
 		And("aiu.type = ?").
-		Limit(5)
+		Limit(playerCount)
 	var users []wetalk.User
 	_, err = o.Raw(qb.String(), AIType).QueryRows(&users)
 	if len(users) == 0 {

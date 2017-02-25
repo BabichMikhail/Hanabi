@@ -12,14 +12,15 @@ type AdminController struct {
 }
 
 func (c *AdminController) GameCreate() {
-	userIds, err := models.GetAIUserIds(ai.AI_RandomAction)
+	count := 5
+	userIds, err := models.GetAIUserIds(ai.AI_RandomAction, count)
 	if err != nil {
 		userIds, err = models.CreateAIUsers(ai.AI_RandomAction)
 		if err != nil {
 			c.Ctx.Redirect(302, c.URLFor("LobbyController.GameList"))
 		}
 	}
-	count := 5
+
 	gameItem, _ := models.NewGame(userIds[0], count, models.StatusWait)
 	gameId := gameItem.Id
 	for i := 1; i < int(math.Min(float64(len(userIds)), float64(count))); i++ {
