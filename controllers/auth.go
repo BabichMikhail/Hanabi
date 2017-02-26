@@ -60,7 +60,7 @@ func (this *AuthController) SignUp() {
 	password1 := this.GetString("password")
 	password2 := this.GetString("confirmpassword")
 	if password1 != password2 {
-		this.Data["err"] = "Password don't match"
+		this.Data["err"] = "Passwords don't match"
 		return
 	}
 
