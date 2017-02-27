@@ -37,6 +37,7 @@ func ApplyAction(gameId int, actionType game.ActionType, playerPosition int, act
 func CheckAI(gameId int) {
 	state, err := ReadCurrentGameState(gameId)
 	if state.IsGameOver() {
+		SetGameFinishedStatus(gameId)
 		return
 	}
 
