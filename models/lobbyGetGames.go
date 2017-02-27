@@ -45,7 +45,7 @@ func getGames(gameStatuses []int) (games []LobbyGame) {
 }
 
 func GetFinishedGames() (games []LobbyGame) {
-	return getGames([]int{StatusInactive})
+	return getGames([]int{StatusFinished})
 }
 
 func GetMyGames(userId int) (games []LobbyGame) {

@@ -7,7 +7,6 @@ import (
 
 	"github.com/beego/wetalk/modules/auth"
 	wetalk "github.com/beego/wetalk/modules/models"
-	_ "github.com/mattn/go-sqlite3"
 )
 
 type AuthController struct {

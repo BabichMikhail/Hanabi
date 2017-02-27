@@ -33,10 +33,10 @@ func CreateActiveGame(playerIds []int, gameId int) (game *gamePackage.Game, err 
 	return game, err
 }
 
-func SetGameInactiveStatus(gameId int) {
+func SetGameFinishedStatus(gameId int) {
 	o := orm.NewOrm()
 	var ormGame Game
 	o.QueryTable(ormGame).Filter("id", gameId).Update(orm.Params{
-		"status": StatusInactive,
+		"status": StatusFinished,
 	})
 }

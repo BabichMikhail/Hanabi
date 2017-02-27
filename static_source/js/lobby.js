@@ -106,16 +106,14 @@ function lobbyHandler() {
             for (let i = 0; i < games.length; ++i) {
                 game = games[i]
                 playersHtml = ``
-                let userIn = false
                 for (let j = 0; j < game.players.length; ++j) {
                     playersHtml += (j != 0 ? ` ` : ``) + game.players[j].nick_name
-                    userIn |= Lobby.User.nick_name == game.players[j].nick_name
                 }
                 let actionHtml = ``
-                if (game.status_name == "inactive") {
+                if (game.status_name == "finished") {
                     actionHtml = `<a class="btn-link" href="/games/view/` + game.id + `">Replay</a>`
                 } else if (game.status_name == "wait") {
-                    actionHtml = userIn
+                    actionHtml = game.user_in
                         ? `<a class="btn-link" href="#" onclick="Lobby.Leave(` + game.id + `)">Leave</a>`
                         : `<a class="btn-link" href="#" onclick="Lobby.Join(` + game.id + `)">Join</a>`
                 } else if (game.status_name == "active") {

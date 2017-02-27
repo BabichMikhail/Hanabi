@@ -23,8 +23,8 @@ func (this *GameController) Game() {
 	}
 
 	if state.IsGameOver() {
-		models.SetGameInactiveStatus(id)
-		this.Ctx.Redirect(302, this.URLFor("GameController.GameInactive", ":id", id))
+		models.SetGameFinishedStatus(id)
+		this.Ctx.Redirect(302, this.URLFor("GameController.GameFinished", ":id", id))
 		return
 	}
 
@@ -52,7 +52,7 @@ func (this *GameController) Game() {
 	this.Data["NickNames"] = playerNickNames
 }
 
-func (this *GameController) GameInactive() {
+func (this *GameController) GameFinished() {
 	id, _ := strconv.Atoi(this.Ctx.Input.Param(":id"))
 
 	state, err := models.ReadCurrentGameState(id)
@@ -66,7 +66,7 @@ func (this *GameController) GameInactive() {
 	}
 	this.Data["Points"], _ = state.GetPoints()
 	this.SetBaseLayout()
-	this.TplName = "templates/gameinactive.html"
+	this.TplName = "templates/gamefinished.html"
 
 	var user wetalk.User
 	auth.GetUserFromSession(&user, this.Ctx.Input.CruSession)

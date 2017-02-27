@@ -27,7 +27,7 @@ type LobbyGameItem struct {
 const (
 	StatusWait = 1 << iota
 	StatusActive
-	StatusInactive
+	StatusFinished
 	StatusUnknown
 )
 
@@ -37,15 +37,15 @@ func StatusName(status int) string {
 		return "wait"
 	case StatusActive:
 		return "active"
-	case StatusInactive:
-		return "inactive"
+	case StatusFinished:
+		return "finished"
 	default:
 		return "unknown"
 	}
 }
 
 func GetAllStatuses() []int {
-	return []int{StatusWait, StatusActive, StatusInactive}
+	return []int{StatusWait, StatusActive, StatusFinished}
 }
 
 type PlayerCount struct {
