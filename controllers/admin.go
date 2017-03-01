@@ -21,7 +21,7 @@ func (c *AdminController) GameCreate() {
 		}
 	}
 
-	gameItem, _ := models.NewGame(userIds[0], count, models.StatusWait)
+	gameItem, _ := models.NewGame(userIds[0], count, models.StatusWait, true)
 	gameId := gameItem.Id
 	for i := 1; i < int(math.Min(float64(len(userIds)), float64(count))); i++ {
 		models.JoinGame(gameId, userIds[i])

@@ -15,6 +15,7 @@ type Game struct {
 	Status       int        `orm:"column(status);default(4)" json:"status"`
 	Points       int        `orm:"column(points);default(0)"`
 	Seed         int64      `orm:"column(seed);null"`
+	IsAI         bool       `orm:"column(is_ai_only_game)"`
 	InitState    *GameState `orm:"-"`
 	CurrentState *GameState `orm:"-"`
 	Actions      []*Action  `orm:"-"`
@@ -25,7 +26,7 @@ func (g *Game) TableName() string {
 	return "games"
 }
 
-func NewGame(userId int, playersCount int, status int) (gameItem LobbyGameItem, err error) {
+func NewGame(userId int, playersCount int, status int, isAIGame bool) (gameItem LobbyGameItem, err error) {
 	if playersCount > 5 {
 		playersCount = 5
 	}
@@ -35,11 +36,11 @@ func NewGame(userId int, playersCount int, status int) (gameItem LobbyGameItem, 
 	o := orm.NewOrm()
 	o.Begin()
 	qb, _ := orm.NewQueryBuilder("mysql")
-	qb.InsertInto("games", "owner_id", "player_count", "status", "created_at").
-		Values("?", "?", "?", "CURRENT_TIMESTAMP")
+	qb.InsertInto("games", "owner_id", "player_count", "status", "is_ai_only_game", "created_at").
+		Values("?", "?", "?", "?", "CURRENT_TIMESTAMP")
 	sql := qb.String()
 	var id int
-	if res, errExec := o.Raw(sql, userId, playersCount, status).Exec(); errExec == nil {
+	if res, errExec := o.Raw(sql, userId, playersCount, status, isAIGame).Exec(); errExec == nil {
 		id64, _ := res.LastInsertId()
 		id = int(id64)
 	} else {

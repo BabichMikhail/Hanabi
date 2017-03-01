@@ -16,7 +16,7 @@ func (this *ApiLobbyController) GameCreate() {
 	var user wetalk.User
 	playersCount, _ := this.GetInt("playersCount")
 	auth.GetUserFromSession(&user, this.Ctx.Input.CruSession)
-	game, err := models.NewGame(user.Id, playersCount, models.StatusWait)
+	game, err := models.NewGame(user.Id, playersCount, models.StatusWait, false)
 	if this.SetError(err) {
 		return
 	}
