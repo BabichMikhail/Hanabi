@@ -22,6 +22,7 @@ type GameState struct {
 	UsedCards       []Card             `json:"used_cards"`
 	TableCards      map[CardColor]Card `json:"table_cards"`
 	PlayerStates    []PlayerState      `json:"player_state"`
+	MaxStep         int                `json:"max_step"`
 }
 
 type Pair struct {
@@ -79,6 +80,7 @@ func NewGameState(ids []int, pcards []*Card) GameState {
 		Step:            0,
 		Round:           0,
 		UsedCards:       []Card{},
+		MaxStep:         0,
 	}
 
 	state.TableCards = map[CardColor]Card{
@@ -113,6 +115,7 @@ func (state *GameState) Copy() GameState {
 		RedTokens:       state.RedTokens,
 		Step:            state.Step,
 		Round:           state.Round,
+		MaxStep:         state.MaxStep,
 	}
 
 	newState.TableCards = map[CardColor]Card{
@@ -148,15 +151,7 @@ func (state *GameState) GetPlayerPositionById(id int) (pos int, err error) {
 }
 
 func (state *GameState) IsGameOver() bool {
-	if state.RedTokens == 0 {
-		return true
-	}
-
-	cardInHands := 0
-	for i := 0; i < len(state.PlayerStates); i++ {
-		cardInHands += len(state.PlayerStates[i].PlayerCards)
-	}
-	if cardInHands == len(state.PlayerStates)*(state.GetCardCount()-1) {
+	if state.RedTokens == 0 || state.MaxStep != 0 && state.Step >= state.MaxStep {
 		return true
 	}
 

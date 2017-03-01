@@ -28,7 +28,6 @@ func (state *GameState) NewAction(actionType ActionType, playerPosition int, val
 		PlayerPosition: playerPosition,
 		Value:          value,
 	}
-	//*state.Actions = append(*state.Actions, action)
 	state.IncreaseStep()
 	return action
 }

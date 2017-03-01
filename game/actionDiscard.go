@@ -25,5 +25,8 @@ func (state *GameState) NewActionDiscard(playerPosition int, cardPosition int) (
 
 	state.BlueTokens++
 	action := state.NewAction(TypeActionDiscard, playerPosition, cardPosition)
+	if len(state.Deck) == 0 && state.MaxStep == 0 {
+		state.MaxStep = state.Step + len(state.PlayerStates)
+	}
 	return action, nil
 }
