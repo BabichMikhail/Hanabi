@@ -61,10 +61,7 @@ func SetMostColourfulPlayerCardsAtZeroPlace(pcards []*[]Card) [][]Card {
 }
 
 func (state *GameState) GetCardCount() int {
-	if len(state.PlayerStates) >= 4 {
-		return 4
-	}
-	return 5
+	return state.GetCardCountByPlayerCount(len(state.PlayerStates))
 }
 
 func (state *GameState) GetCardCountByPlayerCount(count int) int {
