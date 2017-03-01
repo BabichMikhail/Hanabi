@@ -31,16 +31,16 @@ type Pair struct {
 
 type Pairs []Pair
 
-func (this Pairs) Len() int {
-	return len(this)
+func (pairs Pairs) Len() int {
+	return len(pairs)
 }
 
-func (this Pairs) Less(i, j int) bool {
-	return this[i].Count > this[j].Count
+func (pairs Pairs) Less(i, j int) bool {
+	return pairs[i].Count > pairs[j].Count
 }
 
-func (this Pairs) Swap(i, j int) {
-	this[i], this[j] = this[j], this[i]
+func (pairs Pairs) Swap(i, j int) {
+	pairs[i], pairs[j] = pairs[j], pairs[i]
 }
 
 func SetMostColourfulPlayerCardsAtZeroPlace(pcards []*[]Card) [][]Card {
@@ -60,15 +60,22 @@ func SetMostColourfulPlayerCardsAtZeroPlace(pcards []*[]Card) [][]Card {
 	return cards
 }
 
-func (this *GameState) GetCardCount() int {
-	if len(this.PlayerStates) >= 4 {
+func (state *GameState) GetCardCount() int {
+	if len(state.PlayerStates) >= 4 {
+		return 4
+	}
+	return 5
+}
+
+func (state *GameState) GetCardCountByPlayerCount(count int) int {
+	if count >= 4 {
 		return 4
 	}
 	return 5
 }
 
 func NewGameState(ids []int, pcards []*Card) GameState {
-	this := GameState{
+	state := GameState{
 		CurrentPosition: 0,
 		BlueTokens:      MaxBlueTokens,
 		RedTokens:       MaxRedTokens,
@@ -77,7 +84,7 @@ func NewGameState(ids []int, pcards []*Card) GameState {
 		UsedCards:       []Card{},
 	}
 
-	this.TableCards = map[CardColor]Card{
+	state.TableCards = map[CardColor]Card{
 		Red:    *NewCard(Red, NoneValue, true),
 		Blue:   *NewCard(Blue, NoneValue, true),
 		Green:  *NewCard(Green, NoneValue, true),
@@ -85,7 +92,7 @@ func NewGameState(ids []int, pcards []*Card) GameState {
 		Orange: *NewCard(Orange, NoneValue, true),
 	}
 
-	cardCount := this.GetCardCount()
+	cardCount := state.GetCardCountByPlayerCount(len(ids))
 	allPlayerPCards := []*[]Card{}
 	for i := 0; i < len(ids); i++ {
 		userCards := pcards[0:cardCount]
@@ -95,40 +102,40 @@ func NewGameState(ids []int, pcards []*Card) GameState {
 	}
 	allPlayerCards := SetMostColourfulPlayerCardsAtZeroPlace(allPlayerPCards)
 	for i := 0; i < len(ids); i++ {
-		this.PlayerStates = append(this.PlayerStates, NewPlayerState(allPlayerCards, i, ids[i]))
+		state.PlayerStates = append(state.PlayerStates, NewPlayerState(allPlayerCards, i, ids[i]))
 	}
 
-	this.Deck = DereferenceCard(pcards)
-	return this
+	state.Deck = DereferenceCard(pcards)
+	return state
 }
 
-func (this *GameState) Copy() GameState {
+func (state *GameState) Copy() GameState {
 	newState := GameState{
-		CurrentPosition: this.CurrentPosition,
-		BlueTokens:      this.BlueTokens,
-		RedTokens:       this.RedTokens,
-		Step:            this.Step,
-		Round:           this.Round,
+		CurrentPosition: state.CurrentPosition,
+		BlueTokens:      state.BlueTokens,
+		RedTokens:       state.RedTokens,
+		Step:            state.Step,
+		Round:           state.Round,
 	}
 
 	newState.TableCards = map[CardColor]Card{
-		Red:    this.TableCards[Red].Copy(),
-		Blue:   this.TableCards[Blue].Copy(),
-		Green:  this.TableCards[Green].Copy(),
-		Yellow: this.TableCards[Yellow].Copy(),
-		Orange: this.TableCards[Orange].Copy(),
+		Red:    state.TableCards[Red].Copy(),
+		Blue:   state.TableCards[Blue].Copy(),
+		Green:  state.TableCards[Green].Copy(),
+		Yellow: state.TableCards[Yellow].Copy(),
+		Orange: state.TableCards[Orange].Copy(),
 	}
 
-	for i := 0; i < len(this.UsedCards); i++ {
-		newState.UsedCards = append(newState.UsedCards, this.UsedCards[i].Copy())
+	for i := 0; i < len(state.UsedCards); i++ {
+		newState.UsedCards = append(newState.UsedCards, state.UsedCards[i].Copy())
 	}
 
-	for i := 0; i < len(this.PlayerStates); i++ {
-		newState.PlayerStates = append(newState.PlayerStates, this.PlayerStates[i].Copy())
+	for i := 0; i < len(state.PlayerStates); i++ {
+		newState.PlayerStates = append(newState.PlayerStates, state.PlayerStates[i].Copy())
 	}
 
-	for i := 0; i < len(this.Deck); i++ {
-		newState.Deck = append(newState.Deck, this.Deck[i].Copy())
+	for i := 0; i < len(state.Deck); i++ {
+		newState.Deck = append(newState.Deck, state.Deck[i].Copy())
 	}
 
 	return newState
