@@ -77,13 +77,13 @@ func ConvertStringArrayToIntArray(s []string) []int {
 	return ans
 }
 
-func (this *ApiLobbyController) SetGameURLs(games []models.LobbyGame) {
+func (this *ApiLobbyController) setGameURLs(games []models.LobbyGame) {
 	for i, g := range games {
 		games[i].URL = this.URLFor("GameController.Game", ":id", g.Id)
 	}
 }
 
-func (this *ApiLobbyController) SetGameData(games []models.LobbyGame) {
+func (this *ApiLobbyController) setGameData(games []models.LobbyGame) {
 	result := struct {
 		Status string             `json:"status"`
 		Games  []models.LobbyGame `json:"games"`
@@ -91,29 +91,27 @@ func (this *ApiLobbyController) SetGameData(games []models.LobbyGame) {
 	this.SetData(&result)
 }
 
-func (this *ApiLobbyController) GetActiveGames() {
-	games := models.GetActiveGames()
-	this.SetGameURLs(games)
-	this.SetGameData(games)
+func (c *ApiLobbyController) setGames(getGames func(int) []models.LobbyGame) {
+	userId := auth.GetUserIdFromSession(c.Ctx.Input.CruSession)
+	games := getGames(userId)
+	c.setGameURLs(games)
+	c.setGameData(games)
 }
 
-func (this *ApiLobbyController) GetMyGames() {
-	userId := auth.GetUserIdFromSession(this.Ctx.Input.CruSession)
-	games := models.GetMyGames(userId)
-	this.SetGameURLs(games)
-	this.SetGameData(games)
+func (c *ApiLobbyController) GetActiveGames() {
+	c.setGames(models.GetActiveGames)
 }
 
-func (this *ApiLobbyController) GetAllGames() {
-	games := models.GetAllGames()
-	this.SetGameURLs(games)
-	this.SetGameData(games)
+func (c *ApiLobbyController) GetMyGames() {
+	c.setGames(models.GetMyGames)
 }
 
-func (this *ApiLobbyController) GetFinishedGames() {
-	games := models.GetFinishedGames()
-	this.SetGameURLs(games)
-	this.SetGameData(games)
+func (c *ApiLobbyController) GetAllGames() {
+	c.setGames(models.GetAllGames)
+}
+
+func (c *ApiLobbyController) GetFinishedGames() {
+	c.setGames(models.GetFinishedGames)
 }
 
 type UserInfo struct {

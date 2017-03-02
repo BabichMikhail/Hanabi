@@ -19,7 +19,7 @@ type LobbyGame struct {
 	URL         string        `json:"URL"`
 }
 
-func getGames(gameStatuses []int) (games []LobbyGame) {
+func getGames(userId int, gameStatuses []int) (games []LobbyGame) {
 	o := orm.NewOrm()
 	qb, _ := orm.NewQueryBuilder("mysql")
 	qb.Select("g.id, g.status, g.player_count, g.created_at, g.owner_id, u.nick_name as owner_name").
@@ -41,32 +41,31 @@ func getGames(gameStatuses []int) (games []LobbyGame) {
 		games[i].StatusName = StatusName(game.Status)
 	}
 
-	return
-}
-
-func GetFinishedGames() (games []LobbyGame) {
-	return getGames([]int{StatusFinished})
-}
-
-func GetMyGames(userId int) (games []LobbyGame) {
-	gamesAll := getGames(GetAllStatuses())
-
-	for i, _ := range gamesAll {
-		for j, _ := range gamesAll[i].Players {
-			if gamesAll[i].Players[j].Id == userId {
-				gamesAll[i].UserIn = true
-				games = append(games, gamesAll[i])
+	for i, _ := range games {
+		for j, _ := range games[i].Players {
+			if games[i].Players[j].Id == userId {
+				games[i].UserIn = true
+				games = append(games, games[i])
 				break
 			}
 		}
 	}
+
 	return
 }
 
-func GetAllGames() (games []LobbyGame) {
-	return getGames([]int{StatusActive, StatusWait})
+func GetFinishedGames(userId int) (games []LobbyGame) {
+	return getGames(userId, []int{StatusFinished})
 }
 
-func GetActiveGames() (games []LobbyGame) {
-	return getGames([]int{StatusActive, StatusWait})
+func GetMyGames(userId int) (games []LobbyGame) {
+	return getGames(userId, GetAllStatuses())
+}
+
+func GetAllGames(userId int) (games []LobbyGame) {
+	return getGames(userId, []int{StatusActive, StatusWait})
+}
+
+func GetActiveGames(userId int) (games []LobbyGame) {
+	return getGames(userId, []int{StatusActive, StatusWait})
 }
