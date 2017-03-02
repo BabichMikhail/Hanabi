@@ -45,7 +45,6 @@ func getGames(userId int, gameStatuses []int) (games []LobbyGame) {
 		for j, _ := range games[i].Players {
 			if games[i].Players[j].Id == userId {
 				games[i].UserIn = true
-				games = append(games, games[i])
 				break
 			}
 		}
