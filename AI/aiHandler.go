@@ -20,6 +20,7 @@ type AI struct {
 	DiscardActions   []*Action           `json:"discard_actions"`
 	InfoValueActions []*Action           `json:"info_value_actions"`
 	InfoColorAcions  []*Action           `json:"info_color_actions"`
+	History          []game.Action       `json:"history"`
 	PlayerInfo       game.PlayerGameInfo `json:"player_info"`
 	Type             int                 `json:"ai_type"`
 }
@@ -39,8 +40,9 @@ func DefaultUsernamePrefix(AIType int) string {
 	}
 }
 
-func NewAI(playerInfo game.PlayerGameInfo, aiType int) *AI {
+func NewAI(playerInfo game.PlayerGameInfo, actions []game.Action, aiType int) *AI {
 	ai := new(AI)
+	ai.History = actions
 	ai.PlayerInfo = playerInfo
 	ai.setAvailableActions()
 	ai.Type = aiType

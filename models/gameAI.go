@@ -50,7 +50,9 @@ func CheckAI(gameId int) {
 	if ok, _ := regexp.MatchString("AI_.*", GetUserNickNameById(playerId)); !ok {
 		return
 	}
-	AI := ai.NewAI(playerInfo, ai.AI_RandomAction)
+
+	actions, _ := ReadActions(gameId)
+	AI := ai.NewAI(playerInfo, actions, ai.AI_RandomAction)
 	action := AI.GetAction()
 	ApplyAction(gameId, action.ActionType, action.PlayerPosition, action.Value)
 
