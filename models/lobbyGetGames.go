@@ -58,7 +58,13 @@ func GetFinishedGames(userId int) (games []LobbyGame) {
 }
 
 func GetMyGames(userId int) (games []LobbyGame) {
-	return getGames(userId, GetAllStatuses())
+	allGames := getGames(userId, GetAllStatuses())
+	for _, game := range allGames {
+		if game.UserIn {
+			games = append(games, game)
+		}
+	}
+	return
 }
 
 func GetAllGames(userId int) (games []LobbyGame) {
