@@ -3,10 +3,12 @@ package game
 import "math/rand"
 
 type Card struct {
-	Color      CardColor `json:"color"`
-	KnownColor bool      `json:"known_color"`
-	Value      CardValue `json:"value"`
-	KnownValue bool      `json:"known_value"`
+	Color           CardColor          `json:"color"`
+	KnownColor      bool               `json:"known_color"`
+	AvailableColors map[CardColor]bool `json:"available_colors"`
+	Value           CardValue          `json:"value"`
+	KnownValue      bool               `json:"known_value"`
+	AvailableValues map[CardValue]bool `json:"available_values"`
 }
 
 type CardColor int
@@ -113,7 +115,21 @@ func DereferenceCard(pcards []*Card) []Card {
 }
 
 func NewCard(color CardColor, value CardValue, known bool) *Card {
-	return &Card{color, known, value, known}
+	values := map[CardValue]bool{
+		One:   !known || value == One,
+		Two:   !known || value == Two,
+		Three: !known || value == Three,
+		Four:  !known || value == Four,
+		Five:  !known || value == Five,
+	}
+	colors := map[CardColor]bool{
+		Red:    !known || color == Red,
+		Blue:   !known || color == Blue,
+		Green:  !known || color == Green,
+		Yellow: !known || color == Yellow,
+		Orange: !known || color == Orange,
+	}
+	return &Card{color, known, colors, value, known, values}
 }
 
 func (this Card) Copy() Card {
