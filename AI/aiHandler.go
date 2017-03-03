@@ -36,6 +36,7 @@ const (
 	AI_RandomName             = "RandomAction"
 	AI_SmartyName             = "SmartyRandomAction"
 	AI_DiscardUsefullCardName = "DiscardKnownCardAction"
+	AI_UsefullInformationName = "UsefullInformationAction"
 )
 
 func DefaultUsernamePrefix(AIType int) string {
@@ -46,6 +47,8 @@ func DefaultUsernamePrefix(AIType int) string {
 		return AI_NamePrefix + AI_SmartyName
 	case AI_DiscardUsefullCardAction:
 		return AI_NamePrefix + AI_DiscardUsefullCardName
+	case AI_UsefullInformationAction:
+		return AI_NamePrefix + AI_UsefullInformationName
 	default:
 		return AI_NamePrefix + "Any"
 	}
@@ -58,8 +61,10 @@ func GetAITypeByUserNickName(nickname string) int {
 		return AI_SmartyRandomAction
 	} else if ok, _ := regexp.MatchString(AI_NamePrefix+AI_DiscardUsefullCardName+"_\\d", nickname); ok {
 		return AI_DiscardUsefullCardAction
+	} else if ok, _ := regexp.MatchString(AI_NamePrefix+AI_UsefullInformationName+"_\\d", nickname); ok {
+		return AI_UsefullInformationAction
 	}
-	return AI_RandomAction
+	return AI_UsefullInformationAction
 }
 
 func NewAI(playerInfo game.PlayerGameInfo, actions []game.Action, aiType int) *AI {
@@ -80,6 +85,8 @@ func (ai *AI) GetAction() game.Action {
 		action = ai.getSmartyRandomAction()
 	case AI_DiscardUsefullCardAction:
 		action = ai.getDiscardUsefullCardAction()
+	case AI_UsefullInformationAction:
+		action = ai.getUsefullInformationAction()
 	}
 	return action.Action
 }
