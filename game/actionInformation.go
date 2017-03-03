@@ -40,17 +40,9 @@ func (state *GameState) NewActionInformationValue(playerPosition int, cardValue 
 }
 
 func (game *Game) NewActionInformationColor(playerPosition int, cardColor CardColor) (Action, error) {
-	return game.AppendAction(game.CurrentState.NewActionInformation(playerPosition, int(cardColor), TypeActionInformationColor, func(card *Card, value int) {
-		if card.Color == CardColor(value) {
-			card.KnownColor = true
-		}
-	}))
+	return game.AppendAction(game.CurrentState.NewActionInformationColor(playerPosition, cardColor))
 }
 
 func (game *Game) NewActionInformationValue(playerPosition int, cardValue CardValue) (Action, error) {
-	return game.AppendAction(game.CurrentState.NewActionInformation(playerPosition, int(cardValue), TypeActionInformationValue, func(card *Card, value int) {
-		if (*card).Value == CardValue(value) {
-			(*card).KnownValue = true
-		}
-	}))
+	return game.AppendAction(game.CurrentState.NewActionInformationValue(playerPosition, cardValue))
 }
