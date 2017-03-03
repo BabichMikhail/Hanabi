@@ -35,10 +35,10 @@ func (ai *AI) getSmartyRandomAction() *Action {
 		usefullActions = append(usefullActions, action)
 	}
 
-	rand.Seed(time.Now().UTC().UnixNano())
 	if len(usefullActions) > 0 {
+		rand.Seed(time.Now().UTC().UnixNano())
 		return usefullActions[rand.Intn(len(usefullActions))]
 	} else {
-		return ai.Actions[rand.Intn(len(ai.Actions))]
+		return ai.getRandomAction()
 	}
 }

@@ -1,11 +1,16 @@
 package ai
 
-import "github.com/BabichMikhail/Hanabi/game"
+import (
+	"regexp"
+
+	"github.com/BabichMikhail/Hanabi/game"
+)
 
 const (
 	AI_RandomAction = iota
 	AI_SmartyRandomAction
 	AI_DiscardUsefullCardAction
+	AI_UsefullInformationAction
 )
 
 type Action struct {
@@ -25,19 +30,36 @@ type AI struct {
 	Type             int                 `json:"ai_type"`
 }
 
-const AI_NamePrefix = "AI_"
+const (
+	AI_NamePrefix = "AI_"
+
+	AI_RandomName             = "RandomAction"
+	AI_SmartyName             = "SmartyRandomAction"
+	AI_DiscardUsefullCardName = "DiscardKnownCardAction"
+)
 
 func DefaultUsernamePrefix(AIType int) string {
 	switch AIType {
 	case AI_RandomAction:
-		return AI_NamePrefix + "RandomAction"
+		return AI_NamePrefix + AI_RandomName
 	case AI_SmartyRandomAction:
-		return AI_NamePrefix + "SmartyRandomAction"
+		return AI_NamePrefix + AI_SmartyName
 	case AI_DiscardUsefullCardAction:
-		return AI_NamePrefix + "DiscardKnownCardAction"
+		return AI_NamePrefix + AI_DiscardUsefullCardName
 	default:
 		return AI_NamePrefix + "Any"
 	}
+}
+
+func GetAITypeByUserNickName(nickname string) int {
+	if ok, _ := regexp.MatchString(AI_NamePrefix+AI_RandomName+"_\\d", nickname); ok {
+		return AI_RandomAction
+	} else if ok, _ := regexp.MatchString(AI_NamePrefix+AI_SmartyName+"_\\d", nickname); ok {
+		return AI_SmartyRandomAction
+	} else if ok, _ := regexp.MatchString(AI_NamePrefix+AI_DiscardUsefullCardName+"_\\d", nickname); ok {
+		return AI_DiscardUsefullCardAction
+	}
+	return AI_RandomAction
 }
 
 func NewAI(playerInfo game.PlayerGameInfo, actions []game.Action, aiType int) *AI {
