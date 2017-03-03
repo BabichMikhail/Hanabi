@@ -92,7 +92,7 @@ function viewHandler() {
     }
 
     this.MakeGame = function(step) {
-        if (step <= 0 || step > View.actions.length) {
+        if (step < 0 || step > View.actions.length) {
             return
         }
         View.currentStep = step
