@@ -20,8 +20,8 @@ func updateValue(value value, card game.Card) value {
 	return value
 }
 
-func newAction(actionType game.ActionType, playerPosition, actionValue, cardCount, usefullCardCount int) Action {
-	return Action{
+func (ai *AI) AppendAction(actionType game.ActionType, playerPosition, actionValue, cardCount, usefullCardCount int) {
+	action := &Action{
 		Action: game.Action{
 			ActionType:     actionType,
 			PlayerPosition: playerPosition,
@@ -29,6 +29,17 @@ func newAction(actionType game.ActionType, playerPosition, actionValue, cardCoun
 		},
 		Count:        cardCount,
 		UsefullCount: usefullCardCount,
+	}
+	ai.Actions = append(ai.Actions, action)
+	switch actionType {
+	case game.TypeActionDiscard:
+		ai.DiscardActions = append(ai.DiscardActions, action)
+	case game.TypeActionPlaying:
+		ai.PlayActions = append(ai.PlayActions, action)
+	case game.TypeActionInformationColor:
+		ai.InfoColorAcions = append(ai.InfoColorAcions, action)
+	case game.TypeActionInformationValue:
+		ai.InfoValueActions = append(ai.InfoValueActions, action)
 	}
 }
 
@@ -67,9 +78,7 @@ func (ai *AI) setAvailableInfomationActions() {
 		}
 
 		for key, value := range values {
-			ai.Actions = append(ai.Actions,
-				newAction(actionType, key.Position, key.Value, value.Count, value.UsefullCount),
-			)
+			ai.AppendAction(actionType, key.Position, key.Value, value.Count, value.UsefullCount)
 		}
 	}
 }
@@ -79,11 +88,11 @@ func (ai *AI) setAvailablePlayingAndDiscardActions() {
 	pos := playerInfo.Position
 	for i, _ := range playerInfo.PlayerCards[pos] {
 		if ai.PlayerInfo.BlueTokens > 0 {
-			ai.Actions = append(ai.Actions, newAction(game.TypeActionPlaying, pos, i, 1, 1))
+			ai.AppendAction(game.TypeActionPlaying, pos, i, 1, 1)
 		}
 
 		if ai.PlayerInfo.BlueTokens < game.MaxBlueTokens {
-			ai.Actions = append(ai.Actions, newAction(game.TypeActionDiscard, pos, i, 1, 1))
+			ai.AppendAction(game.TypeActionDiscard, pos, i, 1, 1)
 		}
 	}
 }

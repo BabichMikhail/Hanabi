@@ -11,11 +11,11 @@ type AdminController struct {
 	BaseController
 }
 
-func (c *AdminController) GameCreate() {
+func (c *AdminController) GameCreate(aiType int) {
 	count := 5
-	userIds, err := models.GetAIUserIds(ai.AI_RandomAction, count)
+	userIds, err := models.GetAIUserIds(aiType, count)
 	if err != nil {
-		userIds, err = models.CreateAIUsers(ai.AI_RandomAction)
+		userIds, err = models.CreateAIUsers(aiType)
 		if err != nil {
 			c.Ctx.Redirect(302, c.URLFor("LobbyController.GameList"))
 		}
@@ -28,4 +28,12 @@ func (c *AdminController) GameCreate() {
 	}
 	models.CheckAI(gameItem.Id)
 	c.Ctx.Redirect(302, c.URLFor("ViewController.GameView", ":id", gameId))
+}
+
+func (c *AdminController) GameRandomCreate() {
+	c.GameCreate(ai.AI_RandomAction)
+}
+
+func (c *AdminController) GameSmartyRandomCreate() {
+	c.GameCreate(ai.AI_SmartyRandomAction)
 }
