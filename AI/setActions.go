@@ -20,6 +20,18 @@ func updateValue(value value, card game.Card) value {
 	return value
 }
 
+func NewAction(actionType game.ActionType, playerPosition, actionValue, cardCount, usefullCardCount int) *Action {
+	return &Action{
+		Action: game.Action{
+			ActionType:     actionType,
+			PlayerPosition: playerPosition,
+			Value:          actionValue,
+		},
+		Count:        cardCount,
+		UsefullCount: usefullCardCount,
+	}
+}
+
 func (ai *AI) AppendAction(actionType game.ActionType, playerPosition, actionValue, cardCount, usefullCardCount int) {
 	action := &Action{
 		Action: game.Action{

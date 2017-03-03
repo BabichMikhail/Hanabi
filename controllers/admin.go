@@ -37,3 +37,7 @@ func (c *AdminController) GameRandomCreate() {
 func (c *AdminController) GameSmartyRandomCreate() {
 	c.GameCreate(ai.AI_SmartyRandomAction)
 }
+
+func (c *AdminController) GameDiscardUsefullCreate() {
+	c.GameCreate(ai.AI_DiscardUsefullCardAction)
+}

@@ -7,7 +7,7 @@ import (
 	"github.com/BabichMikhail/Hanabi/game"
 )
 
-func (ai *AI) getSmartyRandomActionIdx() int {
+func (ai *AI) getSmartyRandomAction() *Action {
 	ai.SetAvailableInfomation()
 	info := &ai.PlayerInfo
 	var usefullActions []*Action
@@ -37,8 +37,8 @@ func (ai *AI) getSmartyRandomActionIdx() int {
 
 	rand.Seed(time.Now().UTC().UnixNano())
 	if len(usefullActions) > 0 {
-		return rand.Intn(len(usefullActions))
+		return usefullActions[rand.Intn(len(usefullActions))]
 	} else {
-		return rand.Intn(len(ai.Actions))
+		return ai.Actions[rand.Intn(len(ai.Actions))]
 	}
 }

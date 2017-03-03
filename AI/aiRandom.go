@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func (ai *AI) getRandomActionIdx() int {
+func (ai *AI) getRandomAction() *Action {
 	rand.Seed(time.Now().UTC().UnixNano())
-	return rand.Intn(len(ai.Actions))
+	return ai.Actions[rand.Intn(len(ai.Actions))]
 }

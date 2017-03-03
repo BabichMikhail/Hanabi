@@ -21,4 +21,6 @@ func init() {
 
 	beego.Router("/admin/games/create/random", &controllers.AdminController{}, "get:GameRandomCreate")
 	beego.Router("/admin/games/create/smartyrandom", &controllers.AdminController{}, "get:GameSmartyRandomCreate")
+	beego.Router("/admin/games/create/discardusefull", &controllers.AdminController{}, "get:GameDiscardUsefullCreate")
+
 }

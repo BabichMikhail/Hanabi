@@ -5,6 +5,7 @@ import "github.com/BabichMikhail/Hanabi/game"
 const (
 	AI_RandomAction = iota
 	AI_SmartyRandomAction
+	AI_DiscardUsefullCardAction
 )
 
 type Action struct {
@@ -31,6 +32,8 @@ func DefaultUsernamePrefix(AIType int) string {
 		return AI_NamePrefix + "RandomAction"
 	case AI_SmartyRandomAction:
 		return AI_NamePrefix + "SmartyRandomAction"
+	case AI_DiscardUsefullCardAction:
+		return AI_NamePrefix + "DiscardKnownCardAction"
 	default:
 		return AI_NamePrefix + "Any"
 	}
@@ -45,14 +48,16 @@ func NewAI(playerInfo game.PlayerGameInfo, aiType int) *AI {
 }
 
 func (ai *AI) GetAction() game.Action {
-	idx := 0
+	var action *Action
 	switch ai.Type {
 	case AI_RandomAction:
-		idx = ai.getRandomActionIdx()
+		action = ai.getRandomAction()
 	case AI_SmartyRandomAction:
-		idx = ai.getSmartyRandomActionIdx()
+		action = ai.getSmartyRandomAction()
+	case AI_DiscardUsefullCardAction:
+		action = ai.getDiscardUsefullCardAction()
 	}
-	return ai.Actions[idx].Action
+	return action.Action
 }
 
 func (ai *AI) SetAvailableInfomation() {
