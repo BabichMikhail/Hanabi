@@ -5,10 +5,21 @@ import (
 
 	ai "github.com/BabichMikhail/Hanabi/AI"
 	"github.com/BabichMikhail/Hanabi/models"
+	"github.com/beego/wetalk/modules/auth"
 )
 
 type AdminController struct {
 	BaseController
+}
+
+func (c *AdminController) UpdatePoints() {
+	userId := auth.GetUserIdFromSession(c.Ctx.Input.CruSession)
+	games := models.GetFinishedGames(userId)
+	for _, game := range games {
+		models.UpdatePoints(game.Id)
+	}
+
+	c.Ctx.Redirect(302, c.URLFor("LobbyController.GameList"))
 }
 
 func (c *AdminController) GameCreate(aiType int) {

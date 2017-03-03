@@ -33,10 +33,26 @@ func CreateActiveGame(playerIds []int, gameId int) (game *gamePackage.Game, err 
 	return game, err
 }
 
-func SetGameFinishedStatus(gameId int) {
+func UpdatePoints(gameId int) {
+	state, _ := ReadCurrentGameState(gameId)
+	if !state.IsGameOver() {
+		return
+	}
+	points, _ := state.GetPoints()
 	o := orm.NewOrm()
 	var ormGame Game
 	o.QueryTable(ormGame).Filter("id", gameId).Update(orm.Params{
+		"points": points,
+	})
+}
+
+func SetGameFinishedStatus(gameId int) {
+	o := orm.NewOrm()
+	var ormGame Game
+	state, _ := ReadCurrentGameState(gameId)
+	points, _ := state.GetPoints()
+	o.QueryTable(ormGame).Filter("id", gameId).Update(orm.Params{
 		"status": StatusFinished,
+		"points": points,
 	})
 }

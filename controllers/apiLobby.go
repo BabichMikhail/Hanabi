@@ -21,7 +21,6 @@ func (this *ApiLobbyController) GameCreate() {
 		return
 	}
 
-	userId := auth.GetUserIdFromSession(this.Ctx.Input.CruSession)
 	data := struct {
 		Id          int                  `json:"id"`
 		Owner       string               `json:"owner"`
@@ -29,7 +28,7 @@ func (this *ApiLobbyController) GameCreate() {
 		Players     []models.LobbyPlayer `json:"players"`
 		UserId      int                  `json:"currentUserId"`
 		RedirectURL string               `json:"redirectURL"`
-	}{game.Id, game.Owner, game.Status, game.Players, userId, this.URLFor("GameController.Game", ":id", game.Id)}
+	}{game.Id, game.Owner, game.Status, game.Players, user.Id, this.URLFor("GameController.Game", ":id", game.Id)}
 	result := struct {
 		Status string      `json:"status"`
 		Data   interface{} `json:"data"`
