@@ -94,32 +94,20 @@ func (ai *AI) GetAction() game.Action {
 func (ai *AI) SetAvailableInfomation() {
 	info := &ai.PlayerInfo
 	for idx, card := range info.PlayerCards[info.Position] {
-		count := 0
-		var color game.CardColor
-		for cardColor, known := range card.AvailableColors {
-			if known {
-				count++
-				color = cardColor
+		if len(card.AvailableColors) == 1 {
+			for color, _ := range card.AvailableColors {
+				card := &info.PlayerCards[info.Position][idx]
+				card.KnownColor = true
+				card.Color = color
 			}
-		}
-		if count == 1 {
-			card := &info.PlayerCards[info.Position][idx]
-			card.KnownColor = true
-			card.Color = color
 		}
 
-		count = 0
-		var value game.CardValue
-		for cardValue, known := range card.AvailableValues {
-			if known {
-				count++
-				value = cardValue
+		if len(card.AvailableValues) == 1 {
+			for value, _ := range card.AvailableValues {
+				card := &info.PlayerCards[info.Position][idx]
+				card.KnownValue = true
+				card.Value = value
 			}
-		}
-		if count == 1 {
-			card := &info.PlayerCards[info.Position][idx]
-			card.KnownValue = true
-			card.Value = value
 		}
 	}
 }
