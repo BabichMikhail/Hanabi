@@ -2,6 +2,11 @@ package game
 
 import "math/rand"
 
+type PairCV struct {
+	Value CardValue `json:"value"`
+	Color CardColor `json:"color"`
+}
+
 type Card struct {
 	Color             CardColor             `json:"color"`
 	KnownColor        bool                  `json:"known_color"`
@@ -9,6 +14,7 @@ type Card struct {
 	Value             CardValue             `json:"value"`
 	KnownValue        bool                  `json:"known_value"`
 	ProbabilityValues map[CardValue]float64 `json:"probability_values"`
+	ProbabilityCard   map[PairCV]float64    `json:"probability_card"`
 }
 
 type CardColor int
@@ -142,7 +148,7 @@ func NewCard(color CardColor, value CardValue, known bool) *Card {
 			probColors[color] = 0.0
 		}
 	}
-	return &Card{color, known, probColors, value, known, probValues}
+	return &Card{color, known, probColors, value, known, probValues, map[PairCV]float64{}}
 }
 
 func (this Card) Copy() Card {
