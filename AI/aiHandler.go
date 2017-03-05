@@ -30,6 +30,16 @@ type AI struct {
 	Type             int                 `json:"ai_type"`
 }
 
+type Card struct {
+	game.Card
+	ProbabilityValues map[game.CardValue]float64
+	ProbabilityColors map[game.CardColor]float64
+}
+
+func NewCard(gameCard game.Card) *Card {
+	return &Card{gameCard, map[game.CardValue]float64{}, map[game.CardColor]float64{}}
+}
+
 const (
 	AI_NamePrefix = "AI_"
 
@@ -94,16 +104,16 @@ func (ai *AI) GetAction() game.Action {
 func (ai *AI) SetAvailableInfomation() {
 	info := &ai.PlayerInfo
 	for idx, card := range info.PlayerCards[info.Position] {
-		if len(card.AvailableColors) == 1 {
-			for color, _ := range card.AvailableColors {
+		if len(card.ProbabilityColors) == 1 {
+			for color, _ := range card.ProbabilityColors {
 				card := &info.PlayerCards[info.Position][idx]
 				card.KnownColor = true
 				card.Color = color
 			}
 		}
 
-		if len(card.AvailableValues) == 1 {
-			for value, _ := range card.AvailableValues {
+		if len(card.ProbabilityValues) == 1 {
+			for value, _ := range card.ProbabilityValues {
 				card := &info.PlayerCards[info.Position][idx]
 				card.KnownValue = true
 				card.Value = value

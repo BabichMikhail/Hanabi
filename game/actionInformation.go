@@ -20,8 +20,8 @@ func (state *GameState) NewActionInformationColor(playerPosition int, cardColor 
 	return state.NewActionInformation(playerPosition, int(cardColor), TypeActionInformationColor, func(card *Card, value int) {
 		if card.Color == CardColor(value) {
 			card.KnownColor = true
-			if _, ok := card.AvailableColors[cardColor]; ok {
-				delete(card.AvailableColors, cardColor)
+			if _, ok := card.ProbabilityColors[cardColor]; ok {
+				delete(card.ProbabilityColors, cardColor)
 			}
 		}
 	})
@@ -31,8 +31,8 @@ func (state *GameState) NewActionInformationValue(playerPosition int, cardValue 
 	return state.NewActionInformation(playerPosition, int(cardValue), TypeActionInformationValue, func(card *Card, value int) {
 		if card.Value == CardValue(value) {
 			card.KnownValue = true
-			if _, ok := card.AvailableValues[cardValue]; ok {
-				delete(card.AvailableValues, cardValue)
+			if _, ok := card.ProbabilityValues[cardValue]; ok {
+				delete(card.ProbabilityValues, cardValue)
 			}
 		}
 	})

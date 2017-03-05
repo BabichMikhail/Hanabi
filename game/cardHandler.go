@@ -3,12 +3,12 @@ package game
 import "math/rand"
 
 type Card struct {
-	Color           CardColor          `json:"color"`
-	KnownColor      bool               `json:"known_color"`
-	AvailableColors map[CardColor]bool `json:"available_colors"`
-	Value           CardValue          `json:"value"`
-	KnownValue      bool               `json:"known_value"`
-	AvailableValues map[CardValue]bool `json:"available_values"`
+	Color             CardColor             `json:"color"`
+	KnownColor        bool                  `json:"known_color"`
+	ProbabilityColors map[CardColor]float64 `json:"probability_colors"`
+	Value             CardValue             `json:"value"`
+	KnownValue        bool                  `json:"known_value"`
+	ProbabilityValues map[CardValue]float64 `json:"probability_values"`
 }
 
 type CardColor int
@@ -122,6 +122,13 @@ func NewCard(color CardColor, value CardValue, known bool) *Card {
 		Four:  !known || value == Four,
 		Five:  !known || value == Five,
 	}
+	probValues := map[CardValue]float64{}
+	for value, isAvailable := range values {
+		if isAvailable {
+			probValues[value] = 0.0
+		}
+	}
+
 	colors := map[CardColor]bool{
 		Red:    !known || color == Red,
 		Blue:   !known || color == Blue,
@@ -129,7 +136,13 @@ func NewCard(color CardColor, value CardValue, known bool) *Card {
 		Yellow: !known || color == Yellow,
 		Orange: !known || color == Orange,
 	}
-	return &Card{color, known, colors, value, known, values}
+	probColors := map[CardColor]float64{}
+	for color, isAvailable := range colors {
+		if isAvailable {
+			probColors[color] = 0.0
+		}
+	}
+	return &Card{color, known, probColors, value, known, probValues}
 }
 
 func (this Card) Copy() Card {
