@@ -1,8 +1,6 @@
 package ai
 
 import (
-	"regexp"
-
 	"github.com/BabichMikhail/Hanabi/game"
 )
 
@@ -49,34 +47,6 @@ const (
 	AI_UsefullInformationName = "UsefullInformationAction"
 )
 
-func DefaultUsernamePrefix(AIType int) string {
-	switch AIType {
-	case AI_RandomAction:
-		return AI_NamePrefix + AI_RandomName
-	case AI_SmartyRandomAction:
-		return AI_NamePrefix + AI_SmartyName
-	case AI_DiscardUsefullCardAction:
-		return AI_NamePrefix + AI_DiscardUsefullCardName
-	case AI_UsefullInformationAction:
-		return AI_NamePrefix + AI_UsefullInformationName
-	default:
-		return AI_NamePrefix + "Any"
-	}
-}
-
-func GetAITypeByUserNickName(nickname string) int {
-	if ok, _ := regexp.MatchString(AI_NamePrefix+AI_RandomName+"_\\d", nickname); ok {
-		return AI_RandomAction
-	} else if ok, _ := regexp.MatchString(AI_NamePrefix+AI_SmartyName+"_\\d", nickname); ok {
-		return AI_SmartyRandomAction
-	} else if ok, _ := regexp.MatchString(AI_NamePrefix+AI_DiscardUsefullCardName+"_\\d", nickname); ok {
-		return AI_DiscardUsefullCardAction
-	} else if ok, _ := regexp.MatchString(AI_NamePrefix+AI_UsefullInformationName+"_\\d", nickname); ok {
-		return AI_UsefullInformationAction
-	}
-	return AI_UsefullInformationAction
-}
-
 func NewAI(playerInfo game.PlayerGameInfo, actions []game.Action, aiType int) *AI {
 	ai := new(AI)
 	ai.History = actions
@@ -87,18 +57,18 @@ func NewAI(playerInfo game.PlayerGameInfo, actions []game.Action, aiType int) *A
 }
 
 func (ai *AI) GetAction() game.Action {
-	var action *Action
 	switch ai.Type {
 	case AI_RandomAction:
-		action = ai.getRandomAction()
+		return ai.getActionRandom()
 	case AI_SmartyRandomAction:
-		action = ai.getSmartyRandomAction()
+		return ai.getActionSmartyRandom()
 	case AI_DiscardUsefullCardAction:
-		action = ai.getDiscardUsefullCardAction()
+		return ai.getActionDiscardUsefullCard()
 	case AI_UsefullInformationAction:
-		action = ai.getUsefullInformationAction()
+		return ai.getActionUsefullInformation()
+	default:
+		panic("Missing AI_Type")
 	}
-	return action.Action
 }
 
 func (ai *AI) SetAvailableInfomation() {

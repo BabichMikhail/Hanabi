@@ -23,13 +23,17 @@ func (game *Game) AppendAction(action Action, err error) (Action, error) {
 }
 
 func (state *GameState) NewAction(actionType ActionType, playerPosition int, value int) Action {
-	action := Action{
+	action := NewAction(actionType, playerPosition, value)
+	state.IncreaseStep()
+	return action
+}
+
+func NewAction(actionType ActionType, playerPosition int, value int) Action {
+	return Action{
 		ActionType:     actionType,
 		PlayerPosition: playerPosition,
 		Value:          value,
 	}
-	state.IncreaseStep()
-	return action
 }
 
 func (state *GameState) IncreaseStep() {

@@ -6,14 +6,7 @@ import (
 	"github.com/BabichMikhail/Hanabi/game"
 )
 
-func Max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
-}
-
-func (ai *AI) getUsefullInformationAction() *Action {
+func (ai *AI) getActionUsefullInformation() game.Action {
 	ai.SetAvailableInfomation()
 	info := &ai.PlayerInfo
 	myPos := info.Position
@@ -21,7 +14,7 @@ func (ai *AI) getUsefullInformationAction() *Action {
 	for color, tableCard := range info.TableCards {
 		for idx, card := range info.PlayerCards[myPos] {
 			if card.KnownColor && card.KnownValue && card.Color == color && card.Value == tableCard.Value+1 {
-				return NewAction(game.TypeActionPlaying, myPos, idx, 1, 1)
+				return game.NewAction(game.TypeActionPlaying, myPos, idx)
 			}
 		}
 	}
@@ -30,7 +23,7 @@ func (ai *AI) getUsefullInformationAction() *Action {
 		if action.ActionType == game.TypeActionInformationValue && action.PlayerPosition == myPos {
 			for idx, card := range info.PlayerCards[myPos] {
 				if card.KnownValue && card.Value == game.CardValue(action.Value) {
-					return NewAction(game.TypeActionPlaying, myPos, idx, 1, 1)
+					return game.NewAction(game.TypeActionPlaying, myPos, idx)
 				}
 			}
 		}
@@ -38,7 +31,7 @@ func (ai *AI) getUsefullInformationAction() *Action {
 		if action.ActionType == game.TypeActionInformationColor && action.PlayerPosition == myPos {
 			for idx, card := range info.PlayerCards[myPos] {
 				if card.KnownColor && card.Color == game.CardColor(action.Value) {
-					return NewAction(game.TypeActionPlaying, myPos, idx, 1, 1)
+					return game.NewAction(game.TypeActionPlaying, myPos, idx)
 				}
 			}
 		}
@@ -52,9 +45,9 @@ func (ai *AI) getUsefullInformationAction() *Action {
 					if card.Color == color && card.Value == tableCard.Value+1 {
 						cardInfo := &info.PlayerCardsInfo[nextPos][idx]
 						if !cardInfo.KnownValue {
-							return NewAction(game.TypeActionInformationValue, nextPos, int(card.Value), 1, 1)
+							return game.NewAction(game.TypeActionInformationValue, nextPos, int(card.Value))
 						} else if !cardInfo.KnownColor {
-							return NewAction(game.TypeActionInformationColor, nextPos, int(card.Color), 1, 1)
+							return game.NewAction(game.TypeActionInformationColor, nextPos, int(card.Color))
 						}
 					}
 				}
@@ -65,10 +58,10 @@ func (ai *AI) getUsefullInformationAction() *Action {
 	if info.BlueTokens < game.MaxBlueTokens {
 		for idx, card := range info.PlayerCards[myPos] {
 			if !card.KnownValue {
-				return NewAction(game.TypeActionDiscard, myPos, idx, 1, 1)
+				return game.NewAction(game.TypeActionDiscard, myPos, idx)
 			}
 		}
-		return NewAction(game.TypeActionDiscard, myPos, rand.Intn(len(info.PlayerCards[myPos])), 1, 1)
+		return game.NewAction(game.TypeActionDiscard, myPos, rand.Intn(len(info.PlayerCards[myPos])))
 	}
-	return ai.getSmartyRandomAction()
+	return ai.getActionSmartyRandom()
 }
