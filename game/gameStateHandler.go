@@ -101,7 +101,7 @@ func NewGameState(ids []int, pcards []*Card) GameState {
 	}
 	allPlayerCards := SetMostColourfulPlayerCardsAtZeroPlace(allPlayerPCards)
 	for i := 0; i < len(ids); i++ {
-		state.PlayerStates = append(state.PlayerStates, NewPlayerState(allPlayerCards, i, ids[i]))
+		state.PlayerStates = append(state.PlayerStates, *NewPlayerState(allPlayerCards, i, ids[i]))
 	}
 
 	state.Deck = DereferenceCard(pcards)

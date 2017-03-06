@@ -6,13 +6,13 @@ type PlayerState struct {
 	PlayerCards    []Card `json:"player_cards"`
 }
 
-func NewPlayerState(cards [][]Card, playerPosition int, playerId int) PlayerState {
-	this := new(PlayerState)
-	this.PlayerPosition = playerPosition
-	this.PlayerId = playerId
-	this.PlayerCards = make([]Card, len(cards[playerPosition]))
-	copy(this.PlayerCards, cards[playerPosition])
-	return *this
+func NewPlayerState(cards [][]Card, playerPosition int, playerId int) *PlayerState {
+	state := new(PlayerState)
+	state.PlayerPosition = playerPosition
+	state.PlayerId = playerId
+	state.PlayerCards = make([]Card, len(cards[playerPosition]))
+	copy(state.PlayerCards, cards[playerPosition])
+	return state
 }
 
 func (state *PlayerState) Copy() PlayerState {

@@ -17,10 +17,10 @@ type Game struct {
 }
 
 func NewGame(ids []int) *Game {
-	this := new(Game)
-	this.Seed = time.Now().UTC().UnixNano()
-	this.Points = 0
-	rand.Seed(this.Seed)
+	game := new(Game)
+	game.Seed = time.Now().UTC().UnixNano()
+	game.Points = 0
+	rand.Seed(game.Seed)
 	cards := []*Card{}
 	values := []CardValue{One, One, One, Two, Two, Three, Three, Four, Four, Five}
 	colors := []CardColor{Red, Blue, Green, Yellow, Orange}
@@ -31,17 +31,17 @@ func NewGame(ids []int) *Game {
 	}
 	RandomCardsPermutation(cards)
 	RandomIntPermutation(ids)
-	this.PlayerCount = len(ids)
-	this.Actions = []Action{}
+	game.PlayerCount = len(ids)
+	game.Actions = []Action{}
 	state := NewGameState(ids, cards)
-	this.InitState = state
-	this.CurrentState = state.Copy()
+	game.InitState = state
+	game.CurrentState = state.Copy()
 
-	return this
+	return game
 }
 
-func (this *Game) SprintGame() string {
-	b, err := json.Marshal(this)
+func (game *Game) SprintGame() string {
+	b, err := json.Marshal(game)
 	if err != nil {
 		return ""
 	}

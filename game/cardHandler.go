@@ -65,12 +65,12 @@ func RandomCardsPermutation(cards []*Card) {
 	}
 }
 
-func (this *Card) SetKnown(known bool) {
-	this.KnownColor = known
-	this.KnownValue = known
+func (card *Card) SetKnown(known bool) {
+	card.KnownColor = known
+	card.KnownValue = known
 }
 
-func (this *Card) GetColors() map[CardColor]string {
+func (card *Card) GetColors() map[CardColor]string {
 	return map[CardColor]string{
 		NoneColor: "",
 		Red:       "Red",
@@ -81,7 +81,7 @@ func (this *Card) GetColors() map[CardColor]string {
 	}
 }
 
-func (this *Card) GetValues() map[CardValue]string {
+func (card *Card) GetValues() map[CardValue]string {
 	return map[CardValue]string{
 		NoneValue: "",
 		One:       "1",
@@ -92,7 +92,7 @@ func (this *Card) GetValues() map[CardValue]string {
 	}
 }
 
-func (this *Card) GetPoints() int {
+func (card *Card) GetPoints() int {
 	return map[CardValue]int{
 		NoneValue: 0,
 		One:       1,
@@ -100,7 +100,7 @@ func (this *Card) GetPoints() int {
 		Three:     3,
 		Four:      4,
 		Five:      5,
-	}[this.Value]
+	}[card.Value]
 }
 
 func GetTableColorOrder() map[string]CardColor {
@@ -152,11 +152,11 @@ func NewCard(color CardColor, value CardValue, known bool) *Card {
 	return &Card{color, known, probColors, value, known, probValues, map[HashValue]float64{}}
 }
 
-func (this Card) Copy() Card {
+func (card Card) Copy() Card {
 	return Card{
-		Color:      this.Color,
-		KnownColor: this.KnownColor,
-		Value:      this.Value,
-		KnownValue: this.KnownValue,
+		Color:      card.Color,
+		KnownColor: card.KnownColor,
+		Value:      card.Value,
+		KnownValue: card.KnownValue,
 	}
 }
