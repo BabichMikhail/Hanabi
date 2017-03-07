@@ -5,7 +5,7 @@ import (
 )
 
 func (ai *AI) getActionDiscardUsefullCard() game.Action {
-	ai.SetAvailableInfomation()
+	ai.setAvailableInfomation()
 	info := &ai.PlayerInfo
 	for color, tableCard := range info.TableCards {
 		for idx, card := range info.PlayerCards[info.Position] {

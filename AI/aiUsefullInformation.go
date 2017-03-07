@@ -7,7 +7,7 @@ import (
 )
 
 func (ai *AI) getActionUsefullInformation() game.Action {
-	ai.SetAvailableInfomation()
+	ai.setAvailableInfomation()
 	info := &ai.PlayerInfo
 	myPos := info.Position
 

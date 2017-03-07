@@ -154,9 +154,12 @@ func NewCard(color CardColor, value CardValue, known bool) *Card {
 
 func (card Card) Copy() Card {
 	return Card{
-		Color:      card.Color,
-		KnownColor: card.KnownColor,
-		Value:      card.Value,
-		KnownValue: card.KnownValue,
+		Color:             card.Color,
+		KnownColor:        card.KnownColor,
+		ProbabilityColors: card.ProbabilityColors,
+		Value:             card.Value,
+		KnownValue:        card.KnownValue,
+		ProbabilityValues: card.ProbabilityValues,
+		ProbabilityCard:   card.ProbabilityCard,
 	}
 }

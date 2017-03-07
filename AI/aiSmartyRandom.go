@@ -8,7 +8,7 @@ import (
 )
 
 func (ai *AI) getActionSmartyRandom() game.Action {
-	ai.SetAvailableInfomation()
+	ai.setAvailableInfomation()
 	info := &ai.PlayerInfo
 	var usefullActions []*Action
 	for _, action := range ai.InfoValueActions {
