@@ -11,6 +11,13 @@ func Max(a, b int) int {
 	return b
 }
 
+func Min(a, b int) int {
+	if a > b {
+		return b
+	}
+	return a
+}
+
 func DefaultUsernamePrefix(AIType int) string {
 	switch AIType {
 	case AI_RandomAction:
