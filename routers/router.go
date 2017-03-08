@@ -24,4 +24,6 @@ func init() {
 	beego.Router("/admin/games/create/discardusefull", &controllers.AdminController{}, "get:GameDiscardUsefullCreate")
 	beego.Router("/admin/games/create/usefullinfo", &controllers.AdminController{}, "get:GameUsefullInformationCreate")
 	beego.Router("/admin/games/points/update", &controllers.AdminController{}, "get:UpdatePoints")
+
+	beego.Router("/admin/stat/games/usefullinfo/:count_games/:count_players", &controllers.AdminController{}, "get:GameUsefullInformationRun")
 }

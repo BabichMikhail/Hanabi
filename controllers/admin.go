@@ -5,6 +5,7 @@ import (
 
 	ai "github.com/BabichMikhail/Hanabi/AI"
 	"github.com/BabichMikhail/Hanabi/models"
+	stat "github.com/BabichMikhail/Hanabi/statistic"
 	"github.com/beego/wetalk/modules/auth"
 )
 
@@ -55,4 +56,17 @@ func (c *AdminController) GameDiscardUsefullCreate() {
 
 func (c *AdminController) GameUsefullInformationCreate() {
 	c.GameCreate(ai.AI_UsefullInformationAction)
+}
+
+func (c *AdminController) GameUsefullInformationRun() {
+	countGames, err := c.GetInt(":count_games")
+	if err != nil {
+		panic(err)
+	}
+	countPlayers, err := c.GetInt(":count_players")
+	if err != nil {
+		panic(err)
+	}
+	stat.RunGames(ai.AI_UsefullInformationAction, countGames, countPlayers)
+	c.Ctx.Redirect(302, c.URLFor("LobbyController.GameList"))
 }

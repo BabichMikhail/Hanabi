@@ -214,6 +214,6 @@ func (ai *AI) setAvailableInfomation() {
 
 	needUpdate := ai.setProbabilities()
 	for needUpdate {
-		ai.setProbabilities()
+		needUpdate = ai.setProbabilities()
 	}
 }

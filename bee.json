@@ -9,6 +9,7 @@
         "database": ".",
         "engine": ".",
         "game": ".",
-        "AI": "."
+        "AI": ".",
+        "statistic": "."
     }
 }
