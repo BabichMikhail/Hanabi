@@ -5,7 +5,7 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/BabichMikhail/Hanabi/engine/game"
+	"github.com/BabichMikhail/Hanabi/game"
 	_ "github.com/BabichMikhail/Hanabi/routers"
 	"github.com/astaxie/beego"
 	. "github.com/smartystreets/goconvey/convey"
