@@ -137,7 +137,7 @@ func (ai *AI) setProbabilities() {
 		copyCardsCount[game.HashColorValue(color, game.One)] = 3 * val
 		copyCardsCount[game.HashColorValue(color, game.Two)] = 2 * val
 		copyCardsCount[game.HashColorValue(color, game.Three)] = 2 * val
-		copyCardsCount[game.HashColorValue(color, game.Four)] = 1 * val
+		copyCardsCount[game.HashColorValue(color, game.Four)] = 2 * val
 		copyCardsCount[game.HashColorValue(color, game.Five)] = 1 * val
 		copyCardsCount[game.HashColorValue(color, game.NoneValue)] = 0
 	}
