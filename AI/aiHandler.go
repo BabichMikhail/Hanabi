@@ -126,30 +126,63 @@ func (ai *AI) setProbabilityColors(card *game.Card, cardsCount map[game.HashValu
 	return false
 }
 
-func (ai *AI) setProbabilities() (needUpdate bool) {
+func (ai *AI) setProbabilities() {
 	info := &ai.PlayerInfo
-	needUpdate = false
-	cardsCount := map[game.HashValue]int{}
+	copyCardsCount := map[game.HashValue]int{}
 	for _, color := range append(game.Colors, game.NoneColor) {
 		val := 1
 		if color == game.NoneColor {
 			val = 0
 		}
-		cardsCount[game.HashColorValue(color, game.One)] = 3 * val
-		cardsCount[game.HashColorValue(color, game.Two)] = 2 * val
-		cardsCount[game.HashColorValue(color, game.Three)] = 2 * val
-		cardsCount[game.HashColorValue(color, game.Four)] = 1 * val
-		cardsCount[game.HashColorValue(color, game.Five)] = 1 * val
-		cardsCount[game.HashColorValue(color, game.NoneValue)] = 0
+		copyCardsCount[game.HashColorValue(color, game.One)] = 3 * val
+		copyCardsCount[game.HashColorValue(color, game.Two)] = 2 * val
+		copyCardsCount[game.HashColorValue(color, game.Three)] = 2 * val
+		copyCardsCount[game.HashColorValue(color, game.Four)] = 1 * val
+		copyCardsCount[game.HashColorValue(color, game.Five)] = 1 * val
+		copyCardsCount[game.HashColorValue(color, game.NoneValue)] = 0
+	}
+
+	for pos, cards := range info.PlayerCards {
+		if pos == info.Position {
+			continue
+		}
+		for idx, _ := range cards {
+			card := &cards[idx]
+			card.ProbabilityColors[card.Color] = 1.0
+			card.ProbabilityValues[card.Value] = 1.0
+			card.ProbabilityCard[game.HashColorValue(card.Color, card.Value)] = 1.0
+		}
+	}
+
+	for pos, cards := range info.PlayerCards {
+		if pos == info.Position {
+			continue
+		}
+		for idx, _ := range cards {
+			card := &cards[idx]
+			if card.KnownColor && card.KnownValue {
+				copyCardsCount[game.HashColorValue(card.Color, card.Value)]--
+			} else if card.KnownColor {
+				copyCardsCount[game.HashColorValue(card.Color, game.NoneValue)]--
+			} else if card.KnownValue {
+				copyCardsCount[game.HashColorValue(game.NoneColor, card.Value)]--
+			}
+		}
 	}
 
 	for _, card := range info.UsedCards {
-		cardsCount[game.HashColorValue(card.Color, card.Value)]--
+		copyCardsCount[game.HashColorValue(card.Color, card.Value)]--
 	}
 
-	for _, cards := range info.PlayerCards {
-		for idx, _ := range cards {
-			card := &cards[idx]
+	needUpdate := true
+	for needUpdate {
+		needUpdate = false
+		cardsCount := map[game.HashValue]int{}
+		for k, v := range copyCardsCount {
+			cardsCount[k] = v
+		}
+		for idx, _ := range info.PlayerCards[info.Position] {
+			card := &info.PlayerCards[info.Position][idx]
 			if card.KnownColor && card.KnownValue {
 				cardsCount[game.HashColorValue(card.Color, card.Value)]--
 			} else if card.KnownColor {
@@ -158,15 +191,14 @@ func (ai *AI) setProbabilities() (needUpdate bool) {
 				cardsCount[game.HashColorValue(game.NoneColor, card.Value)]--
 			}
 		}
-	}
 
-	for _, cards := range info.PlayerCards {
-		for idx, _ := range cards {
-			card := &cards[idx]
+		for idx, _ := range info.PlayerCards[info.Position] {
+			card := &info.PlayerCards[info.Position][idx]
 			if card.KnownColor && card.KnownValue {
 				card.ProbabilityColors[card.Color] = 1.0
 				card.ProbabilityValues[card.Value] = 1.0
 				card.ProbabilityCard[game.HashColorValue(card.Color, card.Value)] = 1.0
+				continue
 			} else if card.KnownValue {
 				card.ProbabilityValues[card.Value] = 1.0
 				needUpdate = needUpdate || ai.setProbabilityColors(card, cardsCount, card.Value, 1)
@@ -190,6 +222,7 @@ func (ai *AI) setProbabilities() (needUpdate bool) {
 			}
 		}
 	}
+
 	return
 }
 
@@ -212,8 +245,5 @@ func (ai *AI) setAvailableInfomation() {
 		}
 	}
 
-	needUpdate := ai.setProbabilities()
-	for needUpdate {
-		needUpdate = ai.setProbabilities()
-	}
+	ai.setProbabilities()
 }
