@@ -23,6 +23,15 @@ func CheckAuth(ctx *context.Context) {
 	ctx.Redirect(302, "/signin")
 }
 
+func CheckAdmin(ctx *context.Context) {
+	user := &wetalk.User{}
+	auth.GetUserFromSession(user, ctx.Input.CruSession)
+	if user.IsAdmin {
+		return
+	}
+	ctx.Redirect(302, "/games")
+}
+
 func CheckUserInGame(ctx *context.Context) {
 	userId := auth.GetUserIdFromSession(ctx.Input.CruSession)
 	gameId, _ := strconv.Atoi(ctx.Input.Param(":id"))
@@ -41,4 +50,6 @@ func InitMiddleware() {
 	beego.InsertFilter("/api/*", beego.BeforeRouter, CheckAuth)
 	beego.InsertFilter("/games/*", beego.BeforeRouter, CheckAuth)
 	beego.InsertFilter("/games/room/:id", beego.BeforeRouter, CheckUserInGame)
+	beego.InsertFilter("/admin/*", beego.BeforeRouter, CheckAuth)
+	beego.InsertFilter("/admin/*", beego.BeforeRouter, CheckAdmin)
 }
