@@ -202,8 +202,3 @@ function lobbyHandler() {
 
     return this
 }
-
-if (window.location.pathname == "/games") {
-    window.Lobby = new lobbyHandler()
-    window.Lobby.LoadUser()
-}

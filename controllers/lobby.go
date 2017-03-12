@@ -20,4 +20,5 @@ func (this *LobbyController) GameList() {
 
 	this.LayoutSections = make(map[string]string)
 	this.LayoutSections["Header"] = "components/navbar.html"
+	this.LayoutSections["Scripts"] = "scripts/lobbyscripts.tpl"
 }
