@@ -184,10 +184,3 @@ function gameHandler() {
 
     return this
 }
-
-console.log(window.location.pathname.match(/\/games\/room\/.*/))
-if (window.location.pathname.match(/\/games\/room\/.*/)) {
-    window.Game = new gameHandler()
-    window.Game.LoadGameInfo()
-    window.Game.CheckStep()
-}

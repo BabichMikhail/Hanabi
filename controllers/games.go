@@ -43,6 +43,7 @@ func (this *GameController) Game() {
 	this.Data["user"] = user
 	this.LayoutSections = make(map[string]string)
 	this.LayoutSections["Header"] = "components/navbar.html"
+	this.LayoutSections["Scripts"] = "scripts/gamescripts.tpl"
 	this.Data["TableColors"] = engineGame.GetTableColorOrder()
 	playerNickNames := []string{}
 	for i := 0; i < len(state.PlayerStates); i++ {
