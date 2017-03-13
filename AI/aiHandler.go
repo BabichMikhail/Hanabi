@@ -13,6 +13,13 @@ const (
 	AI_UsefullInformationAction
 )
 
+var AITypes = []int{
+	AI_RandomAction,
+	AI_SmartyRandomAction,
+	AI_DiscardUsefullCardAction,
+	AI_UsefullInformationAction,
+}
+
 type Action struct {
 	game.Action
 	UsefullCount int `json:"usefull_count"`
@@ -48,6 +55,13 @@ const (
 	AI_DiscardUsefullCardName = "DiscardKnownCardAction"
 	AI_UsefullInformationName = "UsefullInformationAction"
 )
+
+var AINames = []string{
+	AI_RandomName,
+	AI_SmartyName,
+	AI_DiscardUsefullCardName,
+	AI_UsefullInformationName,
+}
 
 func NewAI(playerInfo game.PlayerGameInfo, actions []game.Action, aiType int) *AI {
 	ai := new(AI)

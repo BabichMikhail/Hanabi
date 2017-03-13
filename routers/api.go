@@ -34,6 +34,8 @@ func init() {
 			beego.NSRouter("/info", &controllers.ApiGameController{}, "get:GameInfo"),
 		),
 
+		beego.NSRouter("/ai/names", &controllers.ApiAdminController{}, "get:GetAINames"),
+
 		beego.NSRouter("/users/current", &controllers.ApiLobbyController{}, "get:MyInfo"),
 	)
 
