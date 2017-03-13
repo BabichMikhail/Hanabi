@@ -1,0 +1,28 @@
+{{ template "../components/navtabsadmin.html" }}
+<div class="container">
+    <div class="col-md-12">
+        <table class="table table-striped">
+            <thead>
+                <th>#</th>
+                <th>AITypes</th>
+                <th>Places</th>
+                <th>Points</th>
+                <th>Execution Time</th>
+                <th>Ready at</th>
+            </thead>
+            <tbody id="games">
+                {{ range $idx, $stat := $.Stats }}
+                <tr>
+                    <td>{{ $stat.Id }}</td>
+                    <td>{{ $stat.AITypesJSON }}
+                    <td>{{ $stat.Count }}</td>
+                    <td>{{ $stat.Points }}</td>
+                    <td></td>
+                    <td>{{ $stat.Ready}}</td>
+                </td>
+                </tr>
+                {{ end }}
+            </tbody>
+        </table>
+    </div>
+</div>

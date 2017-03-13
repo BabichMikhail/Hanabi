@@ -13,6 +13,16 @@ type AdminController struct {
 	BaseController
 }
 
+// @todo api admin for create, read stats
+func (c *AdminController) Home() {
+	c.SetBaseLayout()
+	c.TplName = "templates/adminhome.html"
+	c.LayoutSections = make(map[string]string)
+	c.LayoutSections["Header"] = "components/navbar.html"
+	c.LayoutSections["Scripts"] = "scripts/adminscripts.tpl"
+	c.Data["Stats"] = models.ReadStats()
+}
+
 func (c *AdminController) UpdatePoints() {
 	userId := auth.GetUserIdFromSession(c.Ctx.Input.CruSession)
 	games := models.GetFinishedGames(userId)
