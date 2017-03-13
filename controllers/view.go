@@ -40,7 +40,7 @@ func (this *GameViewController) GameView() {
 
 	this.LayoutSections = make(map[string]string)
 	this.LayoutSections["Header"] = "components/navbar.html"
-	this.LayoutSections["Scripts"] = "components/viewscripts.html"
+	this.LayoutSections["Scripts"] = "scripts/viewscripts.tpl"
 
 	var urls []CardUrl
 	for _, color := range engineGame.Colors {
