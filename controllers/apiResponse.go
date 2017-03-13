@@ -19,24 +19,24 @@ const (
 	StatusFail    = "fail"
 )
 
-func (this *ApiController) SetError(err error) bool {
+func (c *ApiController) SetError(err error) bool {
 	if err == nil {
 		return false
 	}
 	result := ErrorResponse{StatusFail, err.Error()}
-	this.Data["json"] = &result
-	this.ServeJSON()
-	this.Complete = true
+	c.Data["json"] = &result
+	c.ServeJSON()
+	c.Complete = true
 	return true
 }
 
-func (this *ApiController) SetSuccessResponse() {
-	this.Data["json"] = &EmptySuccessResponse{StatusSuccess}
-	this.ServeJSON()
+func (c *ApiController) SetSuccessResponse() {
+	c.Data["json"] = &EmptySuccessResponse{StatusSuccess}
+	c.ServeJSON()
 }
 
-func (this *ApiController) SetData(result interface{}) {
-	this.Data["json"] = &result
-	this.ServeJSON()
-	this.Complete = true
+func (c *ApiController) SetData(result interface{}) {
+	c.Data["json"] = &result
+	c.ServeJSON()
+	c.Complete = true
 }

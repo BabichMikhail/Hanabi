@@ -19,28 +19,28 @@ type CardUrl struct {
 	Url   string
 }
 
-func (this *GameViewController) GameView() {
-	this.SetBaseLayout()
-	this.TplName = "templates/gameview.html"
+func (c *GameViewController) GameView() {
+	c.SetBaseLayout()
+	c.TplName = "templates/gameview.html"
 	var user wetalk.User
-	auth.GetUserFromSession(&user, this.Ctx.Input.CruSession)
-	this.Data["user"] = user
+	auth.GetUserFromSession(&user, c.Ctx.Input.CruSession)
+	c.Data["user"] = user
 
-	id, _ := strconv.Atoi(this.Ctx.Input.Param(":id"))
+	id, _ := strconv.Atoi(c.Ctx.Input.Param(":id"))
 	var err error
-	this.Data["InitState"], err = models.ReadInitialGameState(id)
+	c.Data["InitState"], err = models.ReadInitialGameState(id)
 	if err != nil {
-		this.Ctx.Redirect(302, this.URLFor("LobbyController.GameList"))
+		c.Ctx.Redirect(302, c.URLFor("LobbyController.GameList"))
 	}
 
-	this.Data["Actions"], err = models.ReadActions(id)
+	c.Data["Actions"], err = models.ReadActions(id)
 	if err != nil {
-		this.Ctx.Redirect(302, this.URLFor("LobbyController.GameList"))
+		c.Ctx.Redirect(302, c.URLFor("LobbyController.GameList"))
 	}
 
-	this.LayoutSections = make(map[string]string)
-	this.LayoutSections["Header"] = "components/navbar.html"
-	this.LayoutSections["Scripts"] = "scripts/viewscripts.tpl"
+	c.LayoutSections = make(map[string]string)
+	c.LayoutSections["Header"] = "components/navbar.html"
+	c.LayoutSections["Scripts"] = "scripts/viewscripts.tpl"
 
 	var urls []CardUrl
 	for _, color := range engineGame.Colors {
@@ -53,14 +53,14 @@ func (this *GameViewController) GameView() {
 		}
 	}
 
-	this.Data["Players"] = models.GetGamePlayers([]int{id})[id]
-	this.Data["CardUrls"] = urls
-	this.Data["MaxRedTokens"] = engineGame.MaxRedTokens
-	this.Data["MaxBlueTokens"] = engineGame.MaxBlueTokens
-	this.Data["NoneColor"] = engineGame.NoneColor
-	this.Data["NoneValue"] = engineGame.NoneValue
-	this.Data["TableColors"] = engineGame.GetTableColorOrder()
-	this.Data["ActionTypes"] = map[string]int{
+	c.Data["Players"] = models.GetGamePlayers([]int{id})[id]
+	c.Data["CardUrls"] = urls
+	c.Data["MaxRedTokens"] = engineGame.MaxRedTokens
+	c.Data["MaxBlueTokens"] = engineGame.MaxBlueTokens
+	c.Data["NoneColor"] = engineGame.NoneColor
+	c.Data["NoneValue"] = engineGame.NoneValue
+	c.Data["TableColors"] = engineGame.GetTableColorOrder()
+	c.Data["ActionTypes"] = map[string]int{
 		"infoColor": engineGame.TypeActionInformationColor,
 		"infoValue": engineGame.TypeActionInformationValue,
 		"discard":   engineGame.TypeActionDiscard,

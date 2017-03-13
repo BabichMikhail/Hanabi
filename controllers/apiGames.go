@@ -16,101 +16,101 @@ func init() {
 	card = gamePackage.Card{}
 }
 
-func (this *ApiGameController) GetGameCards() {
+func (c *ApiGameController) GetGameCards() {
 	result := struct {
 		Status string                           `json:"status"`
 		Colors map[gamePackage.CardColor]string `json:"colors"`
 		Values map[gamePackage.CardValue]string `json:"values"`
 	}{StatusSuccess, card.GetColors(), card.GetValues()}
-	this.SetData(&result)
+	c.SetData(&result)
 }
 
-func (this *ApiGameController) GamePlayCard() {
-	gameId, _ := this.GetInt("game_id")
+func (c *ApiGameController) GamePlayCard() {
+	gameId, _ := c.GetInt("game_id")
 	state, err := models.ReadCurrentGameState(gameId)
-	if this.SetError(err) {
+	if c.SetError(err) {
 		return
 	}
 
-	playerPosition, err := state.GetPlayerPositionById(auth.GetUserIdFromSession(this.Ctx.Input.CruSession))
-	if this.SetError(err) {
+	playerPosition, err := state.GetPlayerPositionById(auth.GetUserIdFromSession(c.Ctx.Input.CruSession))
+	if c.SetError(err) {
 		return
 	}
 
-	cardPosition, _ := this.GetInt("card_position")
+	cardPosition, _ := c.GetInt("card_position")
 	models.ApplyAction(gameId, gamePackage.TypeActionPlaying, playerPosition, cardPosition)
-	this.SetSuccessResponse()
+	c.SetSuccessResponse()
 	go models.CheckAI(gameId)
 }
 
-func (this *ApiGameController) GameDiscardCard() {
-	gameId, _ := this.GetInt("game_id")
+func (c *ApiGameController) GameDiscardCard() {
+	gameId, _ := c.GetInt("game_id")
 	state, err := models.ReadCurrentGameState(gameId)
-	if this.SetError(err) {
+	if c.SetError(err) {
 		return
 	}
 
-	playerPosition, err := state.GetPlayerPositionById(auth.GetUserIdFromSession(this.Ctx.Input.CruSession))
-	if this.SetError(err) {
+	playerPosition, err := state.GetPlayerPositionById(auth.GetUserIdFromSession(c.Ctx.Input.CruSession))
+	if c.SetError(err) {
 		return
 	}
 
-	cardPosition, _ := this.GetInt("card_position")
+	cardPosition, _ := c.GetInt("card_position")
 	models.ApplyAction(gameId, gamePackage.TypeActionDiscard, playerPosition, cardPosition)
-	this.SetSuccessResponse()
+	c.SetSuccessResponse()
 	go models.CheckAI(gameId)
 }
 
-func (this *ApiGameController) GameInfoCardValue() {
-	gameId, _ := this.GetInt("game_id")
-	playerPosition, _ := this.GetInt("player_position")
-	cardValue, _ := this.GetInt("card_value")
+func (c *ApiGameController) GameInfoCardValue() {
+	gameId, _ := c.GetInt("game_id")
+	playerPosition, _ := c.GetInt("player_position")
+	cardValue, _ := c.GetInt("card_value")
 
 	err := models.ApplyAction(gameId, gamePackage.TypeActionInformationValue, playerPosition, cardValue)
-	if this.SetError(err) {
+	if c.SetError(err) {
 		return
 	}
 
-	this.SetSuccessResponse()
+	c.SetSuccessResponse()
 	go models.CheckAI(gameId)
 }
 
-func (this *ApiGameController) GameInfoCardColor() {
-	gameId, _ := this.GetInt("game_id")
-	playerPosition, _ := this.GetInt("player_position")
-	cardColor, _ := this.GetInt("card_color")
+func (c *ApiGameController) GameInfoCardColor() {
+	gameId, _ := c.GetInt("game_id")
+	playerPosition, _ := c.GetInt("player_position")
+	cardColor, _ := c.GetInt("card_color")
 
 	err := models.ApplyAction(gameId, gamePackage.TypeActionInformationColor, playerPosition, cardColor)
-	if this.SetError(err) {
+	if c.SetError(err) {
 		return
 	}
 
-	this.SetSuccessResponse()
+	c.SetSuccessResponse()
 	go models.CheckAI(gameId)
 }
 
-func (this *ApiGameController) GameCurrentStep() {
-	gameId, _ := this.GetInt("game_id")
+func (c *ApiGameController) GameCurrentStep() {
+	gameId, _ := c.GetInt("game_id")
 	count, err := models.GetActionCount(gameId)
-	if this.SetError(err) {
+	if c.SetError(err) {
 		return
 	}
 	result := struct {
 		Status string `json:"status"`
 		Step   int    `json:"step"`
 	}{StatusSuccess, count}
-	this.SetData(&result)
+	c.SetData(&result)
 }
 
-func (this *ApiGameController) GameInfo() {
-	gameId, _ := this.GetInt("game_id")
+func (c *ApiGameController) GameInfo() {
+	gameId, _ := c.GetInt("game_id")
 	state, err := models.ReadCurrentGameState(gameId)
-	if this.SetError(err) {
+	if c.SetError(err) {
 		return
 	}
 
-	playerPosition, err := state.GetPlayerPositionById(auth.GetUserIdFromSession(this.Ctx.Input.CruSession))
-	if this.SetError(err) {
+	playerPosition, err := state.GetPlayerPositionById(auth.GetUserIdFromSession(c.Ctx.Input.CruSession))
+	if c.SetError(err) {
 		return
 	}
 
@@ -119,5 +119,5 @@ func (this *ApiGameController) GameInfo() {
 		Count          int    `json:"player_count"`
 		PlayerPosition int    `json:"player_position"`
 	}{StatusSuccess, len(state.PlayerStates), playerPosition}
-	this.SetData(&result)
+	c.SetData(&result)
 }

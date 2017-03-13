@@ -4,9 +4,9 @@ type MainController struct {
 	BaseController
 }
 
-func (this *MainController) Get() {
-	this.Ctx.Redirect(302, "/games")
-	this.Data["Website"] = "beego.me"
-	this.Data["Email"] = "astaxie@gmail.com"
-	this.TplName = "index.tpl"
+func (c *MainController) Get() {
+	c.Ctx.Redirect(302, "/games")
+	c.Data["Website"] = "beego.me"
+	c.Data["Email"] = "astaxie@gmail.com"
+	c.TplName = "index.tpl"
 }

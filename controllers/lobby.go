@@ -10,15 +10,15 @@ type LobbyController struct {
 	BaseController
 }
 
-func (this *LobbyController) GameList() {
-	this.SetBaseLayout()
-	this.TplName = "templates/gamelist.html"
+func (c *LobbyController) GameList() {
+	c.SetBaseLayout()
+	c.TplName = "templates/gamelist.html"
 	var user wetalk.User
-	auth.GetUserFromSession(&user, this.Ctx.Input.CruSession)
-	this.Data["user"] = user
-	this.Data["games"] = models.GetGameList([]int{models.StatusActive, models.StatusWait}, user.Id)
+	auth.GetUserFromSession(&user, c.Ctx.Input.CruSession)
+	c.Data["user"] = user
+	c.Data["games"] = models.GetGameList([]int{models.StatusActive, models.StatusWait}, user.Id)
 
-	this.LayoutSections = make(map[string]string)
-	this.LayoutSections["Header"] = "components/navbar.html"
-	this.LayoutSections["Scripts"] = "scripts/lobbyscripts.tpl"
+	c.LayoutSections = make(map[string]string)
+	c.LayoutSections["Header"] = "components/navbar.html"
+	c.LayoutSections["Scripts"] = "scripts/lobbyscripts.tpl"
 }

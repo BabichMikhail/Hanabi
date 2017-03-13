@@ -13,20 +13,20 @@ type AuthController struct {
 	BaseController
 }
 
-func (this *AuthController) SignIn() {
-	this.SetBaseLayout()
-	this.TplName = "templates/signin.html"
-	if !this.Ctx.Input.IsPost() {
+func (c *AuthController) SignIn() {
+	c.SetBaseLayout()
+	c.TplName = "templates/signin.html"
+	if !c.Ctx.Input.IsPost() {
 		return
 	}
-	username := this.GetString("username")
-	password := this.GetString("password")
+	username := c.GetString("username")
+	password := c.GetString("password")
 	var user wetalk.User
 	if auth.VerifyUser(&user, username, password) {
-		auth.LoginUser(&user, this.Ctx, true)
-		this.Ctx.Redirect(302, this.URLFor("MainController.Get"))
+		auth.LoginUser(&user, c.Ctx, true)
+		c.Ctx.Redirect(302, c.URLFor("MainController.Get"))
 	} else {
-		this.Data["err"] = errors.New("Invalid credentials")
+		c.Data["err"] = errors.New("Invalid credentials")
 	}
 }
 
@@ -44,36 +44,36 @@ func checkReservedUsernames(username string) error {
 	return nil
 }
 
-func (this *AuthController) SignUp() {
-	this.SetBaseLayout()
-	this.TplName = "templates/signup.html"
-	if !this.Ctx.Input.IsPost() {
+func (c *AuthController) SignUp() {
+	c.SetBaseLayout()
+	c.TplName = "templates/signup.html"
+	if !c.Ctx.Input.IsPost() {
 		return
 	}
-	username := this.GetString("username")
+	username := c.GetString("username")
 	if err := checkReservedUsernames(username); err != nil {
-		this.Data["err"] = err
+		c.Data["err"] = err
 		return
 	}
-	email := this.GetString("email")
-	password1 := this.GetString("password")
-	password2 := this.GetString("confirmpassword")
+	email := c.GetString("email")
+	password1 := c.GetString("password")
+	password2 := c.GetString("confirmpassword")
 	if password1 != password2 {
-		this.Data["err"] = "Passwords don't match"
+		c.Data["err"] = "Passwords don't match"
 		return
 	}
 
 	var user wetalk.User
 	err := auth.RegisterUser(&user, username, email, password1)
 	if err == nil {
-		this.Ctx.Redirect(302, this.URLFor(".SignIn"))
+		c.Ctx.Redirect(302, c.URLFor(".SignIn"))
 		return
 	} else {
-		this.Data["err"] = err
+		c.Data["err"] = err
 	}
 }
 
-func (this *AuthController) SignOut() {
-	auth.LogoutUser(this.Ctx)
-	this.Ctx.Redirect(302, this.URLFor(".SignIn"))
+func (c *AuthController) SignOut() {
+	auth.LogoutUser(c.Ctx)
+	c.Ctx.Redirect(302, c.URLFor(".SignIn"))
 }
