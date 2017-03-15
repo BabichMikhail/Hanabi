@@ -10,10 +10,10 @@ import (
 type Stat struct {
 	Count  int
 	Medium float64
-	AIType int
+	AIType []int
 }
 
-func RunGames(aiType int, count int, playersCount int) {
+func RunGames(aiTypes []int, count int, playersCount int) Stat {
 	if playersCount > 5 && playersCount < 2 {
 		panic("bad players count")
 	}
@@ -25,17 +25,22 @@ func RunGames(aiType int, count int, playersCount int) {
 
 	points := 0
 	stat := Stat{
-		AIType: aiType,
+		AIType: aiTypes,
 		Count:  count,
 	}
 
 	for i := 0; i < count; i++ {
 		g := game.NewGame(pseudoIds)
 		actions := []game.Action{}
+		newAITypes := make([]int, len(aiTypes), len(aiTypes))
+		for idx, state := range g.CurrentState.PlayerStates {
+			newAITypes[state.PlayerId-1] = aiTypes[idx]
+		}
+
 		for !g.IsGameOver() {
-			pos, _ := g.GetPlayerPositionById(g.CurrentState.CurrentPosition)
+			pos := g.CurrentState.CurrentPosition
 			playerInfo := g.GetPlayerGameInfo(pos)
-			AI := ai.NewAI(playerInfo, actions, aiType)
+			AI := ai.NewAI(playerInfo, actions, newAITypes[pos])
 			action := AI.GetAction()
 			actions = append(actions, action)
 			switch action.ActionType {
@@ -54,4 +59,5 @@ func RunGames(aiType int, count int, playersCount int) {
 	}
 	stat.Medium = float64(points) / float64(count)
 	fmt.Printf("Result: %d %f\n\n\n\n\n", stat.Count, stat.Medium)
+	return stat
 }

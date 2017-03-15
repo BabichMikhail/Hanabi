@@ -77,6 +77,13 @@ func (c *AdminController) GameUsefullInformationRun() {
 	if err != nil {
 		panic(err)
 	}
-	stat.RunGames(ai.AI_UsefullInformationAction, countGames, countPlayers)
+	aiTypes := []int{
+		ai.AI_UsefullInformationAction,
+		ai.AI_UsefullInformationAction,
+		ai.AI_UsefullInformationAction,
+		ai.AI_UsefullInformationAction,
+		ai.AI_UsefullInformationAction,
+	}
+	stat.RunGames(aiTypes, countGames, countPlayers)
 	c.Ctx.Redirect(302, c.URLFor("LobbyController.GameList"))
 }
