@@ -56,11 +56,11 @@ const (
 	AI_UsefullInformationName = "UsefullInformationAction"
 )
 
-var AINames = []string{
-	AI_RandomName,
-	AI_SmartyName,
-	AI_DiscardUsefullCardName,
-	AI_UsefullInformationName,
+var AINames = map[int]string{
+	AI_RandomAction:             AI_RandomName,
+	AI_SmartyRandomAction:       AI_SmartyName,
+	AI_DiscardUsefullCardAction: AI_DiscardUsefullCardName,
+	AI_UsefullInformationAction: AI_UsefullInformationName,
 }
 
 func NewAI(playerInfo game.PlayerGameInfo, actions []game.Action, aiType int) *AI {

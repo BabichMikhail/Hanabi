@@ -13,7 +13,8 @@ type Stat struct {
 	AIType []int
 }
 
-func RunGames(aiTypes []int, count int, playersCount int) Stat {
+func RunGames(aiTypes []int, count int) Stat {
+	playersCount := len(aiTypes)
 	if playersCount > 5 && playersCount < 2 {
 		panic("bad players count")
 	}

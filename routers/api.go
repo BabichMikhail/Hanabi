@@ -34,9 +34,20 @@ func init() {
 			beego.NSRouter("/info", &controllers.ApiGameController{}, "get:GameInfo"),
 		),
 
-		beego.NSRouter("/ai/names", &controllers.ApiAdminController{}, "get:GetAINames"),
+		beego.NSNamespace("/ai",
+			beego.NSRouter("/names", &controllers.ApiAdminController{}, "get:GetAINames"),
+		),
 
-		beego.NSRouter("/users/current", &controllers.ApiLobbyController{}, "get:MyInfo"),
+		beego.NSNamespace("/users",
+			beego.NSRouter("/current", &controllers.ApiLobbyController{}, "get:MyInfo"),
+		),
+
+		beego.NSNamespace("/admin",
+			beego.NSNamespace("/stats",
+				beego.NSRouter("/read", &controllers.ApiAdminController{}, "get:ReadStats"),
+				beego.NSRouter("/create", &controllers.ApiAdminController{}, "post:CreateStat"),
+			),
+		),
 	)
 
 	beego.AddNamespace(NSApi)

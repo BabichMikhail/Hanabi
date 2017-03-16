@@ -20,7 +20,8 @@
                     "lobby.js",
                     "games.js",
                     "users.js",
-                    "view.js"
+                    "view.js",
+                    "admin.js"
                 ]
             }
         }
