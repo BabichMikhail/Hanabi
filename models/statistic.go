@@ -22,6 +22,10 @@ type Stat struct {
 	Created     time.Time `orm:"column(created_at)"`
 }
 
+type AdminStat struct {
+	Stat
+}
+
 func (stat *Stat) TableName() string {
 	return "stats"
 }
@@ -69,7 +73,7 @@ func ReadStats() (stats []Stat) {
 	stats = []Stat{}
 	o := orm.NewOrm()
 	qb, _ := orm.NewQueryBuilder("mysql")
-	qb.Select("player_count", "ai_types", "count", "points", "ready_at", "created_at").
+	qb.Select("id", "player_count", "ai_types", "count", "points", "ready_at", "created_at").
 		From("stats").
 		Where("points IS NOT NULL")
 	_, err := o.Raw(qb.String()).QueryRows(&stats)

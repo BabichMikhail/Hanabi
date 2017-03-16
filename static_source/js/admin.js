@@ -82,7 +82,7 @@ function adminHandler() {
             `
             console.log(aiPlayersHtml)
             $('#stats').html(html)
-            setTimeout(Admin.Update, 10000)
+            setTimeout(Admin.Update, 60000)
         }).fail(function(data) {
             setTimeout(Admin.Update, 3000)
         })
