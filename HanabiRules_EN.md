@@ -1,11 +1,11 @@
-#**HANABI**
+# **HANABI**
 
 A game by Antoine Bauza
 Illustrations by Albertine Ralenti
 For 2 to 5 players
 8 years and above
 
-####**Material**
+#### **Material**
 
 - 50 Hanabi cards
 - 4 Rules cards
@@ -14,15 +14,15 @@ For 2 to 5 players
 
 **Note**: The values on the cards to be dealt are 1, 1, 1, 2, 2, 3, 3, 4, 4, 5 for each colour.
 
-####**Aim of the game**
+#### **Aim of the game**
  Hanabi is a cooperative game, i.e. a game where the players do not play against each other but work together towards a common goal. In this case they are absent minded firework manufacturers who accidentally mixed up powders, fuses and rockets from a firework display. The show is about to start and panic is setting in.  They have to work together to stop the show becoming a disaster!  The pyrotechnicians have to put together 5 fireworks, 1 white, 1 red,  1 blue, 1 yellow, 1 green), by making series rising in number (1, 2, 3, 4, 5) with the same coloured cards.
 
-###**Getting ready** 
+### **Getting ready** 
 
 Place the 8 blue tokens in the lid of the box and the 3 red tokens just next to it. Shuffle the 50 cards to make a deck and put them face down. Deal a hand of cards to each player:
 Important: The players should not look at the cards which are dealt to them!  They pick
 them up so that the other players can see them but so that they cannot see them themselves (so back to front!) They are not allowed to look at their own cards at all during the game. This would dishonour them and taint their reputation as master pyrotechnicians!
-###**The Game**
+### **The Game**
 The player with the most colourful clothing begins the game.  The players then take their turn going in a clockwise direction.  On his turn, a player must complete one, and only one, of the following three actions (you are not allowed to skip your turn):
 Note: When it is a player’s turn, his teammates cannot comment or try to influence him.
 
@@ -67,18 +67,18 @@ The card either begins or completes a firework and it is then added to this fire
 There can only be one firework of each colour. The cards for a firework have to be placed in rising order (1, then 2, then 3, then 4 and finally 5). 
 There can only be one card of each value in each firework (so 5 cards in total).
 
-####**BONUS for a complete firework**
+#### **BONUS for a complete firework**
 When a player completes a firework – i.e. he plays the card with a value of 5 – he puts
 a blue token back in the lid of the box.  This addition is free; the player does not need
 to discard a card. This bonus is lost if all the blue tokens are already in the box.
-####**End of the game**
+#### **End of the game**
 There are 3 ways to end the game of Hanabi:
 1. The game ends immediately and is lost if the third red token is placed in the lid of the box.
 2. The game ends immediately and it is a stunning victory if the firework makers manage
 to make the 5 fireworks before the cards run out. The players are then awarded the maximum score of 25 points.
 3. The game ends if a firework maker takes the last card from the pile:  each player plays
 one more time, including the player who picked up the last card. The players cannot pick up cards during this last round (as the pile is empty). Once this last round is complete, the game ends and the players can then add up their scores.
-###**Score**
+### **Score**
 In order to calculate their scores, the players add up the largest value card for each of
 the 5 fireworks.
 
