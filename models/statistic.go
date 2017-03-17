@@ -7,19 +7,22 @@ import (
 
 	"github.com/astaxie/beego/orm"
 
+	ai "github.com/BabichMikhail/Hanabi/AI"
 	stats "github.com/BabichMikhail/Hanabi/statistic"
 )
 
-// @todo add Stat to registration of models
 type Stat struct {
 	Id          int       `orm:"auto" json:"id"`
 	PlayerCount int       `orm:"column(player_count)" json:"player_count"`
 	AITypesJSON string    `orm:"column(ai_types)" json:"-"`
 	AITypes     []int     `orm:"-" json:"ai_types"`
+	AINames     []string  `orm:"-" json:"ai_names"`
 	GameCount   int       `orm:"column(count)" json:"count"`
 	Points      float64   `orm:"column(points);null" json:"points"`
-	Ready       time.Time `orm:"column(ready_at);null" json:"ready_at"`
-	Created     time.Time `orm:"column(created_at)" json:"created_at"`
+	Ready       time.Time `orm:"column(ready_at);null" json:"-"`
+	ReadyStr    string    `orm:"-" json:"ready_at"`
+	Created     time.Time `orm:"column(created_at)" json:"-"`
+	CreatedStr  string    `orm:"-" json:"created_at"`
 	ExecTime    int       `orm:"-" json:"execution_time"`
 }
 
@@ -80,10 +83,17 @@ func ReadStats() (stats []Stat) {
 
 	for idx, stat := range stats {
 		err := json.Unmarshal([]byte(stat.AITypesJSON), &stats[idx].AITypes)
-		stats[idx].ExecTime = int((stat.Ready.UnixNano() - stat.Created.UnixNano()) / 1000000000)
 		if err != nil {
 			return []Stat{}
 		}
+
+		stats[idx].AINames = make([]string, len(stats[idx].AITypes), cap(stats[idx].AITypes))
+		for i, aiType := range stats[idx].AITypes {
+			stats[idx].AINames[i] = ai.AINames[aiType]
+		}
+		stats[idx].ReadyStr = stat.Ready.Format("15:04:05 02.01.2006")
+		stats[idx].CreatedStr = stat.Created.Format("15:04:05 02.01.2006")
+		stats[idx].ExecTime = int((stat.Ready.UnixNano() - stat.Created.UnixNano()) / 1000000000)
 	}
 
 	return

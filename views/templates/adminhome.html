@@ -5,20 +5,28 @@
             <thead>
                 <th>#</th>
                 <th>AITypes</th>
+                <th>Count</th>
                 <th>Places</th>
                 <th>Points</th>
-                <th>Execution Time</th>
-                <th>Ready at</th>
+                <th>ExecTime</th>
+                <th>ReadyAt</th>
+                <th>CreatedAt</th>
             </thead>
             <tbody id="games">
                 {{ range $idx, $stat := $.Stats }}
                 <tr>
                     <td>{{ $stat.Id }}</td>
-                    <td>{{ $stat.AITypesJSON }}
+                    <td>
+                        {{ range $i, $AIName := $stat.AINames }}
+                        {{ $AIName }}
+                        {{ end }}
+                    </td>
+                    <td>{{ $stat.GameCount }}</td>
                     <td>{{ $stat.PlayerCount }}</td>
                     <td>{{ $stat.Points }}</td>
-                    <td></td>
-                    <td>{{ $stat.Ready}}</td>
+                    <td>{{ $stat.ExecTime }}</td>
+                    <td>{{ $stat.ReadyStr }}</td>
+                    <td>{{ $stat.CreatedStr }}</td>
                 </td>
                 </tr>
                 {{ end }}
