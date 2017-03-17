@@ -1,15 +1,11 @@
 function adminHandler() {
-    this.CreateStat = function(url) {
-        // @todo
-    }
-
     this.UpdateStats = function(url, idName) {
         $.ajax({
             type: "GET",
             url: url,
             data: {}
         }).done(function(data) {
-            stats = data.stats
+            stats = data.data
             if (!stats) {
                 stats = []
             }
@@ -19,24 +15,36 @@ function adminHandler() {
                     <thead>
                         <th>#</th>
                         <th>AITypes</th>
+                        <th>Count</th>
                         <th>Places</th>
                         <th>Points</th>
-                        <th>Execution Time</th>
-                        <th>Ready at</th>
-                        <th>Created at</th>
+                        <th>ExecTime</th>
+                        <th>ReadyAt</th>
+                        <th>CreatedAt</th>
                     </thead>
                     <tbody>
-                    </tbody>
-                </table>
             `
             for (let i = 0; i < stats.length; ++i) {
-                stat = stats[i]
-                // @todo
+                let stat = stats[i]
+                html += `<tr>
+                    <th>` + stat.id + `</th>
+                    <td>` + stat.ai_names.join(' ') + `</td>
+                    <td>` + stat.count + `</td>
+                    <td>` + stat.ai_types.length + `</td>
+                    <td>` + stat.points + `</td>
+                    <td>` + stat.execution_time + `</td>
+                    <td>` + stat.ready_at + `</td>
+                    <td>` + stat.created_at + `</td>
+                </tr>`
             }
+            html += `</tbody>
+                </table>
+            </div>`
+            console.log(html)
             $("#stats").html(html)
-            setTimeout(Admin.Update, 10000)
+            Admin.timeout = setTimeout(Admin.Update, 10000)
         }).fail(function(data) {
-            setTimeout(Admin.Update, 3000)
+            Admin.timeout = setTimeout(Admin.Update, 3000)
         })
     }
 
@@ -82,9 +90,8 @@ function adminHandler() {
             `
             console.log(aiPlayersHtml)
             $('#stats').html(html)
-            setTimeout(Admin.Update, 60000)
         }).fail(function(data) {
-            setTimeout(Admin.Update, 3000)
+            Admin.timeout = setTimeout(Admin.Update, 3000)
         })
     }
 
@@ -112,6 +119,7 @@ function adminHandler() {
     }
 
     this.Update = function() {
+        clearTimeout(Admin.timeout)
         Admin.Tabs[Admin.State].Action()
     }
 
@@ -122,7 +130,7 @@ function adminHandler() {
         Admin.Update()
     }
 
-    setTimeout(this.Update, 10000)
+    this.timeout = setTimeout(this.Update, 10000)
     this.State = "admin-main"
 
     this.Tabs = {
