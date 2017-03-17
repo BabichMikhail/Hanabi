@@ -12,18 +12,15 @@ import (
 
 // @todo add Stat to registration of models
 type Stat struct {
-	Id          int       `orm:"auto"`
-	PlayerCount int       `orm:"column(player_count)"`
-	AITypesJSON string    `orm:"column(ai_types)"`
-	AITypes     []int     `orm:"-"`
-	GameCount   int       `orm:"column(count)"`
-	Points      float64   `orm:"column(points);null"`
-	Ready       time.Time `orm:"column(ready_at);null"`
-	Created     time.Time `orm:"column(created_at)"`
-}
-
-type AdminStat struct {
-	Stat
+	Id          int       `orm:"auto" json:"id"`
+	PlayerCount int       `orm:"column(player_count)" json:"player_count"`
+	AITypesJSON string    `orm:"column(ai_types)" json:"-"`
+	AITypes     []int     `orm:"-" json:"ai_types"`
+	GameCount   int       `orm:"column(count)" json:"count"`
+	Points      float64   `orm:"column(points);null" json:"points"`
+	Ready       time.Time `orm:"column(ready_at);null" json:"ready_at"`
+	Created     time.Time `orm:"column(created_at)" json:"created_at"`
+	ExecTime    int       `orm:"-" json:"execution_time"`
 }
 
 func (stat *Stat) TableName() string {
@@ -81,8 +78,9 @@ func ReadStats() (stats []Stat) {
 		return []Stat{}
 	}
 
-	for _, stat := range stats {
-		err := json.Unmarshal([]byte(stat.AITypesJSON), &stat.AITypes)
+	for idx, stat := range stats {
+		err := json.Unmarshal([]byte(stat.AITypesJSON), &stats[idx].AITypes)
+		stats[idx].ExecTime = int((stat.Ready.UnixNano() - stat.Created.UnixNano()) / 1000000000)
 		if err != nil {
 			return []Stat{}
 		}
