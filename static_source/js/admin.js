@@ -1,5 +1,5 @@
 function adminHandler() {
-    this.UpdateStats = function(url, idName) {
+    this.UpdateStats = function(url) {
         $.ajax({
             type: "GET",
             url: url,
@@ -40,7 +40,6 @@ function adminHandler() {
             html += `</tbody>
                 </table>
             </div>`
-            console.log(html)
             $("#stats").html(html)
             Admin.timeout = setTimeout(Admin.Update, 10000)
         }).fail(function(data) {
@@ -48,20 +47,28 @@ function adminHandler() {
         })
     }
 
-    this.CreateStatPage = function() {
+    this.UpdateCreateStatPageCount = function() {
+        let count = $("#ai-count").val()
+        Admin.Tabs["admin-new-stats"] = {
+            Url: "/api/admin/stats/new",
+            Count: count,
+            Action: function() {
+                return Admin.CreateStatPage(count)
+            },
+        }
+        Admin.Update()
+    }
+
+    this.CreateStatPage = function(count) {
         $.ajax({
             type: "GET",
             url: "/api/ai/names",
             data: {}
         }).done(function(data) {
-            console.log(data)
             let html = ``
             aiNames = data.data
-            console.log(aiNames)
-            console.log(aiNames[0])
             let aiPlayersHtml = ``
-            console.log(aiNames.length)
-            for (let j in [ 'h', 'e', 'l', 'l', 'o' ]) {
+            for (let j in [ 'h', 'e', 'l', 'l', 'o' ].slice(5 - count)) {
                 aiPlayersHtml += `<select id="ai-type-` + j + `">`
                 for (let i in aiNames) {
                     aiPlayersHtml += `<option value="` + i + `" ` + (i == 3 ? "selected" : "") + `>` + aiNames[i] + `</option>`
@@ -70,12 +77,11 @@ function adminHandler() {
             }
 
             html += `<div class="col-md-4">
-                <select id="ai-count">
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5" selected>5</option>
-                </select>
+                <select id="ai-count" onChange="Admin.UpdateCreateStatPageCount()">`
+            for (let i = 1; i <= 5; ++i) {
+                html += `<option value="` + i + `" ` + (i == count ? "selected" : "") + `>` + i + `</option>`
+            }
+            html += `</select>
             </div>
             <div class="col-md-4">` +
                 aiPlayersHtml + `
@@ -88,7 +94,6 @@ function adminHandler() {
                 <button type="submit" onClick="Admin.CreateStat()">Create</button>
             </div>
             `
-            console.log(aiPlayersHtml)
             $('#stats').html(html)
         }).fail(function(data) {
             Admin.timeout = setTimeout(Admin.Update, 3000)
@@ -98,8 +103,6 @@ function adminHandler() {
     this.CreateStat = function() {
         let gamesCount = $("input[id='ai-games-count']").val()
         let aiCount = $("select[id='ai-count']").val()
-        console.log(gamesCount)
-        console.log(aiCount)
         let aiTypes = []
         while (aiCount > 0) {
             --aiCount
@@ -142,8 +145,9 @@ function adminHandler() {
         },
         "admin-new-stats": {
             Url: "/api/admin/stats/new",
+            Count: 5,
             Action: function() {
-                return Admin.CreateStatPage(this.Url)
+                return Admin.CreateStatPage(this.Count)
             },
         },
     }
