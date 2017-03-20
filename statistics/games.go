@@ -1,16 +1,48 @@
 package statistic
 
 import (
-	"fmt"
+	"math"
 
 	ai "github.com/BabichMikhail/Hanabi/AI"
 	"github.com/BabichMikhail/Hanabi/game"
 )
 
 type Stat struct {
-	Count  int
-	Medium float64
-	AIType []int
+	Count  int       `json:"count"`
+	Medium float64   `json:"medium"`
+	Disp   float64   `json:"disp"`
+	Asym   float64   `json:"asymmetry"`
+	Kurt   float64   `json:"kurtosis"`
+	AIType []int     `json:"ai_types"`
+	Values []float64 `json:"values"`
+}
+
+func Medium(values []float64) float64 {
+	sum := 0.0
+	for _, v := range values {
+		sum += v
+	}
+	return sum / float64(len(values))
+}
+
+func CentralMoment(values []float64, med float64, pow float64) float64 {
+	sum := 0.0
+	for _, v := range values {
+		sum += math.Pow(v-med, pow)
+	}
+	return sum / float64(len(values))
+}
+
+func Dispersion(values []float64, med float64) float64 {
+	return CentralMoment(values, med, 2)
+}
+
+func (stat *Stat) SetCharacteristics() {
+	stat.Medium = Medium(stat.Values)
+	stat.Disp = Dispersion(stat.Values, stat.Medium)
+	stat.Asym = CentralMoment(stat.Values, stat.Medium, 3) / math.Pow(stat.Disp, 1.5)
+	stat.Kurt = CentralMoment(stat.Values, stat.Medium, 4)/math.Pow(stat.Disp, 2) - 3
+	return
 }
 
 func RunGames(aiTypes []int, count int) Stat {
@@ -24,10 +56,10 @@ func RunGames(aiTypes []int, count int) Stat {
 		pseudoIds[i] = i + 1
 	}
 
-	points := 0
 	stat := Stat{
 		AIType: aiTypes,
 		Count:  count,
+		Values: make([]float64, count, count),
 	}
 
 	for i := 0; i < count; i++ {
@@ -56,9 +88,8 @@ func RunGames(aiTypes []int, count int) Stat {
 			}
 		}
 		gamePoints, _ := g.GetPoints()
-		points += gamePoints
+		stat.Values[i] = float64(gamePoints)
 	}
-	stat.Medium = float64(points) / float64(count)
-	fmt.Printf("Result: %d %f\n\n\n\n\n", stat.Count, stat.Medium)
+	stat.SetCharacteristics()
 	return stat
 }

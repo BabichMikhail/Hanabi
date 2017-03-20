@@ -8,7 +8,7 @@ import (
 	"github.com/astaxie/beego/orm"
 
 	ai "github.com/BabichMikhail/Hanabi/AI"
-	stats "github.com/BabichMikhail/Hanabi/statistic"
+	stats "github.com/BabichMikhail/Hanabi/statistics"
 )
 
 type Stat struct {
@@ -19,6 +19,9 @@ type Stat struct {
 	AINames     []string  `orm:"-" json:"ai_names"`
 	GameCount   int       `orm:"column(count)" json:"count"`
 	Points      float64   `orm:"column(points);null" json:"points"`
+	Dispersion  float64   `orm:"column(dispersion);null" json:"dispersion"`
+	Kurtosis    float64   `orm:"column(kurtosis);null" json:"curtosis"`
+	Asymmetry   float64   `orm:"column(asymmenty);null" json:"asymmetry"`
 	Ready       time.Time `orm:"column(ready_at);null" json:"-"`
 	ReadyStr    string    `orm:"-" json:"ready_at"`
 	Created     time.Time `orm:"column(created_at)" json:"-"`
@@ -53,14 +56,20 @@ func NewStat(aiTypes []int, count int) {
 
 func StartStat(id int, aiTypes []int, count int) {
 	stat := stats.RunGames(aiTypes, count)
-	ReadyStat(id, stat.Medium)
+	ReadyStat(id, &stat)
 }
 
-func ReadyStat(id int, points float64) {
+func ReadyStat(id int, stat *stats.Stat) {
 	o := orm.NewOrm()
 	qb, _ := orm.NewQueryBuilder("mysql")
 	sql := qb.Update("stats").
-		Set("ready_at = CURRENT_TIMESTAMP", "points = "+strconv.FormatFloat(points, 'E', -1, 64)).
+		Set(
+			"ready_at = CURRENT_TIMESTAMP",
+			"points = "+strconv.FormatFloat(stat.Medium, 'E', -1, 64),
+			"dispersion = "+strconv.FormatFloat(stat.Disp, 'E', -1, 64),
+			"kurtosis = "+strconv.FormatFloat(stat.Kurt, 'E', -1, 64),
+			"asymmenty = "+strconv.FormatFloat(stat.Asym, 'E', -1, 64),
+		).
 		Where("id = ?").
 		String()
 	_, err := o.Raw(sql, id).Exec()

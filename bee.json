@@ -10,6 +10,6 @@
         "engine": ".",
         "game": ".",
         "AI": ".",
-        "statistic": "."
+        "statistics": "."
     }
 }

@@ -5,7 +5,7 @@ import (
 
 	ai "github.com/BabichMikhail/Hanabi/AI"
 	"github.com/BabichMikhail/Hanabi/models"
-	stat "github.com/BabichMikhail/Hanabi/statistic"
+	stat "github.com/BabichMikhail/Hanabi/statistics"
 	"github.com/beego/wetalk/modules/auth"
 )
 
