@@ -8,3 +8,4 @@ static/css/*
 node_modules/*
 conf/app.conf
 main
+stat_metadata/*

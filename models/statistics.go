@@ -2,6 +2,7 @@ package models
 
 import (
 	"encoding/json"
+	"fmt"
 	"strconv"
 	"time"
 
@@ -23,6 +24,7 @@ type Stat struct {
 	Kurtosis    float64   `orm:"column(kurtosis);null" json:"curtosis"`
 	Asymmetry   float64   `orm:"column(asymmenty);null" json:"asymmetry"`
 	Ready       time.Time `orm:"column(ready_at);null" json:"-"`
+	IsMetadata  bool      `orm:"is_metadata" json:"is_metadata"`
 	ReadyStr    string    `orm:"-" json:"ready_at"`
 	Created     time.Time `orm:"column(created_at)" json:"-"`
 	CreatedStr  string    `orm:"-" json:"created_at"`
@@ -60,6 +62,16 @@ func StartStat(id int, aiTypes []int, count int) {
 }
 
 func ReadyStat(id int, stat *stats.Stat) {
+	err := stat.SaveToFile("stat_metadata", strconv.Itoa(id))
+	if err != nil {
+		fmt.Printf("Error: %s\n", err.Error())
+	}
+
+	isMetadata := 0
+	if err == nil {
+		isMetadata = 1
+	}
+
 	o := orm.NewOrm()
 	qb, _ := orm.NewQueryBuilder("mysql")
 	sql := qb.Update("stats").
@@ -69,13 +81,15 @@ func ReadyStat(id int, stat *stats.Stat) {
 			"dispersion = "+strconv.FormatFloat(stat.Disp, 'E', -1, 64),
 			"kurtosis = "+strconv.FormatFloat(stat.Kurt, 'E', -1, 64),
 			"asymmenty = "+strconv.FormatFloat(stat.Asym, 'E', -1, 64),
+			"is_metadata = "+strconv.Itoa(isMetadata),
 		).
 		Where("id = ?").
 		String()
-	_, err := o.Raw(sql, id).Exec()
+	_, err = o.Raw(sql, id).Exec()
 	if err != nil {
 		panic(err)
 	}
+
 }
 
 func ReadStats() (stats []Stat) {
