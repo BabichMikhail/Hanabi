@@ -45,7 +45,7 @@ func (stat *Stat) SetCharacteristics() {
 	return
 }
 
-func RunGames(aiTypes []int, count int) Stat {
+func RunGames(aiTypes []int, playerIds []int, count int) (Stat, *game.Game) {
 	playersCount := len(aiTypes)
 	if playersCount > 5 && playersCount < 2 {
 		panic("bad players count")
@@ -62,17 +62,24 @@ func RunGames(aiTypes []int, count int) Stat {
 		Values: make([]float64, count, count),
 	}
 
+	posById := map[int]int{}
+	for i := 0; i < len(playerIds); i++ {
+		posById[playerIds[i]] = i
+	}
+
+	var bestGame *game.Game
+	maxPoints := -1
 	for i := 0; i < count; i++ {
-		g := game.NewGame(pseudoIds)
+		g := game.NewGame(playerIds)
 		actions := []game.Action{}
 		newAITypes := make([]int, len(aiTypes), len(aiTypes))
 		for idx, state := range g.CurrentState.PlayerStates {
-			newAITypes[state.PlayerId-1] = aiTypes[idx]
+			newAITypes[posById[state.PlayerId]] = aiTypes[idx]
 		}
 
 		for !g.IsGameOver() {
 			pos := g.CurrentState.CurrentPosition
-			playerInfo := g.GetPlayerGameInfo(pos)
+			playerInfo := g.CurrentState.GetPlayerGameInfoByPos(pos)
 			AI := ai.NewAI(playerInfo, actions, newAITypes[pos])
 			action := AI.GetAction()
 			actions = append(actions, action)
@@ -89,7 +96,11 @@ func RunGames(aiTypes []int, count int) Stat {
 		}
 		gamePoints, _ := g.GetPoints()
 		stat.Values[i] = float64(gamePoints)
+		if i == 0 || gamePoints > maxPoints {
+			bestGame = g
+			maxPoints = gamePoints
+		}
 	}
 	stat.SetCharacteristics()
-	return stat
+	return stat, bestGame
 }

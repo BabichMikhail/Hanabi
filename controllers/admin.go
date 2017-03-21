@@ -85,6 +85,6 @@ func (c *AdminController) GameUsefullInformationRun() {
 		ai.AI_UsefullInformationAction,
 		ai.AI_UsefullInformationAction,
 	}
-	stat.RunGames(aiTypes[0:countPlayers-1], countGames)
+	stat.RunGames(aiTypes[0:countPlayers-1], []int{1, 2, 3, 4, 5}, countGames)
 	c.Ctx.Redirect(302, c.URLFor("LobbyController.GameList"))
 }

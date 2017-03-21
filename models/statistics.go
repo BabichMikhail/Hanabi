@@ -57,8 +57,35 @@ func NewStat(aiTypes []int, count int) {
 }
 
 func StartStat(id int, aiTypes []int, count int) {
-	stat := stats.RunGames(aiTypes, count)
+
+	ids := make([]int, len(aiTypes), len(aiTypes))
+	var err error
+	for i := 0; i < len(aiTypes); i++ {
+		ids[i], err = GetAIUserId(aiTypes[i], i)
+		if err != nil {
+			userIds, err := CreateAIUsers(aiTypes[i])
+			ids[i] = userIds[i]
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+		}
+	}
+	stat, game := stats.RunGames(aiTypes, ids, count)
 	ReadyStat(id, &stat)
+
+	item, _ := NewGame(ids[0], len(aiTypes), StatusWait, true)
+	gameId := item.Id
+	for i := 1; i < len(ids); i++ {
+		JoinGame(gameId, ids[i])
+	}
+
+	UpdateInitGameState(gameId, game.InitState)
+	UpdateGameState(gameId, game.CurrentState)
+	for _, action := range game.Actions {
+		NewAction(gameId, action)
+	}
+	SetGameFinishedStatus(gameId)
 }
 
 func ReadyStat(id int, stat *stats.Stat) {

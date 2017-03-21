@@ -20,14 +20,7 @@ func (game *Game) GetPlayerGameInfo(playerId int) PlayerGameInfo {
 	return game.CurrentState.GetPlayerGameInfo(playerId)
 }
 
-func (state *GameState) GetPlayerGameInfo(playerId int) PlayerGameInfo {
-	var playerPosition int
-	for i := 0; i < len(state.PlayerStates); i++ {
-		if state.PlayerStates[i].PlayerId == playerId {
-			playerPosition = i
-		}
-	}
-
+func (state *GameState) GetPlayerGameInfoByPos(playerPosition int) PlayerGameInfo {
 	playerCardsInfo := [][]Card{}
 	playerCards := [][]Card{}
 	for i := 0; i < len(state.PlayerStates); i++ {
@@ -76,6 +69,16 @@ func (state *GameState) GetPlayerGameInfo(playerId int) PlayerGameInfo {
 		BlueTokens:      state.BlueTokens,
 		RedTokens:       MaxRedTokens - state.RedTokens,
 	}
+}
+
+func (state *GameState) GetPlayerGameInfo(playerId int) PlayerGameInfo {
+	var playerPosition int
+	for i := 0; i < len(state.PlayerStates); i++ {
+		if state.PlayerStates[i].PlayerId == playerId {
+			playerPosition = i
+		}
+	}
+	return state.GetPlayerGameInfoByPos(playerPosition)
 }
 
 func NewPlayerInfo(game *Game, playerId int) PlayerGameInfo {

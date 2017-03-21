@@ -71,5 +71,12 @@ func UpdateGameState(gameId int, gameState gamePackage.GameState) error {
 		"json": gameState.Sprint(),
 	})
 	return err
+}
 
+func UpdateInitGameState(gameId int, gameState gamePackage.GameState) error {
+	o := orm.NewOrm()
+	_, err := o.QueryTable("game_states").Filter("game_id", gameId).Filter("is_init_state", true).Update(orm.Params{
+		"json": gameState.Sprint(),
+	})
+	return err
 }
