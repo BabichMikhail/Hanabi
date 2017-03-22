@@ -51,7 +51,7 @@ func (stat *Stat) SetCharacteristics() {
 	return
 }
 
-func RunGames(aiTypes []int, playerIds []int, count int) (Stat, *game.Game) {
+func RunGames(aiTypes []int, playerIds []int, count int) (Stat, []*game.Game) {
 	playersCount := len(aiTypes)
 	if playersCount > 5 && playersCount < 2 {
 		panic("bad players count")
@@ -74,7 +74,9 @@ func RunGames(aiTypes []int, playerIds []int, count int) (Stat, *game.Game) {
 	}
 
 	var bestGame *game.Game
+	var worstGame *game.Game
 	maxPoints := -1
+	minPoints := 26
 	for i := 0; i < count; i++ {
 		g := game.NewGame(playerIds)
 		actions := []game.Action{}
@@ -104,11 +106,15 @@ func RunGames(aiTypes []int, playerIds []int, count int) (Stat, *game.Game) {
 		stat.Games[i].Points = gamePoints
 		stat.Games[i].RedTokens = g.CurrentState.RedTokens
 		stat.Games[i].Step = len(g.Actions)
-		if i == 0 || gamePoints > maxPoints {
+		if gamePoints > maxPoints {
 			bestGame = g
 			maxPoints = gamePoints
 		}
+		if gamePoints < minPoints {
+			worstGame = g
+			minPoints = gamePoints
+		}
 	}
 	stat.SetCharacteristics()
-	return stat, bestGame
+	return stat, []*game.Game{worstGame, bestGame}
 }
