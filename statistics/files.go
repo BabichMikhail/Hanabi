@@ -5,7 +5,9 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"time"
 
+	ai "github.com/BabichMikhail/Hanabi/AI"
 	"github.com/tealeg/xlsx"
 )
 
@@ -52,6 +54,37 @@ func (stat *Stat) setSheetHistogram(excel *xlsx.File, histData map[int]int) erro
 	return nil
 }
 
+func (stat *Stat) setSheetInfo(excel *xlsx.File) error {
+	sh, err := excel.AddSheet("info")
+	if err != nil {
+		return err
+	}
+
+	sh.Cell(0, 0).SetString("AI Game")
+	sh.Cell(1, 0).SetString("Created")
+	sh.Cell(1, 1).SetString(time.Now().Format("15:04:05 02.01.2006"))
+	sh.Cell(2, 0).SetString("Players count")
+	sh.Cell(2, 1).SetInt(len(stat.AITypes))
+	sh.Cell(3, 0).SetString("Games count")
+	sh.Cell(3, 1).SetInt(stat.Count)
+	sh.Cell(4, 0).SetString("AI Types")
+	sh.Cell(5, 0).SetString("AI Names")
+	for i, aiType := range stat.AITypes {
+		sh.Cell(4, 1+i).SetInt(aiType)
+		sh.Cell(5, 1+i).SetString(ai.DefaultUsernamePrefix(aiType))
+	}
+
+	sh.Cell(7, 0).SetString("Medium")
+	sh.Cell(7, 1).SetFloat(stat.Medium)
+	sh.Cell(8, 0).SetString("Dispersion")
+	sh.Cell(8, 1).SetFloat(stat.Disp)
+	sh.Cell(9, 0).SetString("Asymmetry")
+	sh.Cell(9, 1).SetFloat(stat.Asym)
+	sh.Cell(10, 0).SetString("Kurtosis")
+	sh.Cell(10, 1).SetFloat(stat.Kurt)
+	return nil
+}
+
 func (stat *Stat) SaveValues(path string) error {
 	excel := xlsx.NewFile()
 
@@ -61,6 +94,14 @@ func (stat *Stat) SaveValues(path string) error {
 	}
 
 	if err := stat.setSheetPoints(excel, histData); err != nil {
+		return err
+	}
+
+	if err := stat.setSheetHistogram(excel, histData); err != nil {
+		return err
+	}
+
+	if err := stat.setSheetInfo(excel); err != nil {
 		return err
 	}
 
