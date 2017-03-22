@@ -7,41 +7,47 @@ import (
 	"github.com/BabichMikhail/Hanabi/game"
 )
 
+type GameStat struct {
+	Points    int `json:"points"`
+	Step      int `json:"step"`
+	RedTokens int `json:"red_tokens"`
+}
+
 type Stat struct {
-	Count   int       `json:"count"`
-	Medium  float64   `json:"medium"`
-	Disp    float64   `json:"disp"`
-	Asym    float64   `json:"asymmetry"`
-	Kurt    float64   `json:"kurtosis"`
-	AITypes []int     `json:"ai_types"`
-	Values  []float64 `json:"values"`
+	Count   int        `json:"count"`
+	Medium  float64    `json:"medium"`
+	Disp    float64    `json:"disp"`
+	Asym    float64    `json:"asymmetry"`
+	Kurt    float64    `json:"kurtosis"`
+	AITypes []int      `json:"ai_types"`
+	Games   []GameStat `json:"game_stat"`
 }
 
-func Medium(values []float64) float64 {
+func Medium(games []GameStat) float64 {
 	sum := 0.0
-	for _, v := range values {
-		sum += v
+	for _, g := range games {
+		sum += float64(g.Points)
 	}
-	return sum / float64(len(values))
+	return sum / float64(len(games))
 }
 
-func CentralMoment(values []float64, med float64, pow float64) float64 {
+func CentralMoment(games []GameStat, med float64, pow float64) float64 {
 	sum := 0.0
-	for _, v := range values {
-		sum += math.Pow(v-med, pow)
+	for _, g := range games {
+		sum += math.Pow(float64(g.Points)-med, pow)
 	}
-	return sum / float64(len(values))
+	return sum / float64(len(games))
 }
 
-func Dispersion(values []float64, med float64) float64 {
-	return CentralMoment(values, med, 2)
+func Dispersion(games []GameStat, med float64) float64 {
+	return CentralMoment(games, med, 2)
 }
 
 func (stat *Stat) SetCharacteristics() {
-	stat.Medium = Medium(stat.Values)
-	stat.Disp = Dispersion(stat.Values, stat.Medium)
-	stat.Asym = CentralMoment(stat.Values, stat.Medium, 3) / math.Pow(stat.Disp, 1.5)
-	stat.Kurt = CentralMoment(stat.Values, stat.Medium, 4)/math.Pow(stat.Disp, 2) - 3
+	stat.Medium = Medium(stat.Games)
+	stat.Disp = Dispersion(stat.Games, stat.Medium)
+	stat.Asym = CentralMoment(stat.Games, stat.Medium, 3) / math.Pow(stat.Disp, 1.5)
+	stat.Kurt = CentralMoment(stat.Games, stat.Medium, 4)/math.Pow(stat.Disp, 2) - 3
 	return
 }
 
@@ -59,7 +65,7 @@ func RunGames(aiTypes []int, playerIds []int, count int) (Stat, *game.Game) {
 	stat := Stat{
 		AITypes: aiTypes,
 		Count:   count,
-		Values:  make([]float64, count, count),
+		Games:   make([]GameStat, count, count),
 	}
 
 	posById := map[int]int{}
@@ -95,7 +101,9 @@ func RunGames(aiTypes []int, playerIds []int, count int) (Stat, *game.Game) {
 			}
 		}
 		gamePoints, _ := g.GetPoints()
-		stat.Values[i] = float64(gamePoints)
+		stat.Games[i].Points = gamePoints
+		stat.Games[i].RedTokens = g.CurrentState.RedTokens
+		stat.Games[i].Step = len(g.Actions)
 		if i == 0 || gamePoints > maxPoints {
 			bestGame = g
 			maxPoints = gamePoints
