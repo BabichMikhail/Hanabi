@@ -121,6 +121,18 @@ func DereferenceCard(pcards []*Card) []Card {
 	return cards
 }
 
+func (card *Card) UpdateProbability() {
+	if !card.KnownColor || !card.KnownValue {
+		return
+	}
+	card.ProbabilityValues = map[CardValue]float64{
+		card.Value: 1.0,
+	}
+	card.ProbabilityColors = map[CardColor]float64{
+		card.Color: 1.0,
+	}
+}
+
 func NewCard(color CardColor, value CardValue, known bool) *Card {
 	values := map[CardValue]bool{
 		One:   !known || value == One,

@@ -42,6 +42,18 @@ func (state *GameState) GetPlayerGameInfoByPos(playerPosition int) PlayerGameInf
 		}
 	}
 
+	for i := 0; i < len(playerCards); i++ {
+		if i == playerPosition {
+			continue
+		}
+		for j := 0; j < len(playerCards[i]); j++ {
+			card := &playerCards[i][j]
+			card.KnownColor = true
+			card.KnownValue = true
+			card.UpdateProbability()
+		}
+	}
+
 	for i := 0; i < len(playerCardsInfo); i++ {
 		for j := 0; j < len(playerCardsInfo[i]); j++ {
 			card := &playerCardsInfo[i][j]

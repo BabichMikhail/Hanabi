@@ -1,6 +1,8 @@
 package ai
 
 import (
+	"encoding/json"
+	"fmt"
 	"reflect"
 
 	"github.com/BabichMikhail/Hanabi/game"
@@ -162,6 +164,11 @@ func (ai *AI) setProbabilities() {
 		}
 		for idx, _ := range cards {
 			card := &cards[idx]
+			if !card.KnownColor || !card.KnownValue {
+				bytes, _ := json.Marshal(info)
+				fmt.Println(string(bytes))
+				panic("I don't know color or value of card other player")
+			}
 			card.ProbabilityColors[card.Color] = 1.0
 			card.ProbabilityValues[card.Value] = 1.0
 			card.ProbabilityCard[game.HashColorValue(card.Color, card.Value)] = 1.0
