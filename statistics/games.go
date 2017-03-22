@@ -8,13 +8,13 @@ import (
 )
 
 type Stat struct {
-	Count  int       `json:"count"`
-	Medium float64   `json:"medium"`
-	Disp   float64   `json:"disp"`
-	Asym   float64   `json:"asymmetry"`
-	Kurt   float64   `json:"kurtosis"`
-	AIType []int     `json:"ai_types"`
-	Values []float64 `json:"values"`
+	Count   int       `json:"count"`
+	Medium  float64   `json:"medium"`
+	Disp    float64   `json:"disp"`
+	Asym    float64   `json:"asymmetry"`
+	Kurt    float64   `json:"kurtosis"`
+	AITypes []int     `json:"ai_types"`
+	Values  []float64 `json:"values"`
 }
 
 func Medium(values []float64) float64 {
@@ -57,9 +57,9 @@ func RunGames(aiTypes []int, playerIds []int, count int) (Stat, *game.Game) {
 	}
 
 	stat := Stat{
-		AIType: aiTypes,
-		Count:  count,
-		Values: make([]float64, count, count),
+		AITypes: aiTypes,
+		Count:   count,
+		Values:  make([]float64, count, count),
 	}
 
 	posById := map[int]int{}
