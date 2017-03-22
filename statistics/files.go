@@ -24,32 +24,44 @@ func (stat *Stat) SaveStat(path string) error {
 	return f.Close()
 }
 
-func (stat *Stat) SaveValues(path string) error {
-	excel := xlsx.NewFile()
-	sheetPoints, err := excel.AddSheet("points")
+func (stat *Stat) setSheetPoints(excel *xlsx.File, histData map[int]int) error {
+	sh, err := excel.AddSheet("points")
 	if err != nil {
 		return err
 	}
 
-	histData := map[int]int{}
-	for i := 0; i <= 25; i++ {
-		histData[i] = 0
-	}
 	for i, points := range stat.Values {
-		sheetPoints.Cell(i, 0).SetFloat(points)
+		sh.Cell(i, 0).SetFloat(points)
 
 		count, _ := histData[int(points)]
 		histData[int(points)] = count + 1
 	}
+	return nil
+}
 
-	sheetHistogram, err := excel.AddSheet("histogram")
+func (stat *Stat) setSheetHistogram(excel *xlsx.File, histData map[int]int) error {
+	sh, err := excel.AddSheet("histogram")
 	if err != nil {
 		return err
 	}
 
 	for points, count := range histData {
-		sheetHistogram.Cell(points, 0).SetInt(points)
-		sheetHistogram.Cell(points, 1).SetInt(count)
+		sh.Cell(points, 0).SetInt(points)
+		sh.Cell(points, 1).SetInt(count)
+	}
+	return nil
+}
+
+func (stat *Stat) SaveValues(path string) error {
+	excel := xlsx.NewFile()
+
+	histData := map[int]int{}
+	for i := 0; i <= 25; i++ {
+		histData[i] = 0
+	}
+
+	if err := stat.setSheetPoints(excel, histData); err != nil {
+		return err
 	}
 
 	return excel.Save(path)
