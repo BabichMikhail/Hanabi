@@ -125,7 +125,8 @@ func ReadStats() (stats []Stat) {
 	qb, _ := orm.NewQueryBuilder("mysql")
 	qb.Select("id", "player_count", "ai_types", "count", "points", "ready_at", "created_at").
 		From("stats").
-		Where("points IS NOT NULL")
+		Where("points IS NOT NULL").
+		OrderBy("created_at DESC")
 	_, err := o.Raw(qb.String()).QueryRows(&stats)
 	if err != nil {
 		return []Stat{}
