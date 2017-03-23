@@ -225,6 +225,14 @@ function viewHandler() {
                 <div class="col-md-12 game-player"id="player-0">` + htmlPlayers[0] + `</div>`
         }
 
+        html += `<div class="col-md-12" style="text-align:center"></ul>`
+        for (let i = 0; i < game.usedCards.length; ++i) {
+            html += `<li class="list-inline" style="display: inline-block; margin:1px">` +
+                `<img src="` + View.GetCardUrlByCardIgnoreKnown(game.usedCards[i]) + `" class="my-card">` +
+            `</li>`
+        }
+        html += `</ul></div>`
+
         $("#game").html(html)
     }
 
