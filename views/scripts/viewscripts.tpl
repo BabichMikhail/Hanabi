@@ -58,8 +58,8 @@
         View.maxRedTokens = {{ $.MaxRedTokens }}
         View.maxBlueTokens = {{ $.MaxRedTokens }}
         View.actionTypes = {
-            infoValue: {{ index $.ActionTypes "infoColor" }},
-            infoColor: {{ index $.ActionTypes "infoValue" }},
+            infoColor: {{ index $.ActionTypes "infoColor" }},
+            infoValue: {{ index $.ActionTypes "infoValue" }},
             discard: {{ index $.ActionTypes "discard" }},
             play: {{ index $.ActionTypes "play" }},
         }
