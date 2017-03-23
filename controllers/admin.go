@@ -13,7 +13,6 @@ type AdminController struct {
 	BaseController
 }
 
-// @todo api admin for create, read stats
 func (c *AdminController) Home() {
 	c.SetBaseLayout()
 	c.TplName = "templates/adminhome.html"
