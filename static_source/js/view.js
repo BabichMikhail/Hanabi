@@ -234,6 +234,7 @@ function viewHandler() {
         html += `</ul></div>`
 
         $("#game").html(html)
+        View.MakeActions()
     }
 
     this.ChangeCardsVisible = function(pos) {
@@ -248,6 +249,39 @@ function viewHandler() {
             basicCard.addClass('invisible')
             additionalCard.removeClass('invisible')
         }
+    }
+
+    this.MakeActions = function() {
+        let htmlActions = ``
+        let maxRows = 12
+        let prevRows = 2
+        let low = Math.max(View.currentStep - prevRows - 1, 0)
+        let high = Math.min(View.actions.length - 1, low + maxRows - 1)
+        if (high - low  + 1 < 10) {
+            low = Math.max(high - maxRows + prevRows - 1, 0)
+        }
+        for (let i = low; i <= high; ++i) {
+            let action = View.actions[i]
+            let className = ``
+            if (i == View.currentStep - 1) {
+                className = ` class="red"`
+            } else if (i == View.currentStep) {
+                className = ` class="blue"`
+            }
+            htmlActions += `<tr><th` + className + `>` + (i + 1) + `</th>`
+            if (action.type == View.actionTypes["infoValue"]) {
+                htmlActions += `<td>InfoValue</td>`
+            } else if (action.type == View.actionTypes["infoColor"]) {
+                htmlActions += `<td>InfoColor</td>`
+            } else if (action.type == View.actionTypes["discard"]) {
+                htmlActions += `<td>Discard</td>`
+            } else if (action.type == View.actionTypes["play"]) {
+                htmlActions += `<td>Play</td>`
+            }
+            htmlActions += `<td>` + View.players[View.games[0].playerStates[action.pos].playerId] + `</td>` +
+                `<td>` + action.value + `</td>`
+        }
+        $("#game-actions").html(htmlActions)
     }
 
     return this

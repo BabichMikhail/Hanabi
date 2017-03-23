@@ -67,6 +67,7 @@
         View.AddCardUrl({{ $url.Url }}, {{ $url.Color }}, {{ $url.Value }})
         {{ end }}
         View.MakeTable()
+        View.MakeActions()
         console.log(View.games[0])
         console.log(View)
     });
