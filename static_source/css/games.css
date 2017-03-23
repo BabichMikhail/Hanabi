@@ -7,6 +7,11 @@
     height: 88px;
 }
 
+.my-card {
+    width: 63px;
+    height: 88px;
+}
+
 .game-player {
     text-align: center;
     margin-bottom: 20px;
@@ -18,4 +23,10 @@
 
 .game-table {
     text-align: center;
+}
+
+.game-token {
+    position: relative;
+    top: -60px;
+    width: 50px; height: 50px;
 }

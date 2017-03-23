@@ -2,6 +2,9 @@ function viewHandler() {
     this.games = []
     this.stepCount = 0
     this.currentStep = -1;
+    this.showBasicCards = [
+        1, 1, 1, 1, 1,
+    ]
 
     this.NewCard = function(color, knownColor, value, knownValue) {
         return {
@@ -132,17 +135,25 @@ function viewHandler() {
             cardsAdditionalHtml = ``
             for (let j = 0; j < cards.length; ++j) {
                 cardsBasicHtml += `<li class="list-inline" style="display: inline-block; margin:1px">
-                    <img class="myCard" src="` + View.GetCardUrlByCardIgnoreKnown(cards[j]) + `">
+                    <img class="my-card" src="` + View.GetCardUrlByCardIgnoreKnown(cards[j]) + `">
                 </li>`
                 cardsAdditionalHtml += `<li class="list-inline" style="display: inline-block; margin:1px">
-                    <img class="myCard" src="` + View.GetCardUrlByCard(cards[j]) + `">
+                    <img class="my-card" src="` + View.GetCardUrlByCard(cards[j]) + `">
                 </li>`
             }
-            htmlPlayers[i] = `<ul style="margin:0px"><li class="list-inline" style="display:inline-block; margin:1px">` + View.players[game.playerStates[i].playerId] +
-                `</li><li class="list-inline" style="display:inline-block; margin:1px"><button class="btn btn-info btn-sm">info</button></li></ul>` +
-                `<ul id="basic-cards-` + i + `" name="basic-cards" style="margin:0px">` + cardsBasicHtml + `</ul>`
-            htmlPlayers[i] += `<ul id="additional-cards-` + i + `" name="additional-cards" class="invisible">
-                ` + cardsAdditionalHtml + `</ul>`
+            htmlPlayers[i] = `<ul style="margin:0px">
+                <li class="list-inline" style="display:inline-block; margin:1px">` + View.players[game.playerStates[i].playerId] + `</li>
+                <li class="list-inline" style="display:inline-block; margin:1px">
+                    <button class="btn btn-info btn-sm" onClick="View.ChangeCardsVisible(` + i + `)">info</button>
+                </li>
+            </ul>`
+            htmlPlayers[i] +=
+                `<ul id="basic-cards-` + i + `" ` + (View.showBasicCards[i] ? `` : `class="invisible"`) + ` style="margin:0px">` +
+                    cardsBasicHtml +
+                `</ul>` +
+                `<ul id="additional-cards-` + i + `" ` + (!View.showBasicCards[i] ? `` : `class="invisible"`) + ` style="margin:0px">` +
+                    cardsAdditionalHtml +
+                `</ul>`
         }
 
         tableColors = [
@@ -156,7 +167,7 @@ function viewHandler() {
         let tableCardsHtml = ``
         for (let i in tableColors) {
             tableCardsHtml += `<li id="table-` + tableColors[i] + `-cards" class="list-inline" style="display: inline-block; margin:1px">
-                <img src="` + View.GetCardUrlByCardIgnoreKnown(game.tableCards[View.colors[tableColors[i]]]) + `" class="myCard">
+                <img src="` + View.GetCardUrlByCardIgnoreKnown(game.tableCards[View.colors[tableColors[i]]]) + `" class="my-card">
             </li>`
         }
 
@@ -170,11 +181,11 @@ function viewHandler() {
                     </div>
                 </li>
                 <li class="list-inline" style="display: inline-block">
-                    <img src="/static/img/token_red.png" style="position: relative; top: -60px; width: 50px; height: 50px">
+                    <img src="/static/img/token_red.png" class="game-token">
                     <img src="/static/img/number_` + (View.maxRedTokens - game.redTokens) + `.png" style="position: relative; top: -60px; width: 30px">
                 </li>
                 <li class="list-inline" style="display: inline-block">
-                    <img src="/static/img/token_blue.png" style="position: relative; top: -60px; width: 50px; height: 50px">
+                    <img src="/static/img/token_blue.png" class="game-token">
                     <img src="/static/img/number_` + game.blueTokens + `.png" style="position: relative; top: -60px; width: 30px">
                 </li>
             </ul>`
@@ -210,6 +221,20 @@ function viewHandler() {
                 <div class="col-md-12 game-player"id="player-0">` + htmlPlayers[0] + `</div>`
         }
         $("#game").html(html)
+    }
+
+    this.ChangeCardsVisible = function(pos) {
+        let basicCard = $('ul[id="basic-cards-' + pos + '"]')
+        let additionalCard = $('ul[id="additional-cards-' + pos + '"]')
+        if (basicCard.hasClass('invisible')) {
+            View.showBasicCards[pos] = 1
+            basicCard.removeClass('invisible')
+            additionalCard.addClass('invisible')
+        } else {
+            View.showBasicCards[pos] = 0
+            basicCard.addClass('invisible')
+            additionalCard.removeClass('invisible')
+        }
     }
 
     return this
