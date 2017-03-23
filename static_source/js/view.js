@@ -253,6 +253,15 @@ function viewHandler() {
         }
     }
 
+    this.ColorNameByColorValue = function(colorValue) {
+        for (let colorName in View.colors) {
+            if (View.colors[colorName] == colorValue) {
+                return colorName
+            }
+        }
+        return ""
+    }
+
     this.MakeActions = function() {
         let htmlActions = ``
         let maxRows = 12
@@ -271,17 +280,20 @@ function viewHandler() {
                 className = ` class="blue"`
             }
             htmlActions += `<tr><th` + className + `>` + (i + 1) + `</th>`
+            let actionValue = action.value + 1
             if (action.type == View.actionTypes["infoValue"]) {
                 htmlActions += `<td>InfoValue</td>`
+                actionValue = action.value
             } else if (action.type == View.actionTypes["infoColor"]) {
                 htmlActions += `<td>InfoColor</td>`
+                actionValue = View.ColorNameByColorValue(action.value)
             } else if (action.type == View.actionTypes["discard"]) {
                 htmlActions += `<td>Discard</td>`
             } else if (action.type == View.actionTypes["play"]) {
                 htmlActions += `<td>Play</td>`
             }
             htmlActions += `<td>` + View.players[View.games[0].playerStates[action.pos].playerId] + `</td>` +
-                `<td>` + action.value + `</td>`
+                `<td>` + actionValue + `</td>`
         }
         $("#game-actions").html(htmlActions)
     }
