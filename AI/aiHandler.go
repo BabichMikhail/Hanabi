@@ -172,22 +172,7 @@ func (ai *AI) setProbabilities() {
 			card.ProbabilityColors[card.Color] = 1.0
 			card.ProbabilityValues[card.Value] = 1.0
 			card.ProbabilityCard[game.HashColorValue(card.Color, card.Value)] = 1.0
-		}
-	}
-
-	for pos, cards := range info.PlayerCards {
-		if pos == info.Position {
-			continue
-		}
-		for idx, _ := range cards {
-			card := &cards[idx]
-			if card.KnownColor && card.KnownValue {
-				copyCardsCount[game.HashColorValue(card.Color, card.Value)]--
-			} else if card.KnownColor {
-				copyCardsCount[game.HashColorValue(card.Color, game.NoneValue)]--
-			} else if card.KnownValue {
-				copyCardsCount[game.HashColorValue(game.NoneColor, card.Value)]--
-			}
+			copyCardsCount[game.HashColorValue(card.Color, card.Value)]--
 		}
 	}
 
