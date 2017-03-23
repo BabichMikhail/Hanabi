@@ -43,13 +43,15 @@ function viewHandler() {
             --game.blueTokens
         } else if (action.type == View.actionTypes["infoColor"]) {
             for (let i = 0; i < game.playerStates[action.pos].playerCards.length; ++i) {
-                if (game.playerStates[action.pos].playerCards[i].value == action.value) {
-                    game.playerStates[action.pos].playerCards[i].knownValue = true
+                if (game.playerStates[action.pos].playerCards[i].color == action.value) {
+                    game.playerStates[action.pos].playerCards[i].knownColor = true
                 }
             }
             --game.blueTokens
         } else if (action.type == View.actionTypes["discard"]) {
             let oldCard = game.playerStates[action.pos].playerCards[action.value]
+            oldCard.knownValue = true
+            oldCard.KnownColor = true
             game.playerStates[action.pos].playerCards.splice(action.value, 1)
             if (game.deck.length > 0) {
                 let newCard = game.deck.shift()
@@ -59,6 +61,8 @@ function viewHandler() {
             game.usedCards.push(oldCard)
         } else if (action.type == View.actionTypes["play"]) {
             let oldCard = game.playerStates[action.pos].playerCards[action.value]
+            oldCard.knownValue = true
+            oldCard.KnownColor = true
             game.playerStates[action.pos].playerCards.splice(action.value, 1)
             if (game.deck.length > 0) {
                 let newCard = game.deck.shift()
@@ -220,6 +224,7 @@ function viewHandler() {
                 <div class="col-md-4 game-player" id="player-4">` + htmlPlayers[4] + `</div>
                 <div class="col-md-12 game-player"id="player-0">` + htmlPlayers[0] + `</div>`
         }
+
         $("#game").html(html)
     }
 
