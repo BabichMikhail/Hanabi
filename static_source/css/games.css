@@ -6,3 +6,16 @@
     width: 63px;
     height: 88px;
 }
+
+.game-player {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.game {
+    margin-top: 20px;
+}
+
+.game-table {
+    text-align: center;
+}
