@@ -40,8 +40,8 @@
                 {{ end }}
             },
             deck: deck,
-
         }
+
         View.colors = {
             {{ range $colorName, $color := $.TableColors }}
             {{ $colorName }}: {{ $color }},
@@ -55,8 +55,8 @@
         }
         View.noneColor = {{ $.NoneColor }}
         View.noneValue = {{ $.NoneValue }}
-        View.maxRedTokens = {{ $.MaxRedTokens}}
-        View.maxBlueTokens = {{ $.MaxRedTokens}}
+        View.maxRedTokens = {{ $.MaxRedTokens }}
+        View.maxBlueTokens = {{ $.MaxRedTokens }}
         View.actionTypes = {
             infoValue: {{ index $.ActionTypes "infoColor" }},
             infoColor: {{ index $.ActionTypes "infoValue" }},

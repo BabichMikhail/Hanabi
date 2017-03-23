@@ -34,6 +34,7 @@ function viewHandler() {
         // game_i + action_i = game_(i + 1)
         let action = View.actions[step - 1]
         let game = jQuery.extend(true, {}, View.games[step - 1]);
+        game.currentPosition = (game.currentPosition + 1) % game.playerStates.length
         if (action.type == View.actionTypes["infoValue"]) {
             for (let i = 0; i < game.playerStates[action.pos].playerCards.length; ++i) {
                 if (game.playerStates[action.pos].playerCards[i].value == action.value) {
@@ -145,9 +146,10 @@ function viewHandler() {
                     <img class="my-card" src="` + View.GetCardUrlByCard(cards[j]) + `">
                 </li>`
             }
-            htmlPlayers[i] = `<ul style="margin:0px">
-                <li class="list-inline" style="display:inline-block; margin:1px">` + View.players[game.playerStates[i].playerId] + `</li>
-                <li class="list-inline" style="display:inline-block; margin:1px">
+            htmlPlayers[i] = `<ul style="margin:0px">` +
+                (i == game.currentPosition ? `<i class="fa fa-hourglass fa-1" aria-hidden="true"></i>` : ``) +
+                `<li class="list-inline" style="display:inline-block; margin:1px">` + View.players[game.playerStates[i].playerId] + `</li>` +
+                `<li class="list-inline" style="display:inline-block; margin:1px">
                     <button class="btn btn-info btn-sm" onClick="View.ChangeCardsVisible(` + i + `)">info</button>
                 </li>
             </ul>`
