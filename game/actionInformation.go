@@ -12,7 +12,7 @@ func (state *GameState) NewActionInformation(playerPosition int, value int, acti
 	}
 
 	state.BlueTokens--
-	action := state.NewAction(TypeActionInformationColor, playerPosition, int(value))
+	action := state.NewAction(actionType, playerPosition, int(value))
 	return action, nil
 }
 
