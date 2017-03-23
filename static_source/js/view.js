@@ -264,7 +264,7 @@ function viewHandler() {
 
     this.MakeActions = function() {
         let htmlActions = ``
-        let maxRows = 12
+        let maxRows = 18
         let prevRows = 2
         let low = Math.max(View.currentStep - prevRows - 1, 0)
         let high = Math.min(View.actions.length - 1, low + maxRows - 1)

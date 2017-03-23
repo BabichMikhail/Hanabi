@@ -38,3 +38,8 @@
 .blue {
     color: #0000FF;
 }
+
+.table-log td, .table-log th {
+    padding: .25rem;
+    font-size: 12px;
+}
