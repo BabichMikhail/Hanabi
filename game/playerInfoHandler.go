@@ -2,6 +2,7 @@ package game
 
 type PlayerGameInfo struct {
 	MyTurn          bool               `json:"my_turn"`
+	CurrentPostion  int                `json:"current_position"`
 	PlayerCount     int                `json:"player_count"`
 	Position        int                `json:"pos"`
 	Step            int                `json:"step"`
@@ -68,6 +69,7 @@ func (state *GameState) GetPlayerGameInfoByPos(playerPosition int) PlayerGameInf
 
 	return PlayerGameInfo{
 		MyTurn:          state.CurrentPosition == playerPosition,
+		CurrentPostion:  state.CurrentPosition,
 		PlayerCount:     len(state.PlayerStates),
 		Position:        playerPosition,
 		Step:            state.Step,
