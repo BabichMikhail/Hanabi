@@ -9,7 +9,7 @@ function gameHandler() {
             console.log(data)
             Cards = data
         }).fail(function(data) {
-            alert("INIT GAME FAIL")
+            console.log("init game fail")
         })
         return Cards
     }
@@ -26,7 +26,7 @@ function gameHandler() {
             console.log(data)
             location.reload()
         }).fail(function(data) {
-            alert("FAIL PLAY CARD #" + cardPosition)
+            console.log("fail play card #" + cardPosition)
         })
     }
 
@@ -42,7 +42,7 @@ function gameHandler() {
             console.log(data)
             location.reload()
         }).fail(function(data) {
-            alert("FAIL DISCARD CARD #" + cardPosition)
+            console.log("fail discard card #" + cardPosition)
         })
     }
 
@@ -59,7 +59,7 @@ function gameHandler() {
             console.log(data)
             location.reload()
         }).fail(function(data) {
-            alert("FAIL INFO ABOUT CARD VALUE")
+            console.log("fail info about card value")
         })
     }
 
@@ -76,7 +76,7 @@ function gameHandler() {
             console.log(data)
             location.reload()
         }).fail(function(data) {
-            alert("FAIL INFO ABOUT CARD COLOR")
+            console.log("fail info about card color")
         })
     }
 
@@ -144,7 +144,7 @@ function gameHandler() {
                 $("#player-3").append($("#player-pos-3").detach())
             }
         }).fail(function(data) {
-            alert("FAIL LOAD GAME INFO")
+            console.log("fail load game info")
         })
     }
 
