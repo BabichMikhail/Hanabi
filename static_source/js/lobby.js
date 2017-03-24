@@ -116,7 +116,7 @@ function lobbyHandler() {
                     actionHtml = game.user_in
                         ? `<a class="btn-link" href="#" onclick="Lobby.Leave(` + game.id + `)">Leave</a>`
                         : `<a class="btn-link" href="#" onclick="Lobby.Join(` + game.id + `)">Join</a>`
-                } else if (game.status_name == "active") {
+                } else if (game.status_name == "active" && game.user_in) {
                     actionHtml = `<a class="btn-link" href="/games/room/` + game.id + `">Go</a>`
                 }
 

@@ -127,7 +127,6 @@ func GetGameList(status []int, userId int) (games []LobbyGameItem) {
 	for i, g := range games {
 		games[i].UserIn = userInGame[g.Id] == true
 		games[i].Players = playersMap[g.Id]
-		games[i].PlayerCount = gamesMap[g.Id]
 	}
 
 	return
