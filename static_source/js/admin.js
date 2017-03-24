@@ -11,7 +11,7 @@ function adminHandler() {
             }
 
             let html = `<div class="col-md-12">
-                <table class=table table-striped">
+                <table class="table table-striped">
                     <thead>
                         <th>#</th>
                         <th>AITypes</th>
