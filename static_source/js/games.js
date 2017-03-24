@@ -235,6 +235,15 @@ function gameHandler() {
                     <div class="col-md-4 game-player" id="player-4">` + playersHtml[(offset + 4) % count] + `</div>
                     <div class="col-md-12 game-player"id="player-0">` + playersHtml[(offset + 0) % count] + `</div>`
             }
+
+            html += `<div class="col-md-12" style="text-align:center"></ul>`
+            for (let i = 0; i < gameInfo.used_cards.length; ++i) {
+                html += `<li class="list-inline" style="display: inline-block; margin:1px">` +
+                    `<img src="` + Game.GetCardUrlByCardIgnoreKnown(gameInfo.used_cards[i]) + `" class="my-card">` +
+                `</li>`
+            }
+            html += `</ul></div>`
+
             $("#game").html(html)
         }).fail(function(data) {
             console.log("fail load game info")
