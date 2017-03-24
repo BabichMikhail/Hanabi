@@ -28,7 +28,7 @@ function gameHandler() {
             }
         }).done(function(data) {
             console.log(data)
-            location.reload()
+            Game.LoadGameInfo()
         }).fail(function(data) {
             console.log("fail play card #" + cardPosition)
         })
@@ -44,7 +44,7 @@ function gameHandler() {
             },
         }).done(function(data) {
             console.log(data)
-            location.reload()
+            Game.LoadGameInfo()
         }).fail(function(data) {
             console.log("fail discard card #" + cardPosition)
         })
@@ -61,7 +61,7 @@ function gameHandler() {
             },
         }).done(function(data) {
             console.log(data)
-            location.reload()
+            Game.LoadGameInfo()
         }).fail(function(data) {
             console.log("fail info about card value")
         })
@@ -78,7 +78,7 @@ function gameHandler() {
             },
         }).done(function(data) {
             console.log(data)
-            location.reload()
+            Game.LoadGameInfo()
         }).fail(function(data) {
             console.log("fail info about card color")
         })
@@ -259,7 +259,6 @@ function gameHandler() {
             },
         }).done(function(data) {
             if (data.step != Game.CurrentStep) {
-                //location.reload()
                 Game.LoadGameInfo()
             }
             setTimeout(Game.CheckStep, 10000)
