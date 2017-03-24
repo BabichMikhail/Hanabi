@@ -3,7 +3,7 @@ package controllers
 import (
 	"strconv"
 
-	engineGame "github.com/BabichMikhail/Hanabi/game"
+	gamePackage "github.com/BabichMikhail/Hanabi/game"
 	"github.com/BabichMikhail/Hanabi/models"
 	"github.com/beego/wetalk/modules/auth"
 	wetalk "github.com/beego/wetalk/modules/models"
@@ -29,12 +29,8 @@ func (c *GameController) Game() {
 	}
 
 	userId := auth.GetUserIdFromSession(c.Ctx.Input.CruSession)
-	playerInfo := state.GetPlayerGameInfo(userId)
-	c.Data["playerInfo"] = playerInfo
-	c.Data["deckFirstNumber"] = playerInfo.DeckSize / 10
-	c.Data["deckSecondNumber"] = playerInfo.DeckSize % 10
+	gameInfo := state.GetPlayerGameInfo(userId)
 
-	c.Data["Step"], _ = models.GetActionCount(id)
 	c.SetBaseLayout()
 	c.TplName = "templates/game.html"
 
@@ -44,13 +40,39 @@ func (c *GameController) Game() {
 	c.LayoutSections = make(map[string]string)
 	c.LayoutSections["Header"] = "components/navbar.html"
 	c.LayoutSections["Scripts"] = "scripts/gamescripts.tpl"
-	c.Data["TableColors"] = engineGame.GetTableColorOrder()
-	playerNickNames := []string{}
+
+	nickNames := make([]string, len(state.PlayerStates), len(state.PlayerStates))
 	for i := 0; i < len(state.PlayerStates); i++ {
-		nickName := models.GetUserNickNameById(state.PlayerStates[i].PlayerId)
-		playerNickNames = append(playerNickNames, nickName)
+		nickNames[i] = models.GetUserNickNameById(state.PlayerStates[i].PlayerId)
 	}
-	c.Data["NickNames"] = playerNickNames
+
+	var urls []CardUrl
+	for _, color := range gamePackage.Colors {
+		for _, value := range gamePackage.Values {
+			urls = append(urls, CardUrl{
+				Color: color,
+				Value: value,
+				Url:   gamePackage.GetCardUrlByValueAndColor(color, value),
+			})
+		}
+	}
+
+	c.Data["CardUrls"] = urls
+	c.Data["PlayerInfo"] = gameInfo
+	c.Data["NickNames"] = nickNames
+	c.Data["Step"], _ = models.GetActionCount(id)
+	c.Data["Players"] = models.GetGamePlayers([]int{id})[id]
+	c.Data["MaxRedTokens"] = gamePackage.MaxRedTokens
+	c.Data["MaxBlueTokens"] = gamePackage.MaxBlueTokens
+	c.Data["NoneColor"] = gamePackage.NoneColor
+	c.Data["NoneValue"] = gamePackage.NoneValue
+	c.Data["TableColors"] = gamePackage.GetTableColorOrder()
+	c.Data["ActionTypes"] = map[string]int{
+		"infoColor": gamePackage.TypeActionInformationColor,
+		"infoValue": gamePackage.TypeActionInformationValue,
+		"discard":   gamePackage.TypeActionDiscard,
+		"play":      gamePackage.TypeActionPlaying,
+	}
 }
 
 func (c *GameController) GameFinished() {

@@ -110,14 +110,14 @@ func (c *ApiGameController) GameInfo() {
 	}
 
 	playerPosition, err := state.GetPlayerPositionById(auth.GetUserIdFromSession(c.Ctx.Input.CruSession))
+	gameInfo := state.GetPlayerGameInfoByPos(playerPosition)
 	if c.SetError(err) {
 		return
 	}
 
 	result := struct {
-		Status         string `json:"status"`
-		Count          int    `json:"player_count"`
-		PlayerPosition int    `json:"player_position"`
-	}{StatusSuccess, len(state.PlayerStates), playerPosition}
+		Status string      `json:"status"`
+		Data   interface{} `json:"data"`
+	}{StatusSuccess, gameInfo}
 	c.SetData(&result)
 }
