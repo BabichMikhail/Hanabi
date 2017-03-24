@@ -58,10 +58,10 @@ func (state *GameState) GetPlayerGameInfoByPos(playerPosition int) PlayerGameInf
 	for i := 0; i < len(playerCardsInfo); i++ {
 		for j := 0; j < len(playerCardsInfo[i]); j++ {
 			card := &playerCardsInfo[i][j]
-			if !(*card).KnownColor {
+			if !card.KnownColor {
 				(*card).Color = NoneColor
 			}
-			if !(*card).KnownValue {
+			if !card.KnownValue {
 				(*card).Value = NoneValue
 			}
 		}

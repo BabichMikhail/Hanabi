@@ -85,8 +85,9 @@ function gameHandler() {
     }
 
     this.GetCardUrlByCard = function(card) {
-        let color = card.knownColor ? card.color : Game.noneColor
-        let value = card.knownValue ? card.value : Game.noneValue
+        let color = card.known_color ? card.color : Game.noneColor
+        let value = card.known_value ? card.value : Game.noneValue
+        console.log(color, value, Game.cardUrls[color][value])
         return Game.cardUrls[color][value]
     }
 
@@ -113,65 +114,58 @@ function gameHandler() {
         }).done(function(data) {
             let gameInfo = data.data
             let playersHtml = []
+            Game.CurrentStep = gameInfo.step
             for (let i = 0; i < gameInfo.player_count; ++i) {
+                let cards = gameInfo.player_cards[i]
                 playersHtml[i] = `<ul style="margin:0px">` +
-                    (gameInfo.current_position == i ? `<i class="fa fa-hourglass fa-1" aria-hidden="true"></i>` : ``) +
-                    `<li class="list-inline" style="display:inline-block; margin:1px">` + Game.players[i] + `</li>` +
-                    `<li class="list-inline" style="display:inline-block; margin:1px">` +
-                        `<button class="btn btn-info btn-sm" onclick="">info</button>` +
-                    `</li>` +
+                    (i == gameInfo.current_position ? `<i class="fa fa-hourglass fa-1" aria-hidden="true"></i>` : ``) +
+                    `<li class="list-inline" style="display:inline-block; margin:1px">` + Game.nickNames[i] + `</li>` +
+                    (gameInfo.pos != i ? `<li class="list-inline" style="display:inline-block; margin:1px">` +
+                        `<button class="btn btn-info btn-sm" onClick="Game.ChangeCardsVisible(` + i + `)">info</button>` +
+                    `</li>` : ``) +
                 `</ul>`
-                playersHtml[i] += `<ul id="basic-cards-` + i + `" style="margin:0px">`
-                for (let j = 0; j < gameInfo.player_cards.length; ++j) {
-                    let cards = gameInfo.player_cards[i]
-                    playersHtml[i] = `<ul style="margin:0px">` +
-                        (i == gameInfo.current_position ? `<i class="fa fa-hourglass fa-1" aria-hidden="true"></i>` : ``) +
-                        `<li class="list-inline" style="display:inline-block; margin:1px">` + Game.nickNames[i] + `</li>` +
-                        (gameInfo.pos != i ? `<li class="list-inline" style="display:inline-block; margin:1px">` +
-                            `<button class="btn btn-info btn-sm" onClick="Game.ChangeCardsVisible(` + i + `)">info</button>` +
-                        `</li>` : ``) +
+
+                let cardsBasicHtml = ``
+                let actionsHtml = [ ``, ``, ``, ``, `` ]
+                for (let j = 0; j < cards.length; ++j) {
+                    if (gameInfo.my_turn && gameInfo.pos == i) {
+                        actionsHtml[j] = `<div style="font-size:14px"><a href="javascript:Game.PlayCard(` + j + `)">` +
+                            `<i class="fa fa-play"> play</i>` +
+                        `</a></div>` +
+                        `<div style="font-size:14px"><a href="javascript:Game.DiscardCard(` + j + `)">` +
+                            `<i class="fa fa-shopping-basket"> discard</i>` +
+                        `</a></div>`
+                    } else if (gameInfo.my_turn && gameInfo.pos != i) {
+                        actionsHtml[j] = `<div style="font-size:14px"><a href="javascript:Game.InfoCardValue(` + i + `, ` + cards[j].value + `)">` +
+                            `<i class="fa fa-info"> value</i>` +
+                        `</a></div>` +
+                        `<div style="font-size:14px"><a href="javascript:Game.InfoCardColor(` + i + `, ` + cards[j].color + `)">` +
+                            `<i class="fa fa-info"> color</i>` +
+                        `</a></div>`
+                    }
+                    cardsBasicHtml += `<li class="list-inline" style="display: inline-block; margin:1px">` +
+                        `<img class="my-card" src="` + Game.GetCardUrlByCardIgnoreKnown(cards[j]) + `">` + actionsHtml[j] +
+                    `</li>`
+                }
+                playersHtml[i] +=
+                    `<ul id="basic-cards-` + i + `" ` + (Game.showBasicCards[i] ? `` : `class="invisible"`) + ` style="margin:0px">` +
+                        cardsBasicHtml +
                     `</ul>`
 
-                    let cardsBasicHtml = ``
-                    let actionsHtml = [ ``, ``, ``, ``, `` ]
-                    for (let j = 0; j < cards.length; ++j) {
-                        if (gameInfo.my_turn && gameInfo.pos == i) {
-                            actionsHtml[j] = `<div style="font-size:14px"><a href="javascript:Game.PlayCard(` + j + `)">` +
-                                `<i class="fa fa-play"> play</i>` +
-                            `</a></div>` +
-                            `<div style="font-size:14px"><a href="javascript:Game.DiscardCard(` + j + `)">` +
-                                `<i class="fa fa-shopping-basket"> discard</i>` +
-                            `</a></div>`
-                        } else if (gameInfo.my_turn && gameInfo.pos != i) {
-                            actionsHtml[j] = `<div style="font-size:14px"><a href="javascript:Game.InfoCardValue(` + j + `, ` + cards[j].value + `)">` +
-                                `<i class="fa fa-info"> value</i>` +
-                            `</a></div>` +
-                            `<div style="font-size:14px"><a href="javascript:Game.InfoCardColor(` + j + `, ` + cards[j].color + `)">` +
-                                `<i class="fa fa-info"> color</i>` +
-                            `</a></div>`
-                        }
-                        cardsBasicHtml += `<li class="list-inline" style="display: inline-block; margin:1px">` +
-                            `<img class="my-card" src="` + Game.GetCardUrlByCardIgnoreKnown(cards[j]) + `">` + actionsHtml[j] +
+                if (gameInfo.pos != i) {
+                    let cardsInfo = gameInfo.player_cards_info[i]
+                    let cardsAdditionalHtml = ``
+                    console.log(cardsInfo)
+                    for (let j = 0; j < cardsInfo.length; ++j) {
+                        console.log(cardsInfo[j], Game.GetCardUrlByCard(cardsInfo[j]))
+                        cardsAdditionalHtml += `<li class="list-inline" style="display: inline-block; margin:1px">` +
+                            `<img class="my-card" src="` + Game.GetCardUrlByCard(cardsInfo[j]) + `">` +  actionsHtml[j] +
                         `</li>`
                     }
                     playersHtml[i] +=
-                        `<ul id="basic-cards-` + i + `" ` + (Game.showBasicCards[i] ? `` : `class="invisible"`) + ` style="margin:0px">` +
-                            cardsBasicHtml +
+                        `<ul id="additional-cards-` + i + `" ` + (!Game.showBasicCards[i] ? `` : `class="invisible"`) + ` style="margin:0px">` +
+                            cardsAdditionalHtml +
                         `</ul>`
-
-                    if (gameInfo.pos != i) {
-                        let cardsInfo = gameInfo.player_cards_info[i]
-                        let cardsAdditionalHtml = ``
-                        for (let j = 0; j < cards.length; ++j) {
-                            cardsAdditionalHtml += `<li class="list-inline" style="display: inline-block; margin:1px">` +
-                                `<img class="my-card" src="` + Game.GetCardUrlByCard(cardsInfo[j]) + `">` +  actionsHtml[j] +
-                            `</li>`
-                        }
-                        playersHtml[i] +=
-                            `<ul id="additional-cards-` + i + `" ` + (!Game.showBasicCards[i] ? `` : `class="invisible"`) + ` style="margin:0px">` +
-                                cardsAdditionalHtml +
-                            `</ul>`
-                    }
                 }
             }
 
@@ -255,10 +249,9 @@ function gameHandler() {
                 game_id: Game.id,
             },
         }).done(function(data) {
-            let meta = $("meta[name=step]")
-            if (data.step != meta.attr("step")) {
+            if (data.step != Game.CurrentStep) {
                 //location.reload()
-                Game.LoadGameInfo
+                Game.LoadGameInfo()
             }
             setTimeout(Game.CheckStep, 10000)
         })

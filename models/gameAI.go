@@ -20,13 +20,16 @@ func ApplyAction(gameId int, actionType game.ActionType, playerPosition int, act
 	var action game.Action
 	switch actionType {
 	case game.TypeActionDiscard:
-		action, _ = state.NewActionDiscard(playerPosition, actionValue)
+		action, err = state.NewActionDiscard(playerPosition, actionValue)
 	case game.TypeActionInformationColor:
-		action, _ = state.NewActionInformationColor(playerPosition, game.CardColor(actionValue))
+		action, err = state.NewActionInformationColor(playerPosition, game.CardColor(actionValue))
 	case game.TypeActionInformationValue:
-		action, _ = state.NewActionInformationValue(playerPosition, game.CardValue(actionValue))
+		action, err = state.NewActionInformationValue(playerPosition, game.CardValue(actionValue))
 	case game.TypeActionPlaying:
-		action, _ = state.NewActionPlaying(playerPosition, actionValue)
+		action, err = state.NewActionPlaying(playerPosition, actionValue)
+	}
+	if err != nil {
+		return err
 	}
 
 	NewAction(gameId, action)
