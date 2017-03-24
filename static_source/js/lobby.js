@@ -124,12 +124,22 @@ function lobbyHandler() {
                     <th scope="row">` + game.id + `</th>
                     <td>` + game.owner_name + `</td>
                     <td>` + playersHtml + `</td>
+                    ` + (idName == 'lobby-finished-games' ? `<td>` + game.points + `</td>` : ``) +`
                     <td>` + game.player_count + `</td>
                     <td>` + game.status_name + `</td>
                     <td>` + actionHtml + `</td>
                 </tr>`
+                tableHeadHtml =
+                    `<th>#</th>` +
+                    `<th>Creator</th>` +
+                    `<th>Users</th>` +
+                    (idName == 'lobby-finished-games' ? `<th>Points</th>` : ``) +
+                    `<th>Places</th>` +
+                    `<th>Status</th>` +
+                    `<th></th>`
             }
             $("#games").html(newHtml)
+            $("#table-head").html(tableHeadHtml)
             setTimeout(Lobby.Update, 10000)
         }).fail(function(data) {
             alert("UPDATE GAMES FAIL")

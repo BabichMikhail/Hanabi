@@ -13,6 +13,7 @@ type LobbyGame struct {
 	OwnerName   string        `json:"owner_name" orm:"column(owner_name)"`
 	Status      int           `json:"status" orm:"column(status)"`
 	StatusName  string        `json:"status_name"`
+	Points      int           `json:"points"`
 	CreatedAt   time.Time     `json:"created_at" orm:"column(created_at)"`
 	UserIn      bool          `json:"user_in"`
 	Players     []LobbyPlayer `json:"players"`
@@ -22,7 +23,7 @@ type LobbyGame struct {
 func getGames(userId int, gameStatuses []int) (games []LobbyGame) {
 	o := orm.NewOrm()
 	qb, _ := orm.NewQueryBuilder("mysql")
-	qb.Select("g.id, g.status, g.player_count, g.created_at, g.owner_id, u.nick_name as owner_name").
+	qb.Select("g.id, g.status, g.player_count, g.created_at, g.owner_id, u.nick_name as owner_name, points").
 		From("games g").
 		InnerJoin("user u").On("u.id = g.owner_id").
 		Where("status").In(IntSliceToString(gameStatuses)).
