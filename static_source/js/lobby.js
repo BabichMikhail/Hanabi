@@ -30,7 +30,7 @@ function lobbyHandler() {
                 $("#games").prepend(html)
             }
         }).fail(function(data) {
-            alert("CREATE FAIL")
+            console.log("create fail")
         })
     }
 
@@ -49,7 +49,7 @@ function lobbyHandler() {
                 }
             }
         }).fail(function(data) {
-            alert("LEAVE FAIL")
+            console.log("leave fail")
         })
     }
 
@@ -64,7 +64,7 @@ function lobbyHandler() {
                 Lobby.User = data.user
             }
         }).fail(function(data) {
-            alert("LEAVE FAIL")
+            console.log("load user fail")
         })
     }
 
@@ -85,7 +85,7 @@ function lobbyHandler() {
             }
             Lobby.Update()
         }).fail(function(data) {
-            alert("JOIN FAIL")
+            console.log("join fail")
         })
     }
 
@@ -142,7 +142,7 @@ function lobbyHandler() {
             $("#table-head").html(tableHeadHtml)
             setTimeout(Lobby.Update, 10000)
         }).fail(function(data) {
-            alert("UPDATE GAMES FAIL")
+            console.log("update games fail")
         })
     }
 
@@ -172,7 +172,7 @@ function lobbyHandler() {
             }
             setTimeout(Lobby.Update, 5000)
         }).fail(function(data) {
-            alert("INIT FAIL")
+            console.log("init fail")
         })
     }
 
