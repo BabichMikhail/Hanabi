@@ -140,13 +140,14 @@ function lobbyHandler() {
             }
             $("#games").html(newHtml)
             $("#table-head").html(tableHeadHtml)
-            setTimeout(Lobby.Update, 10000)
+            Lobby.timeout = setTimeout(Lobby.Update, 10000)
         }).fail(function(data) {
             console.log("update games fail")
         })
     }
 
     this.Update = function() {
+        clearTimeout(Lobby.timeout)
         Lobby.Tabs[Lobby.State].Update()
     }
 
@@ -170,7 +171,6 @@ function lobbyHandler() {
                     Lobby.Statuses[data.games[i].game_id] = data.games[i]
                 }
             }
-            setTimeout(Lobby.Update, 5000)
         }).fail(function(data) {
             console.log("init fail")
         })
@@ -210,5 +210,6 @@ function lobbyHandler() {
         },
     }
 
+    this.timeout = setTimeout(this.Update, 5000)
     return this
 }
