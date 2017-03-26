@@ -16,15 +16,6 @@ func init() {
 	card = gamePackage.Card{}
 }
 
-func (c *ApiGameController) GetGameCards() {
-	result := struct {
-		Status string                           `json:"status"`
-		Colors map[gamePackage.CardColor]string `json:"colors"`
-		Values map[gamePackage.CardValue]string `json:"values"`
-	}{StatusSuccess, card.GetColors(), card.GetValues()}
-	c.SetData(&result)
-}
-
 func (c *ApiGameController) GamePlayCard() {
 	gameId, _ := c.GetInt("game_id")
 	state, err := models.ReadCurrentGameState(gameId)
@@ -96,8 +87,8 @@ func (c *ApiGameController) GameCurrentStep() {
 		return
 	}
 	result := struct {
-		Status string `json:"status"`
-		Step   int    `json:"step"`
+		Status string      `json:"status"`
+		Data   interface{} `json:"data"`
 	}{StatusSuccess, count}
 	c.SetData(&result)
 }

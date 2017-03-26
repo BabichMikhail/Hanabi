@@ -44,11 +44,14 @@ func (c *ApiLobbyController) GameJoin() {
 		return
 	}
 
-	result := struct {
-		Status      string `json:"status"`
+	data := struct {
 		GameStatus  string `json:"game_status"`
 		GameRoomURL string `json:"URL"`
-	}{StatusSuccess, gameStatus, c.URLFor(".Game", ":id", id)}
+	}{gameStatus, c.URLFor(".Game", ":id", id)}
+	result := struct {
+		Status string      `json:"status"`
+		Data   interface{} `json:"data"`
+	}{StatusSuccess, data}
 	c.SetData(&result)
 }
 
@@ -62,7 +65,7 @@ func (c *ApiLobbyController) GameLeave() {
 
 	result := struct {
 		Status string `json:"status"`
-		Action string `json:"action"`
+		Action string `json:"data"`
 	}{StatusSuccess, action}
 	c.SetData(&result)
 }
@@ -85,7 +88,7 @@ func (c *ApiLobbyController) setGameURLs(games []models.LobbyGame) {
 func (c *ApiLobbyController) setGameData(games []models.LobbyGame) {
 	result := struct {
 		Status string             `json:"status"`
-		Games  []models.LobbyGame `json:"games"`
+		Games  []models.LobbyGame `json:"data"`
 	}{StatusSuccess, games}
 	c.SetData(&result)
 }

@@ -9,13 +9,13 @@ function lobbyHandler() {
             data: {
                 playersCount: count,
             },
-        }).done(function(data) {
-            console.log(data)
-            if (data.status == "success") {
+        }).done(function(result) {
+            console.log(result)
+            if (result.status == "success") {
                 if (Lobby.State == "lobby-finished-games") {
                     return
                 }
-                gameData = data.data
+                gameData = result.data
                 let gameId = gameData.id
                 let html = `<tr id="game-` +  gameId + `">
                     <th scope="row">` + gameId + `</th>
@@ -29,7 +29,7 @@ function lobbyHandler() {
                 </tr>`
                 $("#games").prepend(html)
             }
-        }).fail(function(data) {
+        }).fail(function(result) {
             console.log("create fail")
         })
     }
@@ -39,16 +39,16 @@ function lobbyHandler() {
             type: "POST",
             url: "/api/lobby/leave/" + id,
             data: {}
-        }).done(function(data) {
-            console.log(data)
-            if (data.status == "success") {
-                if (data.action == "delete") {
+        }).done(function(result) {
+            console.log(result)
+            if (result.status == "success") {
+                if (result.data == "delete") {
                     $("#game-" + id).remove()
                 } else {
                     Lobby.Update()
                 }
             }
-        }).fail(function(data) {
+        }).fail(function(result) {
             console.log("leave fail")
         })
     }
@@ -58,12 +58,12 @@ function lobbyHandler() {
             type: "GET",
             url: "/api/users/current",
             data: {}
-        }).done(function(data) {
-            console.log(data)
-            if (data.status == "success") {
-                Lobby.User = data.user
+        }).done(function(result) {
+            console.log(result)
+            if (result.status == "success") {
+                Lobby.User = result.data
             }
-        }).fail(function(data) {
+        }).fail(function(result) {
             console.log("load user fail")
         })
     }
@@ -78,18 +78,18 @@ function lobbyHandler() {
             type: "POST",
             url: "/api/lobby/join/" + id,
             data: {}
-        }).done(function(data) {
-            console.log(data)
-            if (data.status == "success" && data.game_status == "active") {
+        }).done(function(result) {
+            console.log(result)
+            let data = result.data
+            if (result.status == "success" && data.game_status == "active") {
                 setTimeout(Lobby.OpenGame, 1000, data.URL)
             }
             Lobby.Update()
-        }).fail(function(data) {
+        }).fail(function(result) {
             console.log("join fail")
         })
     }
 
-    this.Statuses = null
     this.State = "lobby"
 
     this.UpdateGames = function(url, idName) {
@@ -97,9 +97,9 @@ function lobbyHandler() {
             type: "GET",
             url: url,
             data: {}
-        }).done(function(data) {
+        }).done(function(result) {
             newHtml = ``
-            games = data.games
+            games = result.data
             if (!games) {
                 games = []
             }
@@ -141,7 +141,7 @@ function lobbyHandler() {
             $("#games").html(newHtml)
             $("#table-head").html(tableHeadHtml)
             Lobby.timeout = setTimeout(Lobby.Update, 10000)
-        }).fail(function(data) {
+        }).fail(function(result) {
             console.log("update games fail")
         })
     }
@@ -163,15 +163,9 @@ function lobbyHandler() {
             type: "GET",
             url: "/api/lobby/games/active",
             data: {}
-        }).done(function(data) {
-            console.log(data)
-            Lobby.Statuses = []
-            if (data.games != null) {
-                for (let i = 0; i < data.games.length; ++i) {
-                    Lobby.Statuses[data.games[i].game_id] = data.games[i]
-                }
-            }
-        }).fail(function(data) {
+        }).done(function(result) {
+            console.log(result)
+        }).fail(function(result) {
             console.log("init fail")
         })
     }

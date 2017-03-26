@@ -3,21 +3,6 @@ function gameHandler() {
         1, 1, 1, 1, 1,
     ]
 
-    this.Init = function () {
-        var Cards = []
-        $.ajax({
-            type: "GET",
-            url: "/api/games/cards",
-            data: {}
-        }).done(function(data) {
-            console.log(data)
-            Cards = data
-        }).fail(function(data) {
-            console.log("init game fail")
-        })
-        return Cards
-    }
-
     this.PlayCard = function (cardPosition) {
         $.ajax({
             type: "POST",
@@ -111,8 +96,8 @@ function gameHandler() {
             data: {
                 game_id: Game.id,
             },
-        }).done(function(data) {
-            let gameInfo = data.data
+        }).done(function(result) {
+            let gameInfo = result.data
             let playersHtml = []
             Game.CurrentStep = gameInfo.step
             for (let i = 0; i < gameInfo.player_count; ++i) {
@@ -245,7 +230,7 @@ function gameHandler() {
             html += `</ul></div>`
 
             $("#game").html(html)
-        }).fail(function(data) {
+        }).fail(function(result) {
             console.log("fail load game info")
         })
     }
@@ -257,8 +242,9 @@ function gameHandler() {
             data: {
                 game_id: Game.id,
             },
-        }).done(function(data) {
-            if (data.step != Game.CurrentStep) {
+        }).done(function(result) {
+            let step = result.data
+            if (step != Game.CurrentStep) {
                 Game.LoadGameInfo()
             }
             setTimeout(Game.CheckStep, 10000)
@@ -278,8 +264,6 @@ function gameHandler() {
             additionalCard.removeClass('invisible')
         }
     }
-
-    this.Cards = this.Init()
 
     let meta = $("meta[name=step]")
     this.CurrentStep = +meta.attr("step")
