@@ -13,25 +13,21 @@ type ApiAdminController struct {
 }
 
 func (c *ApiAdminController) GetAINames() {
-	result := struct {
-		Status string      `json:"status"`
-		Data   interface{} `json:"data"`
-	}{StatusSuccess, ai.AINames}
-	c.SetData(&result)
+	c.SetData(&ai.AINames)
 }
 
 func (c *ApiAdminController) CreateStat() {
 	count, err := c.GetInt("count")
-	if c.SetError(err) {
+	if c.SetFail(err) {
 		return
 	}
 	aiTypesJSON := c.GetString("ai_types")
-	if c.SetError(err) {
+	if c.SetFail(err) {
 		return
 	}
 	var types []int
 	err = json.Unmarshal([]byte(aiTypesJSON), &types)
-	if c.SetError(err) {
+	if c.SetFail(err) {
 		return
 	}
 	go models.NewStat(types, count)
@@ -39,9 +35,6 @@ func (c *ApiAdminController) CreateStat() {
 }
 
 func (c *ApiAdminController) ReadStats() {
-	result := struct {
-		Status string      `json:"status"`
-		Data   interface{} `json:"data"`
-	}{StatusSuccess, models.ReadStats()}
-	c.SetData(&result)
+	stats := models.ReadStats()
+	c.SetData(&stats)
 }

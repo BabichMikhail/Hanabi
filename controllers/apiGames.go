@@ -19,12 +19,12 @@ func init() {
 func (c *ApiGameController) GamePlayCard() {
 	gameId, _ := c.GetInt("game_id")
 	state, err := models.ReadCurrentGameState(gameId)
-	if c.SetError(err) {
+	if c.SetFail(err) {
 		return
 	}
 
 	playerPosition, err := state.GetPlayerPositionById(auth.GetUserIdFromSession(c.Ctx.Input.CruSession))
-	if c.SetError(err) {
+	if c.SetFail(err) {
 		return
 	}
 
@@ -37,12 +37,12 @@ func (c *ApiGameController) GamePlayCard() {
 func (c *ApiGameController) GameDiscardCard() {
 	gameId, _ := c.GetInt("game_id")
 	state, err := models.ReadCurrentGameState(gameId)
-	if c.SetError(err) {
+	if c.SetFail(err) {
 		return
 	}
 
 	playerPosition, err := state.GetPlayerPositionById(auth.GetUserIdFromSession(c.Ctx.Input.CruSession))
-	if c.SetError(err) {
+	if c.SetFail(err) {
 		return
 	}
 
@@ -58,7 +58,7 @@ func (c *ApiGameController) GameInfoCardValue() {
 	cardValue, _ := c.GetInt("card_value")
 
 	err := models.ApplyAction(gameId, gamePackage.TypeActionInformationValue, playerPosition, cardValue)
-	if c.SetError(err) {
+	if c.SetFail(err) {
 		return
 	}
 
@@ -72,7 +72,7 @@ func (c *ApiGameController) GameInfoCardColor() {
 	cardColor, _ := c.GetInt("card_color")
 
 	err := models.ApplyAction(gameId, gamePackage.TypeActionInformationColor, playerPosition, cardColor)
-	if c.SetError(err) {
+	if c.SetFail(err) {
 		return
 	}
 
@@ -83,32 +83,24 @@ func (c *ApiGameController) GameInfoCardColor() {
 func (c *ApiGameController) GameCurrentStep() {
 	gameId, _ := c.GetInt("game_id")
 	count, err := models.GetActionCount(gameId)
-	if c.SetError(err) {
+	if c.SetFail(err) {
 		return
 	}
-	result := struct {
-		Status string      `json:"status"`
-		Data   interface{} `json:"data"`
-	}{StatusSuccess, count}
-	c.SetData(&result)
+	c.SetData(&count)
 }
 
 func (c *ApiGameController) GameInfo() {
 	gameId, _ := c.GetInt("game_id")
 	state, err := models.ReadCurrentGameState(gameId)
-	if c.SetError(err) {
+	if c.SetFail(err) {
 		return
 	}
 
 	playerPosition, err := state.GetPlayerPositionById(auth.GetUserIdFromSession(c.Ctx.Input.CruSession))
 	gameInfo := state.GetPlayerGameInfoByPos(playerPosition)
-	if c.SetError(err) {
+	if c.SetFail(err) {
 		return
 	}
 
-	result := struct {
-		Status string      `json:"status"`
-		Data   interface{} `json:"data"`
-	}{StatusSuccess, gameInfo}
-	c.SetData(&result)
+	c.SetData(&gameInfo)
 }

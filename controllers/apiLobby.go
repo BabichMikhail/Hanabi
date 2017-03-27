@@ -17,7 +17,7 @@ func (c *ApiLobbyController) GameCreate() {
 	playersCount, _ := c.GetInt("playersCount")
 	auth.GetUserFromSession(&user, c.Ctx.Input.CruSession)
 	game, err := models.NewGame(user.Id, playersCount, models.StatusWait, false)
-	if c.SetError(err) {
+	if c.SetFail(err) {
 		return
 	}
 
@@ -29,18 +29,14 @@ func (c *ApiLobbyController) GameCreate() {
 		UserId      int                  `json:"currentUserId"`
 		RedirectURL string               `json:"redirectURL"`
 	}{game.Id, game.Owner, game.Status, game.Players, user.Id, c.URLFor("GameController.Game", ":id", game.Id)}
-	result := struct {
-		Status string      `json:"status"`
-		Data   interface{} `json:"data"`
-	}{StatusSuccess, data}
-	c.SetData(&result)
+	c.SetData(&data)
 }
 
 func (c *ApiLobbyController) GameJoin() {
 	id, _ := strconv.Atoi(c.Ctx.Input.Param(":id"))
 	userId := auth.GetUserIdFromSession(c.Ctx.Input.CruSession)
 	err, gameStatus := models.JoinGame(id, userId)
-	if c.SetError(err) {
+	if c.SetFail(err) {
 		return
 	}
 
@@ -48,26 +44,18 @@ func (c *ApiLobbyController) GameJoin() {
 		GameStatus  string `json:"game_status"`
 		GameRoomURL string `json:"URL"`
 	}{gameStatus, c.URLFor(".Game", ":id", id)}
-	result := struct {
-		Status string      `json:"status"`
-		Data   interface{} `json:"data"`
-	}{StatusSuccess, data}
-	c.SetData(&result)
+	c.SetData(&data)
 }
 
 func (c *ApiLobbyController) GameLeave() {
 	id, _ := strconv.Atoi(c.Ctx.Input.Param(":id"))
 	userId := auth.GetUserIdFromSession(c.Ctx.Input.CruSession)
 	action, err := models.LeaveGame(id, userId)
-	if c.SetError(err) {
+	if c.SetFail(err) {
 		return
 	}
 
-	result := struct {
-		Status string `json:"status"`
-		Action string `json:"data"`
-	}{StatusSuccess, action}
-	c.SetData(&result)
+	c.SetData(&action)
 }
 
 func ConvertStringArrayToIntArray(s []string) []int {
@@ -85,19 +73,11 @@ func (c *ApiLobbyController) setGameURLs(games []models.LobbyGame) {
 	}
 }
 
-func (c *ApiLobbyController) setGameData(games []models.LobbyGame) {
-	result := struct {
-		Status string             `json:"status"`
-		Games  []models.LobbyGame `json:"data"`
-	}{StatusSuccess, games}
-	c.SetData(&result)
-}
-
 func (c *ApiLobbyController) setGames(getGames func(int) []models.LobbyGame) {
 	userId := auth.GetUserIdFromSession(c.Ctx.Input.CruSession)
 	games := getGames(userId)
 	c.setGameURLs(games)
-	c.setGameData(games)
+	c.SetData(&games)
 }
 
 func (c *ApiLobbyController) GetActiveGames() {
@@ -125,9 +105,5 @@ func (c *ApiLobbyController) MyInfo() {
 	var user wetalk.User
 	auth.GetUserFromSession(&user, c.Ctx.Input.CruSession)
 	userResult := UserInfo{user.Id, user.NickName}
-	result := struct {
-		Status string   `json:"status"`
-		User   UserInfo `json:"user"`
-	}{StatusSuccess, userResult}
-	c.SetData(&result)
+	c.SetData(&userResult)
 }

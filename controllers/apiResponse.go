@@ -5,13 +5,18 @@ type ErrorResponse struct {
 	Message string `json:"message"`
 }
 
-type EmptySuccessResponse struct {
-	Status string `json:"status"`
+type FailRespone struct {
+	Status string      `json:"status"`
+	Data   interface{} `json:"data"`
+}
+
+type SuccessResponse struct {
+	Status string      `json:"status"`
+	Data   interface{} `json:"data"`
 }
 
 type ApiController struct {
 	BaseController
-	Complete bool
 }
 
 const (
@@ -19,24 +24,26 @@ const (
 	StatusFail    = "fail"
 )
 
-func (c *ApiController) SetError(err error) bool {
+func (c *ApiController) SetFail(err error) bool {
 	if err == nil {
 		return false
 	}
 	result := ErrorResponse{StatusFail, err.Error()}
 	c.Data["json"] = &result
 	c.ServeJSON()
-	c.Complete = true
 	return true
 }
 
 func (c *ApiController) SetSuccessResponse() {
-	c.Data["json"] = &EmptySuccessResponse{StatusSuccess}
+	c.Data["json"] = &SuccessResponse{StatusSuccess, nil}
 	c.ServeJSON()
 }
 
 func (c *ApiController) SetData(result interface{}) {
 	c.Data["json"] = &result
+	c.Data["json"] = struct {
+		Status string      `json:"status"`
+		Data   interface{} `json:"data"`
+	}{StatusSuccess, result}
 	c.ServeJSON()
-	c.Complete = true
 }
