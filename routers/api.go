@@ -21,8 +21,6 @@ func init() {
 		),
 
 		beego.NSNamespace("/games",
-			beego.NSRouter("/cards", &controllers.ApiGameController{}, "get:GetGameCards"),
-
 			beego.NSNamespace("/action",
 				beego.NSRouter("/play", &controllers.ApiGameController{}, "post:GamePlayCard"),
 				beego.NSRouter("/discard", &controllers.ApiGameController{}, "post:GameDiscardCard"),
