@@ -38,3 +38,16 @@ func (c *ApiAdminController) ReadStats() {
 	stats := models.ReadStats()
 	c.SetData(&stats)
 }
+
+func (c *ApiAdminController) DeleteStat() {
+	id, err := c.GetInt("id")
+	if c.SetFail(err) {
+		return
+	}
+
+	err = models.DeleteStat(id)
+	if c.SetFail(err) {
+		return
+	}
+	c.SetSuccessResponse()
+}

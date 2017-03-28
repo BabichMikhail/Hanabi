@@ -150,3 +150,11 @@ func ReadStats() (stats []Stat) {
 
 	return
 }
+
+func DeleteStat(id int) error {
+	o := orm.NewOrm()
+	qb, _ := orm.NewQueryBuilder("mysql")
+	qb.Delete().From("stats").Where("id = ?")
+	_, err := o.Raw(qb.String(), id).Exec()
+	return err
+}

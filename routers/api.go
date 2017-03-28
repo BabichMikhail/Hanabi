@@ -44,6 +44,7 @@ func init() {
 			beego.NSNamespace("/stats",
 				beego.NSRouter("/read", &controllers.ApiAdminController{}, "get:ReadStats"),
 				beego.NSRouter("/create", &controllers.ApiAdminController{}, "post:CreateStat"),
+				beego.NSRouter("/delete", &controllers.ApiAdminController{}, "post:DeleteStat"),
 			),
 		),
 	)

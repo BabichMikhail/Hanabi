@@ -21,12 +21,13 @@ function adminHandler() {
                         <th>ExecTime</th>
                         <th>ReadyAt</th>
                         <th>CreatedAt</th>
+                        <th></th>
                     </thead>
                     <tbody>
             `
             for (let i = 0; i < stats.length; ++i) {
                 let stat = stats[i]
-                html += `<tr>
+                html += `<tr id="stat-` + stat.id + `">
                     <th>` + stat.id + `</th>
                     <td>` + stat.ai_names.join(' ') + `</td>
                     <td>` + stat.count + `</td>
@@ -35,6 +36,7 @@ function adminHandler() {
                     <td>` + stat.execution_time + `</td>
                     <td>` + stat.ready_at + `</td>
                     <td>` + stat.created_at + `</td>
+                    <td><button class="btn btn-link" onClick="Admin.DeleteStat(` + stat.id + `)">Delete</button></td>
                 </tr>`
             }
             html += `</tbody>
@@ -117,7 +119,24 @@ function adminHandler() {
                 ai_types: JSON.stringify(aiTypes),
             },
         }).done(function(data) {
-            console.log(data.status)
+            if (data.status != "success") {
+                console.log("Create status: " + data.status)
+            }
+        })
+    }
+
+    this.DeleteStat = function(id) {
+        $.ajax({
+            type: "POST",
+            url: "/api/admin/stats/delete",
+            data: {
+                id: id,
+            },
+        }).done(function(data) {
+            if (data.status != "success") {
+                console.log("Delete status: " + data.status)
+            }
+            $(`tr[id="stat-` + id + `"]`).remove()
         })
     }
 
