@@ -24,10 +24,10 @@ func DefaultUsernamePrefix(AIType int) string {
 		return AI_NamePrefix + AI_RandomName
 	case AI_SmartyRandomAction:
 		return AI_NamePrefix + AI_SmartyName
-	case AI_DiscardUsefullCardAction:
-		return AI_NamePrefix + AI_DiscardUsefullCardName
-	case AI_UsefullInformationAction:
-		return AI_NamePrefix + AI_UsefullInformationName
+	case AI_DiscardUsefulCardAction:
+		return AI_NamePrefix + AI_DiscardUsefulCardName
+	case AI_UsefulInformationAction:
+		return AI_NamePrefix + AI_UsefulInformationName
 	default:
 		return AI_NamePrefix + "Any"
 	}
@@ -38,10 +38,10 @@ func GetAITypeByUserNickName(nickname string) int {
 		return AI_RandomAction
 	} else if ok, _ := regexp.MatchString(AI_NamePrefix+AI_SmartyName+"_\\d", nickname); ok {
 		return AI_SmartyRandomAction
-	} else if ok, _ := regexp.MatchString(AI_NamePrefix+AI_DiscardUsefullCardName+"_\\d", nickname); ok {
-		return AI_DiscardUsefullCardAction
-	} else if ok, _ := regexp.MatchString(AI_NamePrefix+AI_UsefullInformationName+"_\\d", nickname); ok {
-		return AI_UsefullInformationAction
+	} else if ok, _ := regexp.MatchString(AI_NamePrefix+AI_DiscardUsefulCardName+"_\\d", nickname); ok {
+		return AI_DiscardUsefulCardAction
+	} else if ok, _ := regexp.MatchString(AI_NamePrefix+AI_UsefulInformationName+"_\\d", nickname); ok {
+		return AI_UsefulInformationAction
 	}
-	return AI_UsefullInformationAction
+	return AI_UsefulInformationAction
 }

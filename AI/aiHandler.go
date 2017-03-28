@@ -11,15 +11,15 @@ import (
 const (
 	AI_RandomAction = iota
 	AI_SmartyRandomAction
-	AI_DiscardUsefullCardAction
-	AI_UsefullInformationAction
+	AI_DiscardUsefulCardAction
+	AI_UsefulInformationAction
 )
 
 var AITypes = []int{
 	AI_RandomAction,
 	AI_SmartyRandomAction,
-	AI_DiscardUsefullCardAction,
-	AI_UsefullInformationAction,
+	AI_DiscardUsefulCardAction,
+	AI_UsefulInformationAction,
 }
 
 type Action struct {
@@ -52,17 +52,17 @@ func NewCard(gameCard game.Card) *Card {
 const (
 	AI_NamePrefix = "AI_"
 
-	AI_RandomName             = "RandomAction"
-	AI_SmartyName             = "SmartyRandomAction"
-	AI_DiscardUsefullCardName = "DiscardKnownCardAction"
-	AI_UsefullInformationName = "UsefullInformationAction"
+	AI_RandomName            = "RandomAction"
+	AI_SmartyName            = "SmartyRandomAction"
+	AI_DiscardUsefulCardName = "DiscardKnownCardAction"
+	AI_UsefulInformationName = "UsefulInformationAction"
 )
 
 var AINames = map[int]string{
-	AI_RandomAction:             AI_RandomName,
-	AI_SmartyRandomAction:       AI_SmartyName,
-	AI_DiscardUsefullCardAction: AI_DiscardUsefullCardName,
-	AI_UsefullInformationAction: AI_UsefullInformationName,
+	AI_RandomAction:            AI_RandomName,
+	AI_SmartyRandomAction:      AI_SmartyName,
+	AI_DiscardUsefulCardAction: AI_DiscardUsefulCardName,
+	AI_UsefulInformationAction: AI_UsefulInformationName,
 }
 
 func NewAI(playerInfo game.PlayerGameInfo, actions []game.Action, aiType int) *AI {
@@ -80,9 +80,9 @@ func (ai *AI) GetAction() game.Action {
 		return ai.getActionRandom()
 	case AI_SmartyRandomAction:
 		return ai.getActionSmartyRandom()
-	case AI_DiscardUsefullCardAction:
+	case AI_DiscardUsefulCardAction:
 		return ai.getActionDiscardUsefullCard()
-	case AI_UsefullInformationAction:
+	case AI_UsefulInformationAction:
 		return ai.getActionUsefullInformation()
 	default:
 		panic("Missing AI_Type")
