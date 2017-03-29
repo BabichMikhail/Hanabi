@@ -6,7 +6,17 @@ import (
 	"github.com/BabichMikhail/Hanabi/game"
 )
 
-func (ai *AI) getActionUsefullInformation() game.Action {
+type AIUsefulInformation struct {
+	BaseAI
+}
+
+func NewAIUsefulInformation(baseAI *BaseAI) *AIUsefulInformation {
+	ai := new(AIUsefulInformation)
+	ai.BaseAI = *baseAI
+	return ai
+}
+
+func (ai *AIUsefulInformation) GetAction() game.Action {
 	ai.setAvailableInfomation()
 	info := &ai.PlayerInfo
 	myPos := info.Position

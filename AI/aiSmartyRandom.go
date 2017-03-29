@@ -7,7 +7,21 @@ import (
 	"github.com/BabichMikhail/Hanabi/game"
 )
 
-func (ai *AI) getActionSmartyRandom() game.Action {
+type AISmartyRandom struct {
+	BaseAI
+}
+
+func NewAISmartyRandom(baseAI *BaseAI) *AIRandom {
+	ai := new(AIRandom)
+	ai.BaseAI = *baseAI
+	return ai
+}
+
+func (ai *AISmartyRandom) GetAction() game.Action {
+	return ai.getActionSmartyRandom()
+}
+
+func (ai *BaseAI) getActionSmartyRandom() game.Action {
 	ai.setAvailableInfomation()
 	info := &ai.PlayerInfo
 	var usefullActions []*Action

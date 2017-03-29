@@ -26,7 +26,17 @@ func (a Actions) Swap(i, j int) {
 	a[i], a[j] = a[j], a[i]
 }
 
-func (ai *AI) getActionUsefulInformationV2() game.Action {
+type AIUsefulInformationV2 struct {
+	BaseAI
+}
+
+func NewAIUsefulInformationV2(baseAI *BaseAI) *AIUsefulInformationV2 {
+	ai := new(AIUsefulInformationV2)
+	ai.BaseAI = *baseAI
+	return ai
+}
+
+func (ai *AIUsefulInformationV2) GetAction() game.Action {
 	ai.setAvailableInfomation()
 	info := &ai.PlayerInfo
 	myPos := info.Position

@@ -7,7 +7,21 @@ import (
 	"github.com/BabichMikhail/Hanabi/game"
 )
 
-func (ai *AI) getActionRandom() game.Action {
+type AIRandom struct {
+	BaseAI
+}
+
+func NewAIRandom(baseAI *BaseAI) *AIRandom {
+	ai := new(AIRandom)
+	ai.BaseAI = *baseAI
+	return ai
+}
+
+func (ai *AIRandom) GetAction() game.Action {
+	return ai.getActionRandom()
+}
+
+func (ai *BaseAI) getActionRandom() game.Action {
 	rand.Seed(time.Now().UTC().UnixNano())
 	return ai.Actions[rand.Intn(len(ai.Actions))].Action
 }

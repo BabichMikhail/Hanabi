@@ -4,7 +4,17 @@ import (
 	"github.com/BabichMikhail/Hanabi/game"
 )
 
-func (ai *AI) getActionDiscardUsefullCard() game.Action {
+type AIDiscardKnownCard struct {
+	BaseAI
+}
+
+func NewAIDiscardKnownCard(baseAI *BaseAI) *AIDiscardKnownCard {
+	ai := new(AIDiscardKnownCard)
+	ai.BaseAI = *baseAI
+	return ai
+}
+
+func (ai *AIDiscardKnownCard) GetAction() game.Action {
 	ai.setAvailableInfomation()
 	info := &ai.PlayerInfo
 	for color, tableCard := range info.TableCards {

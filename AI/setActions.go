@@ -32,7 +32,7 @@ func NewAction(actionType game.ActionType, playerPosition, actionValue, cardCoun
 	}
 }
 
-func (ai *AI) AppendAction(actionType game.ActionType, playerPosition, actionValue, cardCount, usefullCardCount int) {
+func (ai *BaseAI) AppendAction(actionType game.ActionType, playerPosition, actionValue, cardCount, usefullCardCount int) {
 	action := &Action{
 		Action: game.Action{
 			ActionType:     actionType,
@@ -67,7 +67,7 @@ func getParams(actionType game.ActionType) (game.ActionType, func(*game.Card) in
 	}
 }
 
-func (ai *AI) setAvailableInfomationActions() {
+func (ai *BaseAI) setAvailableInfomationActions() {
 	actionTypes := []game.ActionType{game.TypeActionInformationColor, game.TypeActionInformationValue}
 	if ai.PlayerInfo.BlueTokens == 0 {
 		return
@@ -95,7 +95,7 @@ func (ai *AI) setAvailableInfomationActions() {
 	}
 }
 
-func (ai *AI) setAvailablePlayingAndDiscardActions() {
+func (ai *BaseAI) setAvailablePlayingAndDiscardActions() {
 	playerInfo := &ai.PlayerInfo
 	pos := playerInfo.Position
 	for i, _ := range playerInfo.PlayerCards[pos] {
@@ -109,7 +109,7 @@ func (ai *AI) setAvailablePlayingAndDiscardActions() {
 	}
 }
 
-func (ai *AI) setAvailableActions() {
+func (ai *BaseAI) setAvailableActions() {
 	ai.setAvailableInfomationActions()
 	ai.setAvailablePlayingAndDiscardActions()
 }

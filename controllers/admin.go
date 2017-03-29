@@ -52,19 +52,19 @@ func (c *AdminController) GameCreate(aiType int) {
 }
 
 func (c *AdminController) GameRandomCreate() {
-	c.GameCreate(ai.AI_RandomAction)
+	c.GameCreate(ai.Type_AIRandom)
 }
 
 func (c *AdminController) GameSmartyRandomCreate() {
-	c.GameCreate(ai.AI_SmartyRandomAction)
+	c.GameCreate(ai.Type_AISmartyRandom)
 }
 
 func (c *AdminController) GameDiscardUsefullCreate() {
-	c.GameCreate(ai.AI_DiscardUsefulCardAction)
+	c.GameCreate(ai.Type_AIDiscardUsefulCard)
 }
 
 func (c *AdminController) GameUsefullInformationCreate() {
-	c.GameCreate(ai.AI_UsefulInformationAction)
+	c.GameCreate(ai.Type_AIUsefulInformation)
 }
 
 func (c *AdminController) GameUsefullInformationRun() {
@@ -78,11 +78,11 @@ func (c *AdminController) GameUsefullInformationRun() {
 	}
 
 	aiTypes := []int{
-		ai.AI_UsefulInformationAction,
-		ai.AI_UsefulInformationAction,
-		ai.AI_UsefulInformationAction,
-		ai.AI_UsefulInformationAction,
-		ai.AI_UsefulInformationAction,
+		ai.Type_AIUsefulInformation,
+		ai.Type_AIUsefulInformation,
+		ai.Type_AIUsefulInformation,
+		ai.Type_AIUsefulInformation,
+		ai.Type_AIUsefulInformation,
 	}
 	stat.RunGames(aiTypes[0:countPlayers-1], []int{1, 2, 3, 4, 5}, countGames)
 	c.Ctx.Redirect(302, c.URLFor("LobbyController.GameList"))
