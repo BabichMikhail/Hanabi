@@ -13,6 +13,7 @@ const (
 	AI_SmartyRandomAction
 	AI_DiscardUsefulCardAction
 	AI_UsefulInformationAction
+	AI_UsefulInformationV2Action
 )
 
 var AITypes = []int{
@@ -20,6 +21,7 @@ var AITypes = []int{
 	AI_SmartyRandomAction,
 	AI_DiscardUsefulCardAction,
 	AI_UsefulInformationAction,
+	AI_UsefulInformationV2Action,
 }
 
 type Action struct {
@@ -52,17 +54,19 @@ func NewCard(gameCard game.Card) *Card {
 const (
 	AI_NamePrefix = "AI_"
 
-	AI_RandomName            = "RandomAction"
-	AI_SmartyName            = "SmartyRandomAction"
-	AI_DiscardUsefulCardName = "DiscardKnownCardAction"
-	AI_UsefulInformationName = "UsefulInformationAction"
+	AI_RandomName              = "RandomAction"
+	AI_SmartyName              = "SmartyRandomAction"
+	AI_DiscardUsefulCardName   = "DiscardKnownCardAction"
+	AI_UsefulInformationName   = "UsefulInformationAction"
+	AI_UsefulInformationV2Name = "UsefulInformationV2Action"
 )
 
 var AINames = map[int]string{
-	AI_RandomAction:            AI_RandomName,
-	AI_SmartyRandomAction:      AI_SmartyName,
-	AI_DiscardUsefulCardAction: AI_DiscardUsefulCardName,
-	AI_UsefulInformationAction: AI_UsefulInformationName,
+	AI_RandomAction:              AI_RandomName,
+	AI_SmartyRandomAction:        AI_SmartyName,
+	AI_DiscardUsefulCardAction:   AI_DiscardUsefulCardName,
+	AI_UsefulInformationAction:   AI_UsefulInformationName,
+	AI_UsefulInformationV2Action: AI_UsefulInformationV2Name,
 }
 
 func NewAI(playerInfo game.PlayerGameInfo, actions []game.Action, aiType int) *AI {
@@ -84,9 +88,10 @@ func (ai *AI) GetAction() game.Action {
 		return ai.getActionDiscardUsefullCard()
 	case AI_UsefulInformationAction:
 		return ai.getActionUsefullInformation()
-	default:
-		panic("Missing AI_Type")
+	case AI_UsefulInformationV2Action:
+		return ai.getActionUsefulInformationV2()
 	}
+	panic("Missing AI_Type")
 }
 
 func (ai *AI) setProbabilityValues(card *game.Card, cardsCount map[game.HashValue]int, color game.CardColor, delta int) bool {
