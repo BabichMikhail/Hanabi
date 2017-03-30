@@ -87,3 +87,8 @@ func (c *AdminController) GameUsefullInformationRun() {
 	stat.RunGames(aiTypes[0:countPlayers-1], []int{1, 2, 3, 4, 5}, countGames)
 	c.Ctx.Redirect(302, c.URLFor("LobbyController.GameList"))
 }
+
+func (c *AdminController) FindUsefulInformationCoefs() {
+	go stat.FindUsefulInfoV2Coefs()
+	c.Ctx.Redirect(302, c.URLFor("AdminController.Home"))
+}

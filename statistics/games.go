@@ -57,11 +57,6 @@ func RunGames(aiTypes []int, playerIds []int, count int) (Stat, []*game.Game) {
 		panic("bad players count")
 	}
 
-	pseudoIds := make([]int, playersCount, playersCount)
-	for i := 0; i < playersCount; i++ {
-		pseudoIds[i] = i + 1
-	}
-
 	stat := Stat{
 		AITypes: aiTypes,
 		Count:   count,

@@ -28,4 +28,5 @@ func init() {
 	beego.Router("/admin/stat/games/usefullinfo/:count_games/:count_players", &controllers.AdminController{}, "get:GameUsefullInformationRun")
 
 	beego.Router("/admin", &controllers.AdminController{}, "get:Home")
+	beego.Router("/admin/coefs", &controllers.AdminController{}, "get:FindUsefulInformationCoefs")
 }

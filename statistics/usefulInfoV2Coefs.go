@@ -1,0 +1,114 @@
+package statistics
+
+import (
+	"fmt"
+
+	ai "github.com/BabichMikhail/Hanabi/AI"
+	"github.com/BabichMikhail/Hanabi/game"
+)
+
+type Axis struct {
+	A, B float64
+	N    int
+	Step float64
+}
+
+func RunGamesWithCoefs(count int, kPlayByValue, kPlayByColor, kInfoValue, kInfoColor float64) float64 {
+	playersCount := 5
+	pseudoIds := make([]int, playersCount, playersCount)
+	for i := 0; i < playersCount; i++ {
+		pseudoIds[i] = i + 1
+	}
+
+	playerIds := pseudoIds
+	posById := map[int]int{}
+	for i := 0; i < len(playerIds); i++ {
+		posById[playerIds[i]] = i
+	}
+
+	stat := Stat{
+		AITypes: []int{
+			ai.Type_AIUsefulInformationV2,
+			ai.Type_AIUsefulInformationV2,
+			ai.Type_AIUsefulInformationV2,
+			ai.Type_AIUsefulInformationV2,
+			ai.Type_AIUsefulInformationV2,
+		},
+		Count: count,
+		Games: make([]GameStat, count, count),
+	}
+
+	for step := 0; step < count; step++ {
+		g := game.NewGame(playerIds)
+		actions := []game.Action{}
+		newAITypes := make([]int, len(stat.AITypes), len(stat.AITypes))
+		for idx, state := range g.CurrentState.PlayerStates {
+			newAITypes[posById[state.PlayerId]] = stat.AITypes[idx]
+		}
+
+		for !g.IsGameOver() {
+			pos := g.CurrentState.CurrentPosition
+			playerInfo := g.CurrentState.GetPlayerGameInfoByPos(pos)
+			AI := ai.NewAI(playerInfo, actions, newAITypes[pos])
+
+			AI.(*ai.AIUsefulInformationV2).SetCoefs(kPlayByValue, kPlayByColor, kInfoValue, kInfoColor)
+			action := AI.GetAction()
+			actions = append(actions, action)
+			switch action.ActionType {
+			case game.TypeActionDiscard:
+				g.NewActionDiscard(action.PlayerPosition, action.Value)
+			case game.TypeActionInformationColor:
+				g.NewActionInformationColor(action.PlayerPosition, game.CardColor(action.Value))
+			case game.TypeActionInformationValue:
+				g.NewActionInformationValue(action.PlayerPosition, game.CardValue(action.Value))
+			case game.TypeActionPlaying:
+				g.NewActionPlaying(action.PlayerPosition, action.Value)
+			}
+		}
+		gamePoints, _ := g.GetPoints()
+		stat.Games[step].Points = gamePoints
+		stat.Games[step].RedTokens = g.CurrentState.RedTokens
+		stat.Games[step].Step = len(g.Actions)
+	}
+	stat.SetCharacteristics()
+	return stat.Medium
+}
+
+func FindUsefulInfoV2Coefs() {
+	delta := []float64{1.0, 0.5, 0.1, 0.05, 0.01}
+	N := []int{1000, 3000, 5000, 10000, 50000}
+	usefulCoefs := []float64{1.0, 1.0, 1.0, 1.0}
+	max := 0.0
+	for idx, d := range delta {
+		for {
+			newMax := max
+			newK := [][]float64{
+				{usefulCoefs[0] + d, usefulCoefs[1], usefulCoefs[2], usefulCoefs[3]},
+				{usefulCoefs[0] - d, usefulCoefs[1], usefulCoefs[2], usefulCoefs[3]},
+				{usefulCoefs[0], usefulCoefs[1] + d, usefulCoefs[2], usefulCoefs[3]},
+				{usefulCoefs[0], usefulCoefs[1] - d, usefulCoefs[2], usefulCoefs[3]},
+				{usefulCoefs[0], usefulCoefs[1], usefulCoefs[2] + d, usefulCoefs[3]},
+				{usefulCoefs[0], usefulCoefs[1], usefulCoefs[2] - d, usefulCoefs[3]},
+				{usefulCoefs[0], usefulCoefs[1], usefulCoefs[2], usefulCoefs[3] + d},
+				{usefulCoefs[0], usefulCoefs[1], usefulCoefs[2], usefulCoefs[3] - d},
+			}
+
+			for _, k := range newK {
+				if result := RunGamesWithCoefs(N[idx], k[0], k[1], k[2], k[3]); result > newMax {
+					usefulCoefs = k
+					newMax = result
+					fmt.Println("New:", newMax, usefulCoefs[0], usefulCoefs[1], usefulCoefs[2], usefulCoefs[3])
+				}
+			}
+
+			if newMax <= max {
+				fmt.Println(newMax, max, d)
+				break
+			}
+			max = newMax
+			fmt.Println("Max:", max, usefulCoefs[0], usefulCoefs[1], usefulCoefs[2], usefulCoefs[3])
+		}
+	}
+
+	fmt.Println("OK")
+}

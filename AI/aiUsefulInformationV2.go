@@ -1,6 +1,7 @@
 package ai
 
 import (
+	"math"
 	"math/rand"
 	"sort"
 
@@ -28,22 +29,34 @@ func (a Actions) Swap(i, j int) {
 
 type AIUsefulInformationV2 struct {
 	BaseAI
+
+	CoefPlayByValue float64
+	CoefPlayByColor float64
+	CoefInfoValue   float64
+	CoefInfoColor   float64
 }
 
 func NewAIUsefulInformationV2(baseAI *BaseAI) *AIUsefulInformationV2 {
 	ai := new(AIUsefulInformationV2)
 	ai.BaseAI = *baseAI
+	ai.CoefPlayByValue = 2.1
+	ai.CoefPlayByColor = -0.9
+	ai.CoefInfoValue = 1.1
+	ai.CoefInfoColor = 1.0
 	return ai
+}
+
+func (ai *AIUsefulInformationV2) SetCoefs(kPlayByValue, kPlayByColor, kInfoValue, kInfoColor float64) {
+	ai.CoefPlayByValue = kPlayByValue
+	ai.CoefPlayByColor = kPlayByColor
+	ai.CoefInfoValue = kInfoValue
+	ai.CoefInfoColor = kInfoColor
 }
 
 func (ai *AIUsefulInformationV2) GetAction() game.Action {
 	ai.setAvailableInfomation()
 	info := &ai.PlayerInfo
 	myPos := info.Position
-	k_PlayByValue := 1.0
-	k_PlayByColor := 1.0
-	k_InfoColor := 1.0
-	k_InfoValue := 1.0
 
 	usefulActions := Actions{}
 
@@ -55,8 +68,8 @@ func (ai *AIUsefulInformationV2) GetAction() game.Action {
 		}
 	}
 
-	subHistory := ai.History[Max(len(ai.History)-len(info.PlayerCards)-1, 0):]
-	historyLength := float64(len(subHistory))
+	subHistory := ai.History[Max(len(ai.History)-len(info.PlayerCards)+1, 0):]
+	historyLength := len(subHistory)
 	for i, action := range subHistory {
 		if action.ActionType == game.TypeActionInformationValue && action.PlayerPosition == myPos {
 			count := 0.0
@@ -72,7 +85,11 @@ func (ai *AIUsefulInformationV2) GetAction() game.Action {
 
 			for idx, card := range info.PlayerCards[myPos] {
 				if card.KnownValue && card.Value == game.CardValue(action.Value) {
-					usefulActions = append(usefulActions, UsefulAction{game.NewAction(game.TypeActionPlaying, myPos, idx), k_PlayByValue * float64(i+1) / historyLength / count})
+					action := UsefulAction{
+						Action:     game.NewAction(game.TypeActionPlaying, myPos, idx),
+						Usefulness: ai.CoefPlayByValue / float64(historyLength-i) / math.Sqrt(count),
+					}
+					usefulActions = append(usefulActions, action)
 				}
 			}
 		}
@@ -91,24 +108,37 @@ func (ai *AIUsefulInformationV2) GetAction() game.Action {
 
 			for idx, card := range info.PlayerCards[myPos] {
 				if card.KnownColor && card.Color == game.CardColor(action.Value) {
-					usefulActions = append(usefulActions, UsefulAction{game.NewAction(game.TypeActionPlaying, myPos, idx), k_PlayByColor * float64(i+1) / historyLength / count})
+					action := UsefulAction{
+						Action:     game.NewAction(game.TypeActionPlaying, myPos, idx),
+						Usefulness: ai.CoefPlayByColor / float64(historyLength-i) / math.Sqrt(count),
+					}
+					usefulActions = append(usefulActions, action)
 				}
 			}
 		}
 	}
 
 	if info.BlueTokens > 0 {
-		for i := 0; i < len(info.PlayerCards)-1; i++ {
+		for i := 1; i < len(info.PlayerCards); i++ {
 			nextPos := (myPos + i) % len(info.PlayerCards)
 			for color, tableCard := range info.TableCards {
 				for idx, card := range info.PlayerCards[nextPos] {
 					if card.Color == color && card.Value == tableCard.Value+1 {
 						cardInfo := &info.PlayerCardsInfo[nextPos][idx]
 						if !cardInfo.KnownValue {
-							usefulActions = append(usefulActions, UsefulAction{game.NewAction(game.TypeActionInformationValue, nextPos, int(card.Value)), k_InfoValue * (1.0 - float64((i+1)/len(info.PlayerCards)))})
+							action := UsefulAction{
+								Action:     game.NewAction(game.TypeActionInformationValue, nextPos, int(card.Value)),
+								Usefulness: ai.CoefInfoValue * (1.0 - float64(i)/float64(len(info.PlayerCards)-1)),
+							}
+							usefulActions = append(usefulActions, action)
 						}
+
 						if !cardInfo.KnownColor {
-							usefulActions = append(usefulActions, UsefulAction{game.NewAction(game.TypeActionInformationColor, nextPos, int(card.Color)), k_InfoColor * (1.0 - float64((i+1)/len(info.PlayerCards)))})
+							action := UsefulAction{
+								Action:     game.NewAction(game.TypeActionInformationColor, nextPos, int(card.Color)),
+								Usefulness: ai.CoefInfoColor * (1.0 - float64(i)/float64(len(info.PlayerCards)-1)),
+							}
+							usefulActions = append(usefulActions, action)
 						}
 					}
 				}
