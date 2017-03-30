@@ -75,10 +75,10 @@ func RunGamesWithCoefs(count int, kPlayByValue, kPlayByColor, kInfoValue, kInfoC
 }
 
 func FindUsefulInfoV2Coefs() {
-	delta := []float64{1.0, 0.5, 0.1, 0.05, 0.01}
-	N := []int{1000, 3000, 5000, 10000, 50000}
-	usefulCoefs := []float64{1.0, 1.0, 1.0, 1.0}
-	max := 0.0
+	delta := []float64{1.0, 0.5, 0.1, 0.05}
+	N := []int{10000, 10000, 10000, 10000}
+	usefulCoefs := []float64{2.1, -0.9, 1.05, 1.0}
+	max := RunGamesWithCoefs(10000, usefulCoefs[0], usefulCoefs[1], usefulCoefs[2], usefulCoefs[3])
 	for idx, d := range delta {
 		for {
 			newMax := max
@@ -97,7 +97,9 @@ func FindUsefulInfoV2Coefs() {
 				if result := RunGamesWithCoefs(N[idx], k[0], k[1], k[2], k[3]); result > newMax {
 					usefulCoefs = k
 					newMax = result
-					fmt.Println("New:", newMax, usefulCoefs[0], usefulCoefs[1], usefulCoefs[2], usefulCoefs[3])
+					fmt.Println("NewMax:", result, k[0], k[1], k[2], k[3])
+				} else {
+					fmt.Println("Fail  :", result, k[0], k[1], k[2], k[3])
 				}
 			}
 
@@ -106,7 +108,7 @@ func FindUsefulInfoV2Coefs() {
 				break
 			}
 			max = newMax
-			fmt.Println("Max:", max, usefulCoefs[0], usefulCoefs[1], usefulCoefs[2], usefulCoefs[3])
+			fmt.Println("Max   :", max, usefulCoefs[0], usefulCoefs[1], usefulCoefs[2], usefulCoefs[3])
 		}
 	}
 
