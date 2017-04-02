@@ -7,12 +7,6 @@ import (
 	"github.com/BabichMikhail/Hanabi/game"
 )
 
-type Axis struct {
-	A, B float64
-	N    int
-	Step float64
-}
-
 func RunGamesWithCoefs(count int, kPlayByValue, kPlayByColor, kInfoValue, kInfoColor float64) float64 {
 	playersCount := 5
 	pseudoIds := make([]int, playersCount, playersCount)
