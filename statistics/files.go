@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"strconv"
 	"time"
 
 	ai "github.com/BabichMikhail/Hanabi/AI"
@@ -46,15 +47,28 @@ func (stat *Stat) setSheetPoints(excel *xlsx.File, histData map[int]int) error {
 	return nil
 }
 
-func (stat *Stat) setSheetHistogram(excel *xlsx.File, histData map[int]int) error {
-	sh, err := excel.AddSheet("histogram")
+func (stat *Stat) setSheetHistogramIntInt(excel *xlsx.File, histData map[int]int, shName string) error {
+	sh, err := excel.AddSheet(shName)
 	if err != nil {
 		return err
 	}
 
-	for points, count := range histData {
-		sh.Cell(points, 0).SetInt(points)
-		sh.Cell(points, 1).SetInt(count)
+	for key, value := range histData {
+		sh.Cell(key, 0).SetInt(key)
+		sh.Cell(key, 1).SetInt(value)
+	}
+	return nil
+}
+
+func (stat *Stat) setSheetHistogramIntFloat(excel *xlsx.File, histData map[int]float64, shName string) error {
+	sh, err := excel.AddSheet(shName)
+	if err != nil {
+		return err
+	}
+
+	for key, value := range histData {
+		sh.Cell(key, 0).SetInt(key)
+		sh.Cell(key, 1).SetFloat(value)
 	}
 	return nil
 }
@@ -86,6 +100,7 @@ func (stat *Stat) setSheetInfo(excel *xlsx.File) error {
 		}
 	}
 	sh.Cell(7, 1).SetInt(sum)
+	sh.Cell(7, 2).SetString(strconv.Itoa(int(100.0*float64(sum)/float64(len(stat.Games)))) + "%")
 
 	offset := 9
 	sh.Cell(offset, 0).SetString("Medium")
@@ -107,11 +122,53 @@ func (stat *Stat) SaveValues(path string) error {
 		histData[i] = 0
 	}
 
+	histDataStep := map[int]int{}
+	for i := 0; i < 70; i++ {
+		histDataStep[i] = 0
+	}
+
+	maxStep := 0
+	for i := 0; i < len(stat.Games); i++ {
+		histDataStep[stat.Games[i].Step]++
+		if stat.Games[i].Step > maxStep {
+			maxStep = stat.Games[i].Step
+		}
+	}
+
+	histDataStepToPoints := map[int]float64{}
+	histDataStepToGamesCount := map[int]int{}
+	for step, count := range histDataStep {
+		if count == 0 && step > maxStep {
+			delete(histDataStep, step)
+		} else {
+			histDataStepToPoints[step] = 0
+			histDataStepToGamesCount[step] = 0
+		}
+	}
+
+	for i := 0; i < len(stat.Games); i++ {
+		histDataStepToPoints[stat.Games[i].Step] += float64(stat.Games[i].Points)
+		histDataStepToGamesCount[stat.Games[i].Step]++
+	}
+	for step, _ := range histDataStepToPoints {
+		if float64(histDataStepToGamesCount[step]) > 0 {
+			histDataStepToPoints[step] /= float64(histDataStepToGamesCount[step])
+		}
+	}
+
 	if err := stat.setSheetPoints(excel, histData); err != nil {
 		return err
 	}
 
-	if err := stat.setSheetHistogram(excel, histData); err != nil {
+	if err := stat.setSheetHistogramIntInt(excel, histData, "histogram"); err != nil {
+		return err
+	}
+
+	if err := stat.setSheetHistogramIntInt(excel, histDataStep, "histogramSteps"); err != nil {
+		return err
+	}
+
+	if err := stat.setSheetHistogramIntFloat(excel, histDataStepToPoints, "histogramStepsToPoints"); err != nil {
 		return err
 	}
 
