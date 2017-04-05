@@ -2,7 +2,6 @@ package statistics
 
 import (
 	"fmt"
-	"math"
 	"math/rand"
 	"sort"
 	"time"
@@ -12,8 +11,12 @@ import (
 )
 
 type GeneticAlgorithm struct {
-	Nodes GeneticNodes
-	N     int
+	Nodes       GeneticNodes
+	Current     int
+	GamesCounts []int
+	N           []int
+	LowValues   []float64
+	Mutations   []float64
 }
 
 type GeneticNode struct {
@@ -38,12 +41,18 @@ func (nodes GeneticNodes) Swap(i, j int) {
 
 func NewGeneticAlgorithm() *GeneticAlgorithm {
 	gen := new(GeneticAlgorithm)
-	gen.N = 120
+	gen.Current = 0
+	gen.N = []int{120, 80, 40, 20}
+	gen.GamesCounts = []int{1000, 4000, 12000, 40000}
+	gen.LowValues = []float64{15.0, 15.6, 16.1, 16.5}
+	gen.Mutations = []float64{1.3, 0.8, 0.4, 0.1}
+
+	N := gen.N[gen.Current]
 	a := -2.0
 	b := 4.0
-	h := (b - a) / float64(gen.N)
-	gen.Nodes = make([]GeneticNode, gen.N+2, gen.N+2)
-	for i := 0; i <= gen.N; i++ {
+	h := (b - a) / float64(N)
+	gen.Nodes = make([]GeneticNode, N+2, N+2)
+	for i := 0; i <= N; i++ {
 		k := a + h*float64(i)
 		gen.Nodes[i] = GeneticNode{
 			Coefs: []float64{
@@ -53,7 +62,7 @@ func NewGeneticAlgorithm() *GeneticAlgorithm {
 			Percent: 0.0,
 		}
 	}
-	gen.Nodes[gen.N+1] = GeneticNode{
+	gen.Nodes[N+1] = GeneticNode{
 		Coefs: []float64{
 			2.1, -0.9, 1.05, 1.0, 0.1, 0.04, 0.01, 0.07,
 		},
@@ -136,7 +145,7 @@ func (gen *GeneticAlgorithm) NewDescendant(idx1, idx2 int) *GeneticNode {
 	return newNode
 }
 
-func (gen *GeneticAlgorithm) NewMutation(idx int) *GeneticNode {
+func (gen *GeneticAlgorithm) NewMutationAbsolute(idx int) *GeneticNode {
 	node := &gen.Nodes[idx]
 	newNode := new(GeneticNode)
 	newNode.Coefs = make([]float64, len(node.Coefs), len(node.Coefs))
@@ -144,6 +153,18 @@ func (gen *GeneticAlgorithm) NewMutation(idx int) *GeneticNode {
 	newNode.Result = 0
 	newCoef := rand.Float64()*8 - 2
 	newNode.Coefs[rand.Intn(len(node.Coefs))] = newCoef
+	copy(newNode.Coefs, node.Coefs)
+	return newNode
+}
+
+func (gen *GeneticAlgorithm) NewMutationRelative(idx int) *GeneticNode {
+	node := &gen.Nodes[idx]
+	newNode := new(GeneticNode)
+	newNode.Coefs = make([]float64, len(node.Coefs), len(node.Coefs))
+	newNode.Percent = 0
+	newNode.Result = 0
+	newCoef := 2*rand.Float64()*gen.Mutations[gen.Current] - gen.Mutations[gen.Current]
+	newNode.Coefs[rand.Intn(len(node.Coefs))] += newCoef
 	copy(newNode.Coefs, node.Coefs)
 	return newNode
 }
@@ -169,8 +190,8 @@ func (gen *GeneticAlgorithm) FindUsefulInfoV3Coefs() {
 		ai.Type_AIUsefulInformationV3,
 	}
 
-	gamesCount := 500
-	lowValue := 15.5
+	updateAll := true
+	repeats := 0
 
 	for {
 		isContinue := false
@@ -182,7 +203,7 @@ func (gen *GeneticAlgorithm) FindUsefulInfoV3Coefs() {
 		chans := make(chan int, len(gen.Nodes))
 		readyCount := 0
 		for i := 0; i < len(gen.Nodes); i++ {
-			if gen.Nodes[i].Result > 0 {
+			if !updateAll && gen.Nodes[i].Result > 0 {
 				gen.Nodes[i].Percent = 0
 				readyCount++
 				continue
@@ -190,8 +211,8 @@ func (gen *GeneticAlgorithm) FindUsefulInfoV3Coefs() {
 
 			f := func(i int) {
 				node := &gen.Nodes[i]
-				node.Result = gen.RunGamesWithCoefs(gamesCount, aiTypes, node.Coefs)
-				if node.Result < lowValue {
+				node.Result = gen.RunGamesWithCoefs(gen.GamesCounts[gen.Current], aiTypes, node.Coefs)
+				if node.Result < gen.LowValues[gen.Current] {
 					isContinue = true
 				}
 			}
@@ -207,10 +228,10 @@ func (gen *GeneticAlgorithm) FindUsefulInfoV3Coefs() {
 		}
 
 		sort.Sort(gen.Nodes)
-		N := gen.N
-		for i := 0; i < N/2; i++ {
+		N := gen.N[gen.Current]
+		for i := 0; i < N; i++ {
 			node := &gen.Nodes[i]
-			sum += math.Pow(1/(25-node.Result), 2)
+			sum += 1 / (25 - node.Result)
 			if node.Result < min {
 				min = node.Result
 				minIdx = i
@@ -222,17 +243,17 @@ func (gen *GeneticAlgorithm) FindUsefulInfoV3Coefs() {
 			fmt.Println("Result: ", node.Result, node.Coefs)
 		}
 
-		for i := 0; i < len(gen.Nodes); i++ { // i<N/2
+		newNodes := make([]GeneticNode, N, N)
+		for i := 0; i < N; i++ {
 			node := &gen.Nodes[i]
-			node.Percent = math.Pow(1/(25-node.Result), 2) / sum
+			node.Percent = 1 / (25 - node.Result) / sum
 		}
 
-		newNodes := make([]GeneticNode, gen.N, gen.N)
-		for i := 0; i < N/2; i++ {
+		for i := 0; i < N/4; i++ {
 			newNodes[i] = gen.Nodes[i]
 		}
 
-		for i := N / 2; i < N/2+N/4; i++ {
+		for i := N / 4; i < N/2; i++ {
 			idx1 := gen.GetRandIdx()
 			idx2 := gen.GetRandIdx()
 			for idx1 == idx2 {
@@ -241,21 +262,30 @@ func (gen *GeneticAlgorithm) FindUsefulInfoV3Coefs() {
 			newNodes[i] = *gen.NewDescendant(idx1, idx2)
 		}
 
-		for i := N/2 + N/4; i < N; i++ {
+		for i := N / 2; i < 3*N/4; i++ {
 			idx := gen.GetRandIdx()
-			newNodes[i] = *gen.NewMutation(idx)
+			newNodes[i] = *gen.NewMutationAbsolute(idx)
+		}
+
+		for i := 3 * N / 4; i < N; i++ {
+			idx := gen.GetRandIdx()
+			newNodes[i] = *gen.NewMutationRelative(idx)
 		}
 
 		fmt.Println("Minimum: ", min, gen.Nodes[minIdx].Coefs)
 		fmt.Println("Maximum: ", max, gen.Nodes[maxIdx].Coefs)
 		fmt.Println()
+		updateAll = false
 		if !isContinue {
-			if gen.N == 60 {
-				break
+			if gen.Current == len(gen.N)-1 {
+				if repeats > 2 {
+					break
+				} else {
+					repeats++
+				}
 			}
-			gen.N = 60
-			gamesCount = 3000
-			lowValue = 16.2
+			updateAll = true
+			gen.Current++
 		}
 		gen.Nodes = newNodes
 	}

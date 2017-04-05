@@ -1,7 +1,6 @@
 package statistics
 
 import (
-	"fmt"
 	"math"
 
 	ai "github.com/BabichMikhail/Hanabi/AI"
@@ -64,7 +63,6 @@ func RunGames(aiTypes []int, playerIds []int, count int) (Stat, []*game.Game) {
 		newCount++
 	}
 	count = newCount * limit
-	fmt.Println("COUNT:", count)
 
 	stat := Stat{
 		AITypes: aiTypes,
@@ -123,7 +121,6 @@ func RunGames(aiTypes []int, playerIds []int, count int) (Stat, []*game.Game) {
 					worstGame = g
 					minPoints = gamePoints
 				}
-				//fmt.Println("by", i)
 			}
 			chans <- struct{}{}
 		}(j)
