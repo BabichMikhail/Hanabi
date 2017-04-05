@@ -1,6 +1,7 @@
 package statistics
 
 import (
+	"fmt"
 	"math"
 
 	ai "github.com/BabichMikhail/Hanabi/AI"
@@ -57,6 +58,14 @@ func RunGames(aiTypes []int, playerIds []int, count int) (Stat, []*game.Game) {
 		panic("bad players count")
 	}
 
+	limit := 100
+	newCount := count / limit
+	if count%limit > 0 {
+		newCount++
+	}
+	count = newCount * limit
+	fmt.Println("COUNT:", count)
+
 	stat := Stat{
 		AITypes: aiTypes,
 		Count:   count,
@@ -72,43 +81,55 @@ func RunGames(aiTypes []int, playerIds []int, count int) (Stat, []*game.Game) {
 	var worstGame *game.Game
 	maxPoints := -1
 	minPoints := 26
-	for i := 0; i < count; i++ {
-		g := game.NewGame(playerIds)
-		actions := []game.Action{}
-		newAITypes := make([]int, len(aiTypes), len(aiTypes))
-		for idx, state := range g.CurrentState.PlayerStates {
-			newAITypes[posById[state.PlayerId]] = aiTypes[idx]
-		}
 
-		for !g.IsGameOver() {
-			pos := g.CurrentState.CurrentPosition
-			playerInfo := g.CurrentState.GetPlayerGameInfoByPos(pos)
-			AI := ai.NewAI(playerInfo, actions, newAITypes[pos])
-			action := AI.GetAction()
-			actions = append(actions, action)
-			switch action.ActionType {
-			case game.TypeActionDiscard:
-				g.NewActionDiscard(action.PlayerPosition, action.Value)
-			case game.TypeActionInformationColor:
-				g.NewActionInformationColor(action.PlayerPosition, game.CardColor(action.Value))
-			case game.TypeActionInformationValue:
-				g.NewActionInformationValue(action.PlayerPosition, game.CardValue(action.Value))
-			case game.TypeActionPlaying:
-				g.NewActionPlaying(action.PlayerPosition, action.Value)
+	chans := make(chan struct{}, 2*limit)
+	for j := 0; j < limit; j++ {
+		go func(j int) {
+			for k := 0; k < count/limit; k++ {
+				i := k*limit + j
+				g := game.NewGame(playerIds)
+				actions := []game.Action{}
+				newAITypes := make([]int, len(aiTypes), len(aiTypes))
+				for idx, state := range g.CurrentState.PlayerStates {
+					newAITypes[posById[state.PlayerId]] = aiTypes[idx]
+				}
+
+				for !g.IsGameOver() {
+					pos := g.CurrentState.CurrentPosition
+					playerInfo := g.CurrentState.GetPlayerGameInfoByPos(pos)
+					AI := ai.NewAI(playerInfo, actions, newAITypes[pos])
+					action := AI.GetAction()
+					actions = append(actions, action)
+					switch action.ActionType {
+					case game.TypeActionDiscard:
+						g.NewActionDiscard(action.PlayerPosition, action.Value)
+					case game.TypeActionInformationColor:
+						g.NewActionInformationColor(action.PlayerPosition, game.CardColor(action.Value))
+					case game.TypeActionInformationValue:
+						g.NewActionInformationValue(action.PlayerPosition, game.CardValue(action.Value))
+					case game.TypeActionPlaying:
+						g.NewActionPlaying(action.PlayerPosition, action.Value)
+					}
+				}
+				gamePoints, _ := g.GetPoints()
+				stat.Games[i].Points = gamePoints
+				stat.Games[i].RedTokens = g.CurrentState.RedTokens
+				stat.Games[i].Step = len(g.Actions)
+				if gamePoints > maxPoints {
+					bestGame = g
+					maxPoints = gamePoints
+				}
+				if gamePoints < minPoints {
+					worstGame = g
+					minPoints = gamePoints
+				}
+				//fmt.Println("by", i)
 			}
-		}
-		gamePoints, _ := g.GetPoints()
-		stat.Games[i].Points = gamePoints
-		stat.Games[i].RedTokens = g.CurrentState.RedTokens
-		stat.Games[i].Step = len(g.Actions)
-		if gamePoints > maxPoints {
-			bestGame = g
-			maxPoints = gamePoints
-		}
-		if gamePoints < minPoints {
-			worstGame = g
-			minPoints = gamePoints
-		}
+			chans <- struct{}{}
+		}(j)
+	}
+	for i := 0; i < limit; i++ {
+		<-chans
 	}
 	stat.SetCharacteristics()
 	return stat, []*game.Game{worstGame, bestGame}
