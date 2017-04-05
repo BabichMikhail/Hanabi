@@ -29,4 +29,5 @@ func init() {
 
 	beego.Router("/admin", &controllers.AdminController{}, "get:Home")
 	beego.Router("/admin/coefs", &controllers.AdminController{}, "get:FindUsefulInformationCoefs")
+	beego.Router("/admin/coefs/usefullv3", &controllers.AdminController{}, "get:FindUsefulInformationCoefsV3")
 }

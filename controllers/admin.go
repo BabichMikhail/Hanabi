@@ -92,3 +92,9 @@ func (c *AdminController) FindUsefulInformationCoefs() {
 	go stat.FindUsefulInfoV2Coefs()
 	c.Ctx.Redirect(302, c.URLFor("AdminController.Home"))
 }
+
+func (c *AdminController) FindUsefulInformationCoefsV3() {
+	gen := stat.NewGeneticAlgorithm()
+	go gen.FindUsefulInfoV3Coefs()
+	c.Ctx.Redirect(302, c.URLFor("AdminController.Home"))
+}

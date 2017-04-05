@@ -10,6 +10,7 @@ const (
 	Type_AIDiscardUsefulCard
 	Type_AIUsefulInformation
 	Type_AIUsefulInformationV2
+	Type_AIUsefulInformationV3
 )
 
 var AITypes = []int{
@@ -18,6 +19,7 @@ var AITypes = []int{
 	Type_AIDiscardUsefulCard,
 	Type_AIUsefulInformation,
 	Type_AIUsefulInformationV2,
+	Type_AIUsefulInformationV3,
 }
 
 type Action struct {
@@ -49,6 +51,7 @@ const (
 	Name_AIDiscardUsefulCard   = "DiscardKnownCard"
 	Name_AIUsefulInformation   = "UsefulInformation"
 	Name_AIUsefulInformationV2 = "UsefulInformationV2"
+	Name_AIUsefulInformationV3 = "UsefulInformationV3"
 )
 
 var AINames = map[int]string{
@@ -57,6 +60,7 @@ var AINames = map[int]string{
 	Type_AIDiscardUsefulCard:   Name_AIDiscardUsefulCard,
 	Type_AIUsefulInformation:   Name_AIUsefulInformation,
 	Type_AIUsefulInformationV2: Name_AIUsefulInformationV2,
+	Type_AIUsefulInformationV3: Name_AIUsefulInformationV3,
 }
 
 func NewAI(playerInfo game.PlayerGameInfo, history []game.Action, aiType int) AI {
@@ -78,6 +82,8 @@ func NewAI(playerInfo game.PlayerGameInfo, history []game.Action, aiType int) AI
 		ai = NewAIUsefulInformation(baseAI)
 	case Type_AIUsefulInformationV2:
 		ai = NewAIUsefulInformationV2(baseAI)
+	case Type_AIUsefulInformationV3:
+		ai = NewAIUsefulInformationV3(baseAI)
 	default:
 		panic("Unknown aiType")
 	}
