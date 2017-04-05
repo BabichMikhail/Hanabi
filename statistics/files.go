@@ -27,7 +27,7 @@ func (stat *Stat) SaveStat(path string) error {
 	return f.Close()
 }
 
-func (stat *Stat) setSheetPoints(excel *xlsx.File, histData map[int]int) error {
+func (stat *Stat) setSheetPoints(excel *xlsx.File) error {
 	sh, err := excel.AddSheet("points")
 	if err != nil {
 		return err
@@ -40,9 +40,6 @@ func (stat *Stat) setSheetPoints(excel *xlsx.File, histData map[int]int) error {
 		sh.Cell(i+1, 0).SetInt(g.Points)
 		sh.Cell(i+1, 1).SetInt(g.Step)
 		sh.Cell(i+1, 2).SetInt(g.RedTokens)
-
-		count, _ := histData[g.Points]
-		histData[g.Points] = count + 1
 	}
 	return nil
 }
@@ -114,7 +111,7 @@ func (stat *Stat) setSheetInfo(excel *xlsx.File) error {
 	return nil
 }
 
-func (stat *Stat) SaveValues(path string) error {
+func (stat *Stat) SaveExcel(path string, saveDistrInExcel bool) error {
 	excel := xlsx.NewFile()
 
 	histData := map[int]int{}
@@ -156,8 +153,14 @@ func (stat *Stat) SaveValues(path string) error {
 		}
 	}
 
-	if err := stat.setSheetPoints(excel, histData); err != nil {
-		return err
+	for _, g := range stat.Games {
+		histData[g.Points] = histData[g.Points] + 1
+	}
+
+	if saveDistrInExcel {
+		if err := stat.setSheetPoints(excel); err != nil {
+			return err
+		}
 	}
 
 	if err := stat.setSheetHistogramIntInt(excel, histData, "histogram"); err != nil {
@@ -179,7 +182,7 @@ func (stat *Stat) SaveValues(path string) error {
 	return excel.Save(path)
 }
 
-func (stat *Stat) SaveToFile(dir, subdir string) error {
+func (stat *Stat) SaveToFile(dir, subdir string, saveDistrInExcel bool) error {
 	_, err := os.Stat(dir)
 	if err != nil {
 		return err
@@ -196,7 +199,7 @@ func (stat *Stat) SaveToFile(dir, subdir string) error {
 		return err
 	}
 
-	err = stat.SaveValues(path.Join(statDir, "distribution"+subdir+".xlsx"))
+	err = stat.SaveExcel(path.Join(statDir, "distribution"+subdir+".xlsx"), saveDistrInExcel)
 	return err
 }
 

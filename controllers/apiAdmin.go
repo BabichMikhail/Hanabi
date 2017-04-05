@@ -21,6 +21,12 @@ func (c *ApiAdminController) CreateStat() {
 	if c.SetFail(err) {
 		return
 	}
+
+	save, err := c.GetBool("save_distribution_in_excel", false)
+	if c.SetFail(err) {
+		return
+	}
+
 	aiTypesJSON := c.GetString("ai_types")
 	if c.SetFail(err) {
 		return
@@ -30,7 +36,7 @@ func (c *ApiAdminController) CreateStat() {
 	if c.SetFail(err) {
 		return
 	}
-	go models.NewStat(types, count)
+	go models.NewStat(types, count, save)
 	c.SetSuccessResponse()
 }
 

@@ -35,7 +35,7 @@ func (stat *Stat) TableName() string {
 	return "stats"
 }
 
-func NewStat(aiTypes []int, count int) {
+func NewStat(aiTypes []int, count int, saveDistrInExcel bool) {
 	o := orm.NewOrm()
 	b, err := json.Marshal(aiTypes)
 	if err != nil {
@@ -53,10 +53,10 @@ func NewStat(aiTypes []int, count int) {
 	} else {
 		panic(err)
 	}
-	StartStat(statId, aiTypes, count)
+	StartStat(statId, aiTypes, count, saveDistrInExcel)
 }
 
-func StartStat(id int, aiTypes []int, count int) {
+func StartStat(id int, aiTypes []int, count int, saveDistrInExcel bool) {
 	ids := make([]int, len(aiTypes), len(aiTypes))
 	var err error
 	for i := 0; i < len(aiTypes); i++ {
@@ -71,7 +71,7 @@ func StartStat(id int, aiTypes []int, count int) {
 		}
 	}
 	stat, games := stats.RunGames(aiTypes, ids, count)
-	ReadyStat(id, &stat)
+	ReadyStat(id, &stat, saveDistrInExcel)
 
 	for _, game := range games {
 		item, _ := NewGame(ids[0], len(aiTypes), StatusWait, true)
@@ -89,8 +89,8 @@ func StartStat(id int, aiTypes []int, count int) {
 	}
 }
 
-func ReadyStat(id int, stat *stats.Stat) {
-	err := stat.SaveToFile("stat_metadata", strconv.Itoa(id))
+func ReadyStat(id int, stat *stats.Stat, saveDistrInExcel bool) {
+	err := stat.SaveToFile("stat_metadata", strconv.Itoa(id), saveDistrInExcel)
 	if err != nil {
 		fmt.Printf("Error: %s\n", err.Error())
 	}

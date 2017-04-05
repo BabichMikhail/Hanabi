@@ -93,6 +93,9 @@ function adminHandler() {
                 <input type="number" id="ai-games-count"></input>
             </div>
             <div class="col-md-12">
+                <label for="save-distribution-in-excel">Save distribution points in Excel</label>
+                <input type="checkbox" id="save-distribution-in-excel" value="true"></input>
+            <div class="col-md-12">
                 <button type="submit" onClick="Admin.CreateStat()">Create</button>
             </div>
             `
@@ -105,6 +108,7 @@ function adminHandler() {
     this.CreateStat = function() {
         let gamesCount = $("input[id='ai-games-count']").val()
         let aiCount = $("select[id='ai-count']").val()
+        let saveInExcel = $("input[id='save-distribution-in-excel']").val()
         let aiTypes = []
         while (aiCount > 0) {
             --aiCount
@@ -117,6 +121,7 @@ function adminHandler() {
             data: {
                 count: gamesCount,
                 ai_types: JSON.stringify(aiTypes),
+                save_distribution_in_excel: saveInExcel,
             },
         }).done(function(data) {
             if (data.status != "success") {
