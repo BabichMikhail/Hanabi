@@ -283,9 +283,10 @@ func (gen *GeneticAlgorithm) FindUsefulInfoV3Coefs() {
 				} else {
 					repeats++
 				}
+			} else {
+				gen.Current++
 			}
 			updateAll = true
-			gen.Current++
 		}
 		gen.Nodes = newNodes
 	}
