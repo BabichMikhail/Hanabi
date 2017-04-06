@@ -28,21 +28,20 @@ func NewAIUsefulInformationV3(baseAI *BaseAI) *AIUsefulInformationV3 {
 	ai.CoefPlayByColor = -0.9
 	ai.CoefInfoValue = 1.05
 	ai.CoefInfoColor = 1.0
-	k := 10.0
-	ai.CoefDiscardUsefulCard = 1.0 / k
-	ai.CoefDiscardMaybeUsefuCard = 0.4 / k
-	ai.CoefDiscardUselessCard = 0.1 / k
-	ai.CoefDiscardUnknownCard = 0.7 / k
+	ai.CoefDiscardUsefulCard = 0.1
+	ai.CoefDiscardMaybeUsefuCard = 0.04
+	ai.CoefDiscardUselessCard = 0.01
+	ai.CoefDiscardUnknownCard = 0.07
 	return ai
 }
 
-func (ai *AIUsefulInformationV3) SetCoefs(kPlayByValue, kPlayByColor, kInfoValue, kInfoColor, kDiscardUseful, kDiscardMabyUseful, kDiscardUseless, kDiscardUnknown float64) {
+func (ai *AIUsefulInformationV3) SetCoefs(kPlayByValue, kPlayByColor, kInfoValue, kInfoColor, kDiscardUseful, kDiscardMaybeUseful, kDiscardUseless, kDiscardUnknown float64) {
 	ai.CoefPlayByValue = kPlayByValue
 	ai.CoefPlayByColor = kPlayByColor
 	ai.CoefInfoValue = kInfoValue
 	ai.CoefInfoColor = kInfoColor
 	ai.CoefDiscardUsefulCard = kDiscardUseful
-	ai.CoefDiscardMaybeUsefuCard = kDiscardMabyUseful
+	ai.CoefDiscardMaybeUsefuCard = kDiscardMaybeUseful
 	ai.CoefDiscardUselessCard = kDiscardUseless
 	ai.CoefDiscardUnknownCard = kDiscardUnknown
 }
