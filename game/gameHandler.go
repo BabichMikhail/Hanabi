@@ -16,11 +16,16 @@ type Game struct {
 	Points       int       `json:"points"`
 }
 
-func NewGame(originalIds []int) *Game {
+func NewGame(originalIds []int, seed ...int64) *Game {
 	ids := make([]int, len(originalIds), len(originalIds))
 	copy(ids, originalIds)
 	game := new(Game)
-	game.Seed = time.Now().UTC().UnixNano()
+	if len(seed) > 0 {
+		game.Seed = seed[0]
+	} else {
+		game.Seed = time.Now().UTC().UnixNano()
+	}
+
 	game.Points = 0
 	rand.Seed(game.Seed)
 	cards := []*Card{}
