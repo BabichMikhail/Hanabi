@@ -16,7 +16,9 @@ type Game struct {
 	Points       int       `json:"points"`
 }
 
-func NewGame(ids []int) *Game {
+func NewGame(originalIds []int) *Game {
+	ids := make([]int, len(originalIds), len(originalIds))
+	copy(ids, originalIds)
 	game := new(Game)
 	game.Seed = time.Now().UTC().UnixNano()
 	game.Points = 0
