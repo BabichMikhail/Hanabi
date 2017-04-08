@@ -98,15 +98,9 @@ func RunGames(aiTypes []int, playerIds []int, count int) (Stat, []*game.Game) {
 					AI := ai.NewAI(playerInfo, actions, newAITypes[pos])
 					action := AI.GetAction()
 					actions = append(actions, action)
-					switch action.ActionType {
-					case game.TypeActionDiscard:
-						g.NewActionDiscard(action.PlayerPosition, action.Value)
-					case game.TypeActionInformationColor:
-						g.NewActionInformationColor(action.PlayerPosition, game.CardColor(action.Value))
-					case game.TypeActionInformationValue:
-						g.NewActionInformationValue(action.PlayerPosition, game.CardValue(action.Value))
-					case game.TypeActionPlaying:
-						g.NewActionPlaying(action.PlayerPosition, action.Value)
+					err := g.ApplyAction(action)
+					if err != nil {
+						panic(err)
 					}
 				}
 				gamePoints, _ := g.GetPoints()
