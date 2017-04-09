@@ -38,6 +38,14 @@ var Colors = []CardColor{
 	Orange,
 }
 
+var ColorsTable = []CardColor{
+	Red,
+	Blue,
+	Green,
+	Yellow,
+	Orange,
+}
+
 type CardValue int
 
 const (

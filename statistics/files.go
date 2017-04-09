@@ -9,6 +9,7 @@ import (
 	"time"
 
 	ai "github.com/BabichMikhail/Hanabi/AI"
+	"github.com/BabichMikhail/Hanabi/game"
 	"github.com/tealeg/xlsx"
 )
 
@@ -36,10 +37,17 @@ func (stat *Stat) setSheetPoints(excel *xlsx.File) error {
 	sh.Cell(0, 0).SetString("Points")
 	sh.Cell(0, 1).SetString("Step")
 	sh.Cell(0, 2).SetString("Red Tokens")
+	for i := 0; i < len(game.ColorsTable); i++ {
+		sh.Cell(0, 3+i).SetString(game.GetCardColor(game.ColorsTable[i]))
+	}
+
 	for i, g := range stat.Games {
 		sh.Cell(i+1, 0).SetInt(g.Points)
 		sh.Cell(i+1, 1).SetInt(g.Step)
 		sh.Cell(i+1, 2).SetInt(g.RedTokens)
+		for j := 0; j < len(game.ColorsTable); j++ {
+			sh.Cell(i+1, 3+j).SetInt(g.Values[game.ColorsTable[j]])
+		}
 	}
 	return nil
 }

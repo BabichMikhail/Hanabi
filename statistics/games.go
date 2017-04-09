@@ -8,9 +8,10 @@ import (
 )
 
 type GameStat struct {
-	Points    int `json:"points"`
-	Step      int `json:"step"`
-	RedTokens int `json:"red_tokens"`
+	Points    int                    `json:"points"`
+	Step      int                    `json:"step"`
+	RedTokens int                    `json:"red_tokens"`
+	Values    map[game.CardColor]int `json:"table_values"`
 }
 
 type Stat struct {
@@ -107,6 +108,11 @@ func RunGames(aiTypes []int, playerIds []int, count int) (Stat, []*game.Game) {
 				stat.Games[i].Points = gamePoints
 				stat.Games[i].RedTokens = g.CurrentState.RedTokens
 				stat.Games[i].Step = len(g.Actions)
+				stat.Games[i].Values = map[game.CardColor]int{}
+				for _, color := range game.Colors {
+					stat.Games[i].Values[color] = int(g.CurrentState.TableCards[color].Value)
+				}
+
 				if gamePoints > maxPoints {
 					bestGame = g
 					maxPoints = gamePoints
