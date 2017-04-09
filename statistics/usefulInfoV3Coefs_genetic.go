@@ -7,6 +7,7 @@ import (
 	"time"
 
 	ai "github.com/BabichMikhail/Hanabi/AI"
+	info "github.com/BabichMikhail/Hanabi/AIInformator"
 	"github.com/BabichMikhail/Hanabi/game"
 )
 
@@ -93,7 +94,7 @@ func (gen *GeneticAlgorithm) RunGamesWithCoefs(count int, aiTypes []int, coefs [
 
 	for step := 0; step < count; step++ {
 		g := game.NewGame(playerIds)
-		actions := []game.Action{}
+		informator := info.NewInformator(g.CurrentState, g.Actions)
 		newAITypes := make([]int, len(stat.AITypes), len(stat.AITypes))
 		for idx, state := range g.CurrentState.PlayerStates {
 			newAITypes[posById[state.PlayerId]] = stat.AITypes[idx]
@@ -101,21 +102,10 @@ func (gen *GeneticAlgorithm) RunGamesWithCoefs(count int, aiTypes []int, coefs [
 
 		for !g.IsGameOver() {
 			pos := g.CurrentState.CurrentPosition
-			playerInfo := g.CurrentState.GetPlayerGameInfoByPos(pos)
-			AI := ai.NewAI(playerInfo, actions, newAITypes[pos])
+			AI := informator.NextAI(newAITypes[pos])
 			AI.(*ai.AIUsefulInformationV3).SetCoefs(coefs[0], coefs[1], coefs[2], coefs[3], coefs[4], coefs[5], coefs[6], coefs[7])
 			action := AI.GetAction()
-			actions = append(actions, action)
-			switch action.ActionType {
-			case game.TypeActionDiscard:
-				g.NewActionDiscard(action.PlayerPosition, action.Value)
-			case game.TypeActionInformationColor:
-				g.NewActionInformationColor(action.PlayerPosition, game.CardColor(action.Value))
-			case game.TypeActionInformationValue:
-				g.NewActionInformationValue(action.PlayerPosition, game.CardValue(action.Value))
-			case game.TypeActionPlaying:
-				g.NewActionPlaying(action.PlayerPosition, action.Value)
-			}
+			informator.ApplyAction(action)
 		}
 		gamePoints, _ := g.GetPoints()
 		stat.Games[step].Points = gamePoints

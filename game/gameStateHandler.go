@@ -72,7 +72,7 @@ func (state *GameState) GetCardCountByPlayerCount(count int) int {
 	return 5
 }
 
-func NewGameState(ids []int, pcards []*Card) GameState {
+func NewGameState(ids []int, pcards []*Card) *GameState {
 	state := GameState{
 		CurrentPosition: 0,
 		BlueTokens:      MaxBlueTokens,
@@ -105,10 +105,10 @@ func NewGameState(ids []int, pcards []*Card) GameState {
 	}
 
 	state.Deck = DereferenceCard(pcards)
-	return state
+	return &state
 }
 
-func (state *GameState) Copy() GameState {
+func (state *GameState) Copy() *GameState {
 	newState := GameState{
 		CurrentPosition: state.CurrentPosition,
 		BlueTokens:      state.BlueTokens,
@@ -138,7 +138,7 @@ func (state *GameState) Copy() GameState {
 		newState.Deck = append(newState.Deck, state.Deck[i].Copy())
 	}
 
-	return newState
+	return &newState
 }
 
 func (state *GameState) GetPlayerPositionById(id int) (pos int, err error) {

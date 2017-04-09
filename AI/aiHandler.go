@@ -37,6 +37,7 @@ type BaseAI struct {
 	History          []game.Action       `json:"history"`
 	PlayerInfo       game.PlayerGameInfo `json:"player_info"`
 	Type             int                 `json:"ai_type"`
+	Informator       AIInformator        `json:"informator"`
 }
 
 type AI interface {
@@ -63,8 +64,12 @@ var AINames = map[int]string{
 	Type_AIUsefulInformationV3: Name_AIUsefulInformationV3,
 }
 
-func NewAI(playerInfo game.PlayerGameInfo, history []game.Action, aiType int) AI {
+type AIInformator interface {
+}
+
+func NewAI(playerInfo game.PlayerGameInfo, history []game.Action, aiType int, informator AIInformator) AI {
 	baseAI := new(BaseAI)
+	baseAI.Informator = informator
 	baseAI.History = history
 	baseAI.PlayerInfo = playerInfo
 	baseAI.setAvailableActions()

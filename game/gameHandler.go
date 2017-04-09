@@ -8,12 +8,12 @@ import (
 )
 
 type Game struct {
-	PlayerCount  int       `json:"player_count"`
-	InitState    GameState `json:"init_state"`
-	CurrentState GameState `json:"current_state"`
-	Actions      []Action  `json:"actions"`
-	Seed         int64     `json:"seed"`
-	Points       int       `json:"points"`
+	PlayerCount  int        `json:"player_count"`
+	InitState    *GameState `json:"init_state"`
+	CurrentState *GameState `json:"current_state"`
+	Actions      []Action   `json:"actions"`
+	Seed         int64      `json:"seed"`
+	Points       int        `json:"points"`
 }
 
 func NewGame(originalIds []int, seed ...int64) *Game {

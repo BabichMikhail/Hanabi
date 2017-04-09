@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	ai "github.com/BabichMikhail/Hanabi/AI"
+	info "github.com/BabichMikhail/Hanabi/AIInformator"
 	"github.com/BabichMikhail/Hanabi/game"
 )
 
@@ -34,7 +35,8 @@ func RunGamesWithCoefs(count int, kPlayByValue, kPlayByColor, kInfoValue, kInfoC
 
 	for step := 0; step < count; step++ {
 		g := game.NewGame(playerIds)
-		actions := []game.Action{}
+		informator := info.NewInformator(g.CurrentState, g.Actions)
+
 		newAITypes := make([]int, len(stat.AITypes), len(stat.AITypes))
 		for idx, state := range g.CurrentState.PlayerStates {
 			newAITypes[posById[state.PlayerId]] = stat.AITypes[idx]
@@ -42,22 +44,10 @@ func RunGamesWithCoefs(count int, kPlayByValue, kPlayByColor, kInfoValue, kInfoC
 
 		for !g.IsGameOver() {
 			pos := g.CurrentState.CurrentPosition
-			playerInfo := g.CurrentState.GetPlayerGameInfoByPos(pos)
-			AI := ai.NewAI(playerInfo, actions, newAITypes[pos])
-
+			AI := informator.NextAI(newAITypes[pos])
 			AI.(*ai.AIUsefulInformationV2).SetCoefs(kPlayByValue, kPlayByColor, kInfoValue, kInfoColor)
 			action := AI.GetAction()
-			actions = append(actions, action)
-			switch action.ActionType {
-			case game.TypeActionDiscard:
-				g.NewActionDiscard(action.PlayerPosition, action.Value)
-			case game.TypeActionInformationColor:
-				g.NewActionInformationColor(action.PlayerPosition, game.CardColor(action.Value))
-			case game.TypeActionInformationValue:
-				g.NewActionInformationValue(action.PlayerPosition, game.CardValue(action.Value))
-			case game.TypeActionPlaying:
-				g.NewActionPlaying(action.PlayerPosition, action.Value)
-			}
+			informator.ApplyAction(action)
 		}
 		gamePoints, _ := g.GetPoints()
 		stat.Games[step].Points = gamePoints

@@ -3,7 +3,7 @@ package statistics
 import (
 	"math"
 
-	ai "github.com/BabichMikhail/Hanabi/AI"
+	info "github.com/BabichMikhail/Hanabi/AIInformator"
 	"github.com/BabichMikhail/Hanabi/game"
 )
 
@@ -87,19 +87,17 @@ func RunGames(aiTypes []int, playerIds []int, count int) (Stat, []*game.Game) {
 			for k := 0; k < count/limit; k++ {
 				i := k*limit + j
 				g := game.NewGame(playerIds)
-				actions := []game.Action{}
 				newAITypes := make([]int, len(aiTypes), len(aiTypes))
 				for idx, state := range g.CurrentState.PlayerStates {
 					newAITypes[posById[state.PlayerId]] = aiTypes[idx]
 				}
 
+				informator := info.NewInformator(g.CurrentState, g.Actions)
 				for !g.IsGameOver() {
 					pos := g.CurrentState.CurrentPosition
-					playerInfo := g.CurrentState.GetPlayerGameInfoByPos(pos)
-					AI := ai.NewAI(playerInfo, actions, newAITypes[pos])
+					AI := informator.NextAI(newAITypes[pos])
 					action := AI.GetAction()
-					actions = append(actions, action)
-					err := g.ApplyAction(action)
+					err := informator.ApplyAction(action)
 					if err != nil {
 						panic(err)
 					}

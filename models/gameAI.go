@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	ai "github.com/BabichMikhail/Hanabi/AI"
+	info "github.com/BabichMikhail/Hanabi/AIInformator"
 	"github.com/BabichMikhail/Hanabi/game"
 	"github.com/astaxie/beego/orm"
 	wetalk "github.com/beego/wetalk/modules/models"
@@ -24,23 +25,23 @@ func ApplyAction(gameId int, actionType game.ActionType, playerPosition int, act
 	}
 
 	NewAction(gameId, action)
-	UpdateGameState(gameId, state)
+	UpdateGameState(gameId, &state)
 	return
 }
 
 func CheckAI(gameId int) {
 	state, err := ReadCurrentGameState(gameId)
+	if err != nil {
+		return
+	}
+
 	if state.IsGameOver() {
 		SetGameFinishedStatus(gameId)
 		return
 	}
 
-	if err != nil {
-		return
-	}
 	pos := state.CurrentPosition
 	playerId := state.PlayerStates[pos].PlayerId
-	playerInfo := state.GetPlayerGameInfo(playerId)
 	nickname := GetUserNickNameById(playerId)
 	if ok, _ := regexp.MatchString(ai.AI_NamePrefix+".*", nickname); !ok {
 		return
@@ -48,8 +49,12 @@ func CheckAI(gameId int) {
 
 	aiType := ai.GetAITypeByUserNickName(nickname)
 	actions, _ := ReadActions(gameId)
-	AI := ai.NewAI(playerInfo, actions, aiType)
+	informator := info.NewInformator(&state, actions)
+	AI := informator.NextAI(aiType)
 	action := AI.GetAction()
+	if err := informator.ApplyAction(action); err != nil {
+		return
+	}
 	ApplyAction(gameId, action.ActionType, action.PlayerPosition, action.Value)
 
 	CheckAI(gameId)

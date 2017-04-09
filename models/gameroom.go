@@ -19,12 +19,12 @@ func CreateActiveGame(playerIds []int, gameId int) (game *gamePackage.Game, err 
 		return game, err
 	}
 
-	if err = NewGameState(gameId, &game.InitState, true); err != nil {
+	if err = NewGameState(gameId, game.InitState, true); err != nil {
 		o.Rollback()
 		return game, err
 	}
 
-	if err = NewGameState(gameId, &game.CurrentState, false); err != nil {
+	if err = NewGameState(gameId, game.CurrentState, false); err != nil {
 		o.Rollback()
 		return
 	}
