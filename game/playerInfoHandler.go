@@ -6,6 +6,7 @@ type PlayerGameInfo struct {
 	PlayerCount     int                `json:"player_count"`
 	Position        int                `json:"pos"`
 	Step            int                `json:"step"`
+	MaxStep         int                `json:"max_step"`
 	Round           int                `json:"round"`
 	PlayerId        int                `json:"player_id"`
 	DeckSize        int                `json:"deck_size"`
@@ -73,6 +74,7 @@ func (state *GameState) GetPlayerGameInfoByPos(playerPosition int) PlayerGameInf
 		PlayerCount:     len(state.PlayerStates),
 		Position:        playerPosition,
 		Step:            state.Step,
+		MaxStep:         state.MaxStep,
 		Round:           state.Round,
 		PlayerId:        state.PlayerStates[playerPosition].PlayerId,
 		DeckSize:        len(state.Deck),
@@ -107,6 +109,7 @@ func (info *PlayerGameInfo) Copy() *PlayerGameInfo {
 	newInfo.PlayerCount = info.PlayerCount
 	newInfo.Position = info.Position
 	newInfo.Step = info.Step
+	newInfo.MaxStep = info.MaxStep
 	newInfo.Round = info.Round
 	newInfo.PlayerId = info.PlayerId
 	newInfo.DeckSize = info.DeckSize
