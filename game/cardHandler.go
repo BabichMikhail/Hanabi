@@ -173,13 +173,28 @@ func NewCard(color CardColor, value CardValue, known bool) *Card {
 }
 
 func (card Card) Copy() Card {
+	probValues := map[CardValue]float64{}
+	for k, v := range card.ProbabilityValues {
+		probValues[k] = v
+	}
+
+	probColors := map[CardColor]float64{}
+	for k, v := range card.ProbabilityColors {
+		probColors[k] = v
+	}
+
+	probCards := map[HashValue]float64{}
+	for k, v := range card.ProbabilityCard {
+		probCards[k] = v
+	}
+
 	return Card{
 		Color:             card.Color,
 		KnownColor:        card.KnownColor,
-		ProbabilityColors: card.ProbabilityColors,
+		ProbabilityColors: probColors,
 		Value:             card.Value,
 		KnownValue:        card.KnownValue,
-		ProbabilityValues: card.ProbabilityValues,
-		ProbabilityCard:   card.ProbabilityCard,
+		ProbabilityValues: probValues,
+		ProbabilityCard:   probCards,
 	}
 }
