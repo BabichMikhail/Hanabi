@@ -98,3 +98,40 @@ func (state *GameState) GetPlayerGameInfo(playerId int) PlayerGameInfo {
 func NewPlayerInfo(game *Game, playerId int) PlayerGameInfo {
 	return game.GetPlayerGameInfo(playerId)
 }
+
+func (info *PlayerGameInfo) Copy() *PlayerGameInfo {
+	newInfo := new(PlayerGameInfo)
+
+	newInfo.MyTurn = info.MyTurn
+	newInfo.CurrentPostion = info.CurrentPostion
+	newInfo.PlayerCount = info.PlayerCount
+	newInfo.Position = info.Position
+	newInfo.Step = info.Step
+	newInfo.Round = info.Round
+	newInfo.PlayerId = info.PlayerId
+	newInfo.DeckSize = info.DeckSize
+
+	newInfo.UsedCards = make([]Card, len(info.UsedCards), cap(info.UsedCards))
+	copy(newInfo.UsedCards, info.UsedCards)
+
+	newInfo.TableCards = map[CardColor]Card{}
+	for color, card := range info.TableCards {
+		newInfo.TableCards[color] = card
+	}
+
+	newInfo.PlayerCards = make([][]Card, len(info.PlayerCards), len(info.PlayerCards))
+	for i := 0; i < len(newInfo.PlayerCards); i++ {
+		newInfo.PlayerCards[i] = make([]Card, len(info.PlayerCards[i]), len(info.PlayerCards[i]))
+		copy(newInfo.PlayerCards[i], info.PlayerCards[i])
+	}
+
+	newInfo.PlayerCardsInfo = make([][]Card, len(info.PlayerCardsInfo), len(info.PlayerCardsInfo))
+	for i := 0; i < len(newInfo.PlayerCardsInfo); i++ {
+		newInfo.PlayerCardsInfo[i] = make([]Card, len(info.PlayerCardsInfo[i]), len(info.PlayerCardsInfo[i]))
+		copy(newInfo.PlayerCardsInfo[i], info.PlayerCardsInfo[i])
+	}
+
+	newInfo.BlueTokens = info.BlueTokens
+	newInfo.RedTokens = info.RedTokens
+	return newInfo
+}
