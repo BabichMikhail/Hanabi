@@ -138,3 +138,16 @@ func (info *PlayerGameInfo) Copy() *PlayerGameInfo {
 	newInfo.RedTokens = info.RedTokens
 	return newInfo
 }
+
+func (info *PlayerGameInfo) IsGameOver() bool {
+	if info.RedTokens == MaxRedTokens || info.MaxStep != 0 && info.Step >= info.MaxStep {
+		return true
+	}
+
+	for _, card := range info.TableCards {
+		if card.Value != Five {
+			return false
+		}
+	}
+	return true
+}
