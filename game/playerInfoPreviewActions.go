@@ -2,6 +2,9 @@ package game
 
 type ResultPreviewPlayerInformations struct {
 	Action  Action
+	Max     int
+	Min     int
+	Med     float64
 	Results []ResultPlayerInfo
 }
 
@@ -30,8 +33,12 @@ func (info *PlayerGameInfo) PreviewActionDiscard(cardPosition int) ResultPreview
 	cards = newPlayerInfo.PlayerCardsInfo[playerPosition]
 	newPlayerInfo.PlayerCardsInfo[playerPosition] = append(cards[:cardPosition], cards[cardPosition+1:]...)
 
+	points := newPlayerInfo.GetPoints()
 	return ResultPreviewPlayerInformations{
 		Action: NewAction(TypeActionDiscard, playerPosition, cardPosition),
+		Max:    points,
+		Min:    points,
+		Med:    float64(points),
 		Results: []ResultPlayerInfo{
 			ResultPlayerInfo{
 				Probability: 1.0,
@@ -50,6 +57,10 @@ func (info *PlayerGameInfo) PreviewActionPlaying(cardPosition int) ResultPreview
 	playerPosition := newPlayerInfo.CurrentPostion
 	action := NewAction(TypeActionPlaying, playerPosition, cardPosition)
 
+	max := -1
+	min := 26
+	med := 0.0
+
 	updateFunc := func(playerInfo *PlayerGameInfo, cardValue CardValue, cardColor CardColor, probability float64) ResultPlayerInfo {
 		newPlayerInfo = playerInfo.Copy()
 		if newPlayerInfo.TableCards[cardColor].Value+1 == cardValue {
@@ -63,6 +74,15 @@ func (info *PlayerGameInfo) PreviewActionPlaying(cardPosition int) ResultPreview
 			}
 		} else {
 			newPlayerInfo.RedTokens++
+		}
+
+		points := newPlayerInfo.GetPoints()
+		med += float64(points) * probability
+		if points > max {
+			max = points
+		}
+		if points < min {
+			min = points
 		}
 
 		return ResultPlayerInfo{
@@ -85,26 +105,36 @@ func (info *PlayerGameInfo) PreviewActionPlaying(cardPosition int) ResultPreview
 
 	if card.KnownColor {
 		idx := 0
-		results := make([]ResultPlayerInfo, len(card.ProbabilityValues), len(card.ProbabilityValues))
+		length := len(card.ProbabilityValues)
+		results := make([]ResultPlayerInfo, length, length)
 		for cardValue, probability := range card.ProbabilityValues {
 			results[idx] = updateFunc(info, cardValue, card.Color, probability)
 			idx++
 		}
+
 		return ResultPreviewPlayerInformations{
 			Action:  action,
+			Max:     max,
+			Min:     min,
+			Med:     med,
 			Results: results,
 		}
 	}
 
 	if card.KnownValue {
-		results := make([]ResultPlayerInfo, len(card.ProbabilityColors), len(card.ProbabilityColors))
 		idx := 0
+		length := len(card.ProbabilityColors)
+		results := make([]ResultPlayerInfo, length, length)
 		for cardColor, probability := range card.ProbabilityColors {
 			results[idx] = updateFunc(info, card.Value, cardColor, probability)
 			idx++
 		}
+
 		return ResultPreviewPlayerInformations{
 			Action:  action,
+			Max:     max,
+			Min:     min,
+			Med:     med,
 			Results: results,
 		}
 	}
@@ -121,6 +151,9 @@ func (info *PlayerGameInfo) PreviewActionPlaying(cardPosition int) ResultPreview
 
 	return ResultPreviewPlayerInformations{
 		Action:  action,
+		Max:     max,
+		Min:     min,
+		Med:     med,
 		Results: results,
 	}
 }
@@ -141,8 +174,12 @@ func (info *PlayerGameInfo) PreviewActionInformationColor(playerPosition int, ca
 		}
 	}
 
+	points := newPlayerInfo.GetPoints()
 	return ResultPreviewPlayerInformations{
 		Action: NewAction(TypeActionInformationColor, playerPosition, int(cardColor)),
+		Max:    points,
+		Min:    points,
+		Med:    float64(points),
 		Results: []ResultPlayerInfo{
 			ResultPlayerInfo{
 				Probability: 1.0,
@@ -168,8 +205,12 @@ func (info *PlayerGameInfo) PreviewActionInformationValue(playerPosition int, ca
 		}
 	}
 
+	points := newPlayerInfo.GetPoints()
 	return ResultPreviewPlayerInformations{
 		Action: NewAction(TypeActionInformationValue, playerPosition, int(cardValue)),
+		Max:    points,
+		Min:    points,
+		Med:    float64(points),
 		Results: []ResultPlayerInfo{
 			ResultPlayerInfo{
 				Probability: 1.0,
