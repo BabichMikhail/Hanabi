@@ -36,6 +36,7 @@ func (info *PlayerGameInfo) PreviewActionDiscard(cardPosition int) (*ResultPrevi
 	newPlayerInfo.PlayerCardsInfo[playerPosition] = append(cards[:cardPosition], cards[cardPosition+1:]...)
 
 	points := newPlayerInfo.GetPoints()
+	newPlayerInfo.IncreasePosition()
 	return &ResultPreviewPlayerInformations{
 		Action: NewAction(TypeActionDiscard, playerPosition, cardPosition),
 		Max:    points,
@@ -87,6 +88,7 @@ func (info *PlayerGameInfo) PreviewActionPlaying(cardPosition int) (*ResultPrevi
 			min = points
 		}
 
+		newPlayerInfo.IncreasePosition()
 		return ResultPlayerInfo{
 			Probability: probability,
 			Info:        newPlayerInfo,
@@ -177,6 +179,7 @@ func (info *PlayerGameInfo) PreviewActionInformationColor(playerPosition int, ca
 	}
 
 	points := newPlayerInfo.GetPoints()
+	newPlayerInfo.IncreasePosition()
 	return &ResultPreviewPlayerInformations{
 		Action: NewAction(TypeActionInformationColor, playerPosition, int(cardColor)),
 		Max:    points,
@@ -208,6 +211,7 @@ func (info *PlayerGameInfo) PreviewActionInformationValue(playerPosition int, ca
 	}
 
 	points := newPlayerInfo.GetPoints()
+	newPlayerInfo.IncreasePosition()
 	return &ResultPreviewPlayerInformations{
 		Action: NewAction(TypeActionInformationValue, playerPosition, int(cardValue)),
 		Max:    points,

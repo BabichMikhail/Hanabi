@@ -165,3 +165,12 @@ func (info *PlayerGameInfo) IsGameOver() bool {
 	}
 	return true
 }
+
+func (info *PlayerGameInfo) IncreasePosition() {
+	info.Step++
+	info.CurrentPostion++
+	if info.CurrentPostion/len(info.PlayerCards) == 1 {
+		info.CurrentPostion = 0
+		info.Round++
+	}
+}
