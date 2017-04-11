@@ -28,6 +28,43 @@ func (ai *AIUsefulInfoAndMMEnd) GetNewHistory(newAction game.Action) []game.Acti
 	return newActions
 }
 
+func (ai *AIUsefulInfoAndMMEnd) isCardMayBeUsefull(card game.Card) bool {
+	info := &ai.PlayerInfo
+	if card.KnownColor && card.KnownValue {
+		if card.Value <= info.TableCards[card.Color].Value {
+			return false
+		}
+	}
+
+	if card.KnownColor {
+		for value, _ := range card.ProbabilityValues {
+			if value > info.TableCards[card.Color].Value {
+				return true
+			}
+		}
+		return false
+	}
+
+	if card.KnownValue {
+		for color, _ := range card.ProbabilityColors {
+			if info.TableCards[color].Value+1 == card.Value {
+				return true
+			}
+		}
+		return false
+	}
+
+	for color, _ := range card.ProbabilityColors {
+		for value, _ := range card.ProbabilityValues {
+			if info.TableCards[color].Value+1 == value {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
 func (ai *AIUsefulInfoAndMMEnd) getBestResultWithDepth() *game.ResultPreviewPlayerInformations {
 	info := &ai.PlayerInfo
 	pos := info.CurrentPostion
@@ -106,12 +143,16 @@ func (ai *AIUsefulInfoAndMMEnd) getBestResultWithDepth() *game.ResultPreviewPlay
 	}
 
 	for i := 0; i < len(info.PlayerCards); i++ {
-		if i == pos {
+		if i == pos || i-info.CurrentPostion > info.MaxStep-info.Step {
 			continue
 		}
+
 		cardColors := map[game.CardColor]struct{}{}
 		cardValues := map[game.CardValue]struct{}{}
 		for k := 0; k < len(info.PlayerCards[i]); k++ {
+			if !ai.isCardMayBeUsefull(info.PlayerCards[i][k]) {
+				continue
+			}
 			cardColors[info.PlayerCards[i][k].Color] = struct{}{}
 			cardValues[info.PlayerCards[i][k].Value] = struct{}{}
 		}
