@@ -22,6 +22,7 @@ func (ai *AISmartyRandom) GetAction() game.Action {
 }
 
 func (ai *BaseAI) getActionSmartyRandom() game.Action {
+	ai.setAvailableActions()
 	ai.setAvailableInfomation()
 	info := &ai.PlayerInfo
 	var usefullActions []*Action

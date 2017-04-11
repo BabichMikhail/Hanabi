@@ -85,7 +85,6 @@ func NewAI(playerInfo game.PlayerGameInfo, history []game.Action, aiType int, in
 	baseAI.Informator = informator
 	baseAI.History = history
 	baseAI.PlayerInfo = playerInfo
-	baseAI.setAvailableActions()
 	baseAI.Type = aiType
 	baseAI.InfoIsSetted = false
 
