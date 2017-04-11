@@ -1,12 +1,16 @@
 package game
 
+type ResultPreviewPlayerInformations struct {
+	Action  Action
+	Results []ResultPlayerInfo
+}
+
 type ResultPlayerInfo struct {
 	Probability float64
-	Action      Action
 	Info        *PlayerGameInfo
 }
 
-func (info *PlayerGameInfo) PreviewActionDiscard(cardPosition int) []ResultPlayerInfo {
+func (info *PlayerGameInfo) PreviewActionDiscard(cardPosition int) ResultPreviewPlayerInformations {
 	if info.BlueTokens == MaxBlueTokens {
 		panic("Max blue tokens")
 	}
@@ -26,21 +30,25 @@ func (info *PlayerGameInfo) PreviewActionDiscard(cardPosition int) []ResultPlaye
 	cards = newPlayerInfo.PlayerCardsInfo[playerPosition]
 	newPlayerInfo.PlayerCardsInfo[playerPosition] = append(cards[:cardPosition], cards[cardPosition+1:]...)
 
-	result := ResultPlayerInfo{
-		Probability: 1.0,
-		Action:      NewAction(TypeActionDiscard, playerPosition, cardPosition),
-		Info:        newPlayerInfo,
+	return ResultPreviewPlayerInformations{
+		Action: NewAction(TypeActionDiscard, playerPosition, cardPosition),
+		Results: []ResultPlayerInfo{
+			ResultPlayerInfo{
+				Probability: 1.0,
+				Info:        newPlayerInfo,
+			},
+		},
 	}
-	return []ResultPlayerInfo{result}
 }
 
-func (info *PlayerGameInfo) PreviewActionPlaying(cardPosition int) []ResultPlayerInfo {
+func (info *PlayerGameInfo) PreviewActionPlaying(cardPosition int) ResultPreviewPlayerInformations {
 	if info.DeckSize > 0 {
 		panic("Not implemented")
 	}
 
 	newPlayerInfo := info.Copy()
 	playerPosition := newPlayerInfo.CurrentPostion
+	action := NewAction(TypeActionPlaying, playerPosition, cardPosition)
 
 	updateFunc := func(playerInfo *PlayerGameInfo, cardValue CardValue, cardColor CardColor, probability float64) ResultPlayerInfo {
 		newPlayerInfo = playerInfo.Copy()
@@ -59,15 +67,20 @@ func (info *PlayerGameInfo) PreviewActionPlaying(cardPosition int) []ResultPlaye
 
 		return ResultPlayerInfo{
 			Probability: probability,
-			Action:      NewAction(TypeActionPlaying, playerPosition, cardPosition),
 			Info:        newPlayerInfo,
 		}
 	}
 
 	card := info.PlayerCards[playerPosition][cardPosition].Copy()
+
 	if card.KnownColor && card.KnownValue {
-		result := updateFunc(info, card.Value, card.Color, 1.0)
-		return []ResultPlayerInfo{result}
+		results := []ResultPlayerInfo{
+			updateFunc(info, card.Value, card.Color, 1.0),
+		}
+		return ResultPreviewPlayerInformations{
+			Action:  action,
+			Results: results,
+		}
 	}
 
 	if card.KnownColor {
@@ -77,7 +90,10 @@ func (info *PlayerGameInfo) PreviewActionPlaying(cardPosition int) []ResultPlaye
 			results[idx] = updateFunc(info, cardValue, card.Color, probability)
 			idx++
 		}
-		return results
+		return ResultPreviewPlayerInformations{
+			Action:  action,
+			Results: results,
+		}
 	}
 
 	if card.KnownValue {
@@ -87,7 +103,10 @@ func (info *PlayerGameInfo) PreviewActionPlaying(cardPosition int) []ResultPlaye
 			results[idx] = updateFunc(info, card.Value, cardColor, probability)
 			idx++
 		}
-		return results
+		return ResultPreviewPlayerInformations{
+			Action:  action,
+			Results: results,
+		}
 	}
 
 	idx := 0
@@ -100,10 +119,13 @@ func (info *PlayerGameInfo) PreviewActionPlaying(cardPosition int) []ResultPlaye
 		}
 	}
 
-	return results
+	return ResultPreviewPlayerInformations{
+		Action:  action,
+		Results: results,
+	}
 }
 
-func (info *PlayerGameInfo) PreviewActionInformationColor(playerPosition int, cardColor CardColor) []ResultPlayerInfo {
+func (info *PlayerGameInfo) PreviewActionInformationColor(playerPosition int, cardColor CardColor) ResultPreviewPlayerInformations {
 	if info.BlueTokens == 0 {
 		panic("No blue tokens")
 	}
@@ -119,16 +141,18 @@ func (info *PlayerGameInfo) PreviewActionInformationColor(playerPosition int, ca
 		}
 	}
 
-	result := ResultPlayerInfo{
-		Probability: 1.0,
-		Action:      NewAction(TypeActionInformationColor, playerPosition, int(cardColor)),
-		Info:        newPlayerInfo,
+	return ResultPreviewPlayerInformations{
+		Action: NewAction(TypeActionInformationColor, playerPosition, int(cardColor)),
+		Results: []ResultPlayerInfo{
+			ResultPlayerInfo{
+				Probability: 1.0,
+				Info:        newPlayerInfo,
+			},
+		},
 	}
-
-	return []ResultPlayerInfo{result}
 }
 
-func (info *PlayerGameInfo) PreviewActionInformationValue(playerPosition int, cardValue CardValue) []ResultPlayerInfo {
+func (info *PlayerGameInfo) PreviewActionInformationValue(playerPosition int, cardValue CardValue) ResultPreviewPlayerInformations {
 	if info.BlueTokens == 0 {
 		panic("No blue tokens")
 	}
@@ -144,11 +168,13 @@ func (info *PlayerGameInfo) PreviewActionInformationValue(playerPosition int, ca
 		}
 	}
 
-	result := ResultPlayerInfo{
-		Probability: 1.0,
-		Action:      NewAction(TypeActionInformationValue, playerPosition, int(cardValue)),
-		Info:        newPlayerInfo,
+	return ResultPreviewPlayerInformations{
+		Action: NewAction(TypeActionInformationValue, playerPosition, int(cardValue)),
+		Results: []ResultPlayerInfo{
+			ResultPlayerInfo{
+				Probability: 1.0,
+				Info:        newPlayerInfo,
+			},
+		},
 	}
-
-	return []ResultPlayerInfo{result}
 }
