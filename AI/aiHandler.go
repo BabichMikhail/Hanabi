@@ -38,6 +38,7 @@ type BaseAI struct {
 	PlayerInfo       game.PlayerGameInfo `json:"player_info"`
 	Type             int                 `json:"ai_type"`
 	Informator       AIInformator        `json:"informator"`
+	InfoIsSetted     bool                `json:"info_is_setted"`
 }
 
 type AI interface {
@@ -74,6 +75,7 @@ func NewAI(playerInfo game.PlayerGameInfo, history []game.Action, aiType int, in
 	baseAI.PlayerInfo = playerInfo
 	baseAI.setAvailableActions()
 	baseAI.Type = aiType
+	baseAI.InfoIsSetted = false
 
 	var ai AI
 	switch aiType {

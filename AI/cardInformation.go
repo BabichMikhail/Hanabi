@@ -152,6 +152,10 @@ func (ai *BaseAI) setProbabilities() {
 }
 
 func (ai *BaseAI) setAvailableInfomation() {
+	if ai.InfoIsSetted {
+		return
+	}
+
 	info := &ai.PlayerInfo
 	for idx, _ := range info.PlayerCards[info.Position] {
 		card := &info.PlayerCards[info.Position][idx]
@@ -171,4 +175,5 @@ func (ai *BaseAI) setAvailableInfomation() {
 	}
 
 	ai.setProbabilities()
+	ai.InfoIsSetted = true
 }
