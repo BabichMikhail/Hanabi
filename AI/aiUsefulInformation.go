@@ -17,7 +17,7 @@ func NewAIUsefulInformation(baseAI *BaseAI) *AIUsefulInformation {
 }
 
 func (ai *AIUsefulInformation) GetAction() game.Action {
-	ai.setAvailableInfomation()
+	ai.setAvailableInformation()
 	info := &ai.PlayerInfo
 	myPos := info.CurrentPostion
 

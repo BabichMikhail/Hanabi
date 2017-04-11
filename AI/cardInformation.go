@@ -152,7 +152,7 @@ func (ai *BaseAI) setProbabilities() {
 	return
 }
 
-func (ai *BaseAI) setAvailableInfomation() {
+func (ai *BaseAI) setAvailableInformation() {
 	if ai.InfoIsSetted {
 		return
 	}

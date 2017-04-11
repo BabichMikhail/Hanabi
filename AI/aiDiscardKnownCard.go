@@ -16,7 +16,7 @@ func NewAIDiscardKnownCard(baseAI *BaseAI) *AIDiscardKnownCard {
 
 func (ai *AIDiscardKnownCard) GetAction() game.Action {
 	ai.setAvailableActions()
-	ai.setAvailableInfomation()
+	ai.setAvailableInformation()
 	info := &ai.PlayerInfo
 	pos := info.CurrentPostion
 	for color, tableCard := range info.TableCards {

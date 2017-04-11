@@ -67,7 +67,7 @@ func getParams(actionType game.ActionType) (game.ActionType, func(*game.Card) in
 	}
 }
 
-func (ai *BaseAI) setAvailableInfomationActions() {
+func (ai *BaseAI) setAvailableInformationActions() {
 	actionTypes := []game.ActionType{game.TypeActionInformationColor, game.TypeActionInformationValue}
 	if ai.PlayerInfo.BlueTokens == 0 {
 		return
@@ -110,6 +110,6 @@ func (ai *BaseAI) setAvailablePlayingAndDiscardActions() {
 }
 
 func (ai *BaseAI) setAvailableActions() {
-	ai.setAvailableInfomationActions()
+	ai.setAvailableInformationActions()
 	ai.setAvailablePlayingAndDiscardActions()
 }

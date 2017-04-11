@@ -23,7 +23,7 @@ func (ai *AISmartyRandom) GetAction() game.Action {
 
 func (ai *BaseAI) getActionSmartyRandom() game.Action {
 	ai.setAvailableActions()
-	ai.setAvailableInfomation()
+	ai.setAvailableInformation()
 	info := &ai.PlayerInfo
 	var usefullActions []*Action
 	for _, action := range ai.InfoValueActions {

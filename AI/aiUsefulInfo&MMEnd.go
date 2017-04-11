@@ -292,7 +292,7 @@ func (ai *AIUsefulInfoAndMMEnd) GetBestResult() *game.ResultPreviewPlayerInforma
 }
 
 func (ai *AIUsefulInfoAndMMEnd) GetAction() game.Action {
-	ai.setAvailableInfomation()
+	ai.setAvailableInformation()
 	info := &ai.PlayerInfo
 	if info.DeckSize > 0 {
 		ai := NewAI(*info, ai.History, Type_AIUsefulInformationV3, ai.Informator)

@@ -47,7 +47,7 @@ func (ai *AIUsefulInformationV3) SetCoefs(kPlayByValue, kPlayByColor, kInfoValue
 }
 
 func (ai *AIUsefulInformationV3) GetAction() game.Action {
-	ai.setAvailableInfomation()
+	ai.setAvailableInformation()
 	info := &ai.PlayerInfo
 	myPos := info.CurrentPostion
 
