@@ -63,6 +63,7 @@ func (ai *BaseAI) setProbabilityColors(card *game.Card, cardsCount map[game.Hash
 
 func (ai *BaseAI) setProbabilities() {
 	info := &ai.PlayerInfo
+	pos := info.CurrentPostion
 	copyCardsCount := map[game.HashValue]int{}
 	for _, color := range append(game.Colors, game.NoneColor) {
 		val := 1
@@ -78,7 +79,7 @@ func (ai *BaseAI) setProbabilities() {
 	}
 
 	for pos, cards := range info.PlayerCards {
-		if pos == info.Position {
+		if pos == info.CurrentPostion {
 			continue
 		}
 		for idx, _ := range cards {
@@ -106,8 +107,8 @@ func (ai *BaseAI) setProbabilities() {
 		for k, v := range copyCardsCount {
 			cardsCount[k] = v
 		}
-		for idx, _ := range info.PlayerCards[info.Position] {
-			card := &info.PlayerCards[info.Position][idx]
+		for idx, _ := range info.PlayerCards[pos] {
+			card := &info.PlayerCards[pos][idx]
 			if card.KnownColor && card.KnownValue {
 				cardsCount[game.HashColorValue(card.Color, card.Value)]--
 			} else if card.KnownColor {
@@ -117,8 +118,8 @@ func (ai *BaseAI) setProbabilities() {
 			}
 		}
 
-		for idx, _ := range info.PlayerCards[info.Position] {
-			card := &info.PlayerCards[info.Position][idx]
+		for idx, _ := range info.PlayerCards[pos] {
+			card := &info.PlayerCards[pos][idx]
 			if card.KnownColor && card.KnownValue {
 				card.ProbabilityColors[card.Color] = 1.0
 				card.ProbabilityValues[card.Value] = 1.0
@@ -157,8 +158,9 @@ func (ai *BaseAI) setAvailableInfomation() {
 	}
 
 	info := &ai.PlayerInfo
-	for idx, _ := range info.PlayerCards[info.Position] {
-		card := &info.PlayerCards[info.Position][idx]
+	pos := info.CurrentPostion
+	for idx, _ := range info.PlayerCards[pos] {
+		card := &info.PlayerCards[pos][idx]
 		if len(card.ProbabilityColors) == 1 {
 			for color, _ := range card.ProbabilityColors {
 				card.KnownColor = true

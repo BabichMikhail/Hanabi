@@ -19,7 +19,7 @@ func NewAIUsefulInformation(baseAI *BaseAI) *AIUsefulInformation {
 func (ai *AIUsefulInformation) GetAction() game.Action {
 	ai.setAvailableInfomation()
 	info := &ai.PlayerInfo
-	myPos := info.Position
+	myPos := info.CurrentPostion
 
 	for color, tableCard := range info.TableCards {
 		for idx, card := range info.PlayerCards[myPos] {

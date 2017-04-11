@@ -17,16 +17,17 @@ func NewAIDiscardKnownCard(baseAI *BaseAI) *AIDiscardKnownCard {
 func (ai *AIDiscardKnownCard) GetAction() game.Action {
 	ai.setAvailableInfomation()
 	info := &ai.PlayerInfo
+	pos := info.CurrentPostion
 	for color, tableCard := range info.TableCards {
-		for idx, card := range info.PlayerCards[info.Position] {
+		for idx, card := range info.PlayerCards[pos] {
 			if card.KnownColor && card.KnownValue && card.Color == color && card.Value == tableCard.Value+1 {
-				return game.NewAction(game.TypeActionPlaying, info.Position, idx)
+				return game.NewAction(game.TypeActionPlaying, pos, idx)
 			}
 		}
 
-		for idx, card := range info.PlayerCards[info.Position] {
+		for idx, card := range info.PlayerCards[pos] {
 			if card.KnownValue && card.Value == tableCard.Value+1 {
-				return game.NewAction(game.TypeActionPlaying, info.Position, idx)
+				return game.NewAction(game.TypeActionPlaying, pos, idx)
 			}
 		}
 	}
