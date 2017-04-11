@@ -24,6 +24,10 @@ func (info *Informator) getCurrentState() *game.GameState {
 	return info.currentState
 }
 
+func (info *Informator) GetActions() []game.Action {
+	return info.actions
+}
+
 func (info *Informator) NextAI(aiType int) ai.AI {
 	state := info.getCurrentState()
 	playerInfo := state.GetPlayerGameInfoByPos(state.CurrentPosition)

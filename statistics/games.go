@@ -102,6 +102,7 @@ func RunGames(aiTypes []int, playerIds []int, count int) (Stat, []*game.Game) {
 						panic(err)
 					}
 				}
+				g.Actions = informator.GetActions()
 				gamePoints, _ := g.GetPoints()
 				stat.Games[i].Points = gamePoints
 				stat.Games[i].RedTokens = g.CurrentState.RedTokens
