@@ -13,7 +13,7 @@ type ResultPlayerInfo struct {
 	Info        *PlayerGameInfo
 }
 
-func (info *PlayerGameInfo) PreviewActionDiscard(cardPosition int) ResultPreviewPlayerInformations {
+func (info *PlayerGameInfo) PreviewActionDiscard(cardPosition int) *ResultPreviewPlayerInformations {
 	if info.BlueTokens == MaxBlueTokens {
 		panic("Max blue tokens")
 	}
@@ -34,7 +34,7 @@ func (info *PlayerGameInfo) PreviewActionDiscard(cardPosition int) ResultPreview
 	newPlayerInfo.PlayerCardsInfo[playerPosition] = append(cards[:cardPosition], cards[cardPosition+1:]...)
 
 	points := newPlayerInfo.GetPoints()
-	return ResultPreviewPlayerInformations{
+	return &ResultPreviewPlayerInformations{
 		Action: NewAction(TypeActionDiscard, playerPosition, cardPosition),
 		Max:    points,
 		Min:    points,
@@ -48,7 +48,7 @@ func (info *PlayerGameInfo) PreviewActionDiscard(cardPosition int) ResultPreview
 	}
 }
 
-func (info *PlayerGameInfo) PreviewActionPlaying(cardPosition int) ResultPreviewPlayerInformations {
+func (info *PlayerGameInfo) PreviewActionPlaying(cardPosition int) *ResultPreviewPlayerInformations {
 	if info.DeckSize > 0 {
 		panic("Not implemented")
 	}
@@ -97,7 +97,7 @@ func (info *PlayerGameInfo) PreviewActionPlaying(cardPosition int) ResultPreview
 		results := []ResultPlayerInfo{
 			updateFunc(info, card.Value, card.Color, 1.0),
 		}
-		return ResultPreviewPlayerInformations{
+		return &ResultPreviewPlayerInformations{
 			Action:  action,
 			Results: results,
 		}
@@ -112,7 +112,7 @@ func (info *PlayerGameInfo) PreviewActionPlaying(cardPosition int) ResultPreview
 			idx++
 		}
 
-		return ResultPreviewPlayerInformations{
+		return &ResultPreviewPlayerInformations{
 			Action:  action,
 			Max:     max,
 			Min:     min,
@@ -130,7 +130,7 @@ func (info *PlayerGameInfo) PreviewActionPlaying(cardPosition int) ResultPreview
 			idx++
 		}
 
-		return ResultPreviewPlayerInformations{
+		return &ResultPreviewPlayerInformations{
 			Action:  action,
 			Max:     max,
 			Min:     min,
@@ -149,7 +149,7 @@ func (info *PlayerGameInfo) PreviewActionPlaying(cardPosition int) ResultPreview
 		}
 	}
 
-	return ResultPreviewPlayerInformations{
+	return &ResultPreviewPlayerInformations{
 		Action:  action,
 		Max:     max,
 		Min:     min,
@@ -158,7 +158,7 @@ func (info *PlayerGameInfo) PreviewActionPlaying(cardPosition int) ResultPreview
 	}
 }
 
-func (info *PlayerGameInfo) PreviewActionInformationColor(playerPosition int, cardColor CardColor) ResultPreviewPlayerInformations {
+func (info *PlayerGameInfo) PreviewActionInformationColor(playerPosition int, cardColor CardColor) *ResultPreviewPlayerInformations {
 	if info.BlueTokens == 0 {
 		panic("No blue tokens")
 	}
@@ -175,7 +175,7 @@ func (info *PlayerGameInfo) PreviewActionInformationColor(playerPosition int, ca
 	}
 
 	points := newPlayerInfo.GetPoints()
-	return ResultPreviewPlayerInformations{
+	return &ResultPreviewPlayerInformations{
 		Action: NewAction(TypeActionInformationColor, playerPosition, int(cardColor)),
 		Max:    points,
 		Min:    points,
@@ -189,7 +189,7 @@ func (info *PlayerGameInfo) PreviewActionInformationColor(playerPosition int, ca
 	}
 }
 
-func (info *PlayerGameInfo) PreviewActionInformationValue(playerPosition int, cardValue CardValue) ResultPreviewPlayerInformations {
+func (info *PlayerGameInfo) PreviewActionInformationValue(playerPosition int, cardValue CardValue) *ResultPreviewPlayerInformations {
 	if info.BlueTokens == 0 {
 		panic("No blue tokens")
 	}
@@ -206,7 +206,7 @@ func (info *PlayerGameInfo) PreviewActionInformationValue(playerPosition int, ca
 	}
 
 	points := newPlayerInfo.GetPoints()
-	return ResultPreviewPlayerInformations{
+	return &ResultPreviewPlayerInformations{
 		Action: NewAction(TypeActionInformationValue, playerPosition, int(cardValue)),
 		Max:    points,
 		Min:    points,
