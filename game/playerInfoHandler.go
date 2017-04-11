@@ -16,6 +16,7 @@ type PlayerGameInfo struct {
 	PlayerCardsInfo [][]Card           `json:"player_cards_info"`
 	BlueTokens      int                `json:"blue_tokens"`
 	RedTokens       int                `json:"red_tokens"`
+	Points          int                `json:"points"`
 }
 
 func (game *Game) GetPlayerGameInfo(playerId int) PlayerGameInfo {
@@ -84,7 +85,19 @@ func (state *GameState) GetPlayerGameInfoByPos(playerPosition int) PlayerGameInf
 		PlayerCardsInfo: playerCardsInfo,
 		BlueTokens:      state.BlueTokens,
 		RedTokens:       MaxRedTokens - state.RedTokens,
+		Points:          0,
 	}
+}
+
+func (info *PlayerGameInfo) GetPoints() int {
+	if info.Points > 0 {
+		return info.Points
+	}
+
+	for _, card := range info.TableCards {
+		info.Points += int(card.Value)
+	}
+	return info.Points
 }
 
 func (state *GameState) GetPlayerGameInfo(playerId int) PlayerGameInfo {
@@ -113,6 +126,7 @@ func (info *PlayerGameInfo) Copy() *PlayerGameInfo {
 	newInfo.Round = info.Round
 	newInfo.PlayerId = info.PlayerId
 	newInfo.DeckSize = info.DeckSize
+	newInfo.Points = info.Points
 
 	newInfo.UsedCards = make([]Card, len(info.UsedCards), cap(info.UsedCards))
 	copy(newInfo.UsedCards, info.UsedCards)
