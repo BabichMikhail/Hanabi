@@ -1,5 +1,7 @@
 package game
 
+import "errors"
+
 type ResultPreviewPlayerInformations struct {
 	Action  Action
 	Max     int
@@ -13,9 +15,9 @@ type ResultPlayerInfo struct {
 	Info        *PlayerGameInfo
 }
 
-func (info *PlayerGameInfo) PreviewActionDiscard(cardPosition int) *ResultPreviewPlayerInformations {
+func (info *PlayerGameInfo) PreviewActionDiscard(cardPosition int) (*ResultPreviewPlayerInformations, error) {
 	if info.BlueTokens == MaxBlueTokens {
-		panic("Max blue tokens")
+		return nil, errors.New("Max blue tokens")
 	}
 
 	if info.DeckSize > 0 {
@@ -25,8 +27,8 @@ func (info *PlayerGameInfo) PreviewActionDiscard(cardPosition int) *ResultPrevie
 	newPlayerInfo := info.Copy()
 	playerPosition := newPlayerInfo.CurrentPostion
 	cards := newPlayerInfo.PlayerCards[playerPosition]
-	if len(cards) >= cardPosition {
-		panic("Card not found")
+	if len(cards) <= cardPosition {
+		return nil, errors.New("Card not found")
 	}
 	newPlayerInfo.PlayerCards[playerPosition] = append(cards[:cardPosition], cards[cardPosition+1:]...)
 
@@ -45,10 +47,10 @@ func (info *PlayerGameInfo) PreviewActionDiscard(cardPosition int) *ResultPrevie
 				Info:        newPlayerInfo,
 			},
 		},
-	}
+	}, nil
 }
 
-func (info *PlayerGameInfo) PreviewActionPlaying(cardPosition int) *ResultPreviewPlayerInformations {
+func (info *PlayerGameInfo) PreviewActionPlaying(cardPosition int) (*ResultPreviewPlayerInformations, error) {
 	if info.DeckSize > 0 {
 		panic("Not implemented")
 	}
@@ -100,7 +102,7 @@ func (info *PlayerGameInfo) PreviewActionPlaying(cardPosition int) *ResultPrevie
 		return &ResultPreviewPlayerInformations{
 			Action:  action,
 			Results: results,
-		}
+		}, nil
 	}
 
 	if card.KnownColor {
@@ -118,7 +120,7 @@ func (info *PlayerGameInfo) PreviewActionPlaying(cardPosition int) *ResultPrevie
 			Min:     min,
 			Med:     med,
 			Results: results,
-		}
+		}, nil
 	}
 
 	if card.KnownValue {
@@ -136,7 +138,7 @@ func (info *PlayerGameInfo) PreviewActionPlaying(cardPosition int) *ResultPrevie
 			Min:     min,
 			Med:     med,
 			Results: results,
-		}
+		}, nil
 	}
 
 	idx := 0
@@ -155,12 +157,12 @@ func (info *PlayerGameInfo) PreviewActionPlaying(cardPosition int) *ResultPrevie
 		Min:     min,
 		Med:     med,
 		Results: results,
-	}
+	}, nil
 }
 
-func (info *PlayerGameInfo) PreviewActionInformationColor(playerPosition int, cardColor CardColor) *ResultPreviewPlayerInformations {
+func (info *PlayerGameInfo) PreviewActionInformationColor(playerPosition int, cardColor CardColor) (*ResultPreviewPlayerInformations, error) {
 	if info.BlueTokens == 0 {
-		panic("No blue tokens")
+		return nil, errors.New("No blue tokens")
 	}
 
 	newPlayerInfo := info.Copy()
@@ -186,12 +188,12 @@ func (info *PlayerGameInfo) PreviewActionInformationColor(playerPosition int, ca
 				Info:        newPlayerInfo,
 			},
 		},
-	}
+	}, nil
 }
 
-func (info *PlayerGameInfo) PreviewActionInformationValue(playerPosition int, cardValue CardValue) *ResultPreviewPlayerInformations {
+func (info *PlayerGameInfo) PreviewActionInformationValue(playerPosition int, cardValue CardValue) (*ResultPreviewPlayerInformations, error) {
 	if info.BlueTokens == 0 {
-		panic("No blue tokens")
+		return nil, errors.New("No blue tokens")
 	}
 
 	newPlayerInfo := info.Copy()
@@ -217,5 +219,5 @@ func (info *PlayerGameInfo) PreviewActionInformationValue(playerPosition int, ca
 				Info:        newPlayerInfo,
 			},
 		},
-	}
+	}, nil
 }
