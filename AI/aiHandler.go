@@ -11,6 +11,7 @@ const (
 	Type_AIUsefulInformation
 	Type_AIUsefulInformationV2
 	Type_AIUsefulInformationV3
+	Type_AIUsefulInfoAndMaxMax
 )
 
 var AITypes = []int{
@@ -20,6 +21,7 @@ var AITypes = []int{
 	Type_AIUsefulInformation,
 	Type_AIUsefulInformationV2,
 	Type_AIUsefulInformationV3,
+	Type_AIUsefulInfoAndMaxMax,
 }
 
 type Action struct {
@@ -54,6 +56,7 @@ const (
 	Name_AIUsefulInformation   = "UsefulInformation"
 	Name_AIUsefulInformationV2 = "UsefulInformationV2"
 	Name_AIUsefulInformationV3 = "UsefulInformationV3"
+	Name_AIUsefulInfoAndMaxMax = "UsefulInfo&MaxMax"
 )
 
 var AINames = map[int]string{
@@ -63,6 +66,7 @@ var AINames = map[int]string{
 	Type_AIUsefulInformation:   Name_AIUsefulInformation,
 	Type_AIUsefulInformationV2: Name_AIUsefulInformationV2,
 	Type_AIUsefulInformationV3: Name_AIUsefulInformationV3,
+	Type_AIUsefulInfoAndMaxMax: Name_AIUsefulInfoAndMaxMax,
 }
 
 type AIInformator interface {
@@ -91,6 +95,8 @@ func NewAI(playerInfo game.PlayerGameInfo, history []game.Action, aiType int, in
 		ai = NewAIUsefulInformationV2(baseAI)
 	case Type_AIUsefulInformationV3:
 		ai = NewAIUsefulInformationV3(baseAI)
+	case Type_AIUsefulInfoAndMaxMax:
+		ai = NewAIUsefulInfoAndMaxMax(baseAI)
 	default:
 		panic("Unknown aiType")
 	}
