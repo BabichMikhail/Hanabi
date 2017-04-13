@@ -1,154 +1,231 @@
 package ai
 
 import (
-	"encoding/json"
-	"fmt"
+	"math"
 	"reflect"
 
 	"github.com/BabichMikhail/Hanabi/game"
 )
 
-func (ai *BaseAI) setProbabilityValues(card *game.Card, cardsCount map[game.HashValue]int, color game.CardColor, delta int) bool {
-	count := 0
-	for value, _ := range card.ProbabilityValues {
-		count += cardsCount[game.HashColorValue(color, value)]
-	}
-	count += cardsCount[game.HashColorValue(color, game.NoneValue)] + delta
-	correction := float64(count) / float64(count-cardsCount[game.HashColorValue(color, game.NoneValue)]-delta)
-
-	for value, _ := range card.ProbabilityValues {
-		if cardsCount[game.HashColorValue(color, value)] == 0 {
-			delete(card.ProbabilityValues, value)
-		}
-		card.ProbabilityValues[value] = correction * float64(cardsCount[game.HashColorValue(color, value)]) / float64(count)
-	}
-
-	if len(card.ProbabilityValues) == 1 {
-		keys := reflect.ValueOf(card.ProbabilityValues).MapKeys()
-		value := keys[0].Interface().(game.CardValue)
-		card.KnownValue = true
-		card.Value = value
-		card.ProbabilityValues[value] = 1.0
-		return true
-	}
-	return false
+type Card struct {
+	Card  *game.Card
+	Probs []float64
 }
 
-func (ai *BaseAI) setProbabilityColors(card *game.Card, cardsCount map[game.HashValue]int, value game.CardValue, delta int) bool {
-	count := 0
-	for color, _ := range card.ProbabilityColors {
-		count += cardsCount[game.HashColorValue(color, value)]
-	}
+type Cards []Card
 
-	count += cardsCount[game.HashColorValue(game.NoneColor, value)] + delta
-	correction := float64(count) / float64(count-cardsCount[game.HashColorValue(game.NoneColor, value)]-delta)
+func (c Cards) Len() int {
+	return len(c)
+}
 
-	for color, _ := range card.ProbabilityColors {
-		if cardsCount[game.HashColorValue(color, value)] == 0 {
-			delete(card.ProbabilityColors, color)
+func (c Cards) Swap(i, j int) {
+	c[i], c[j] = c[j], c[i]
+}
+
+type CardColorValue struct {
+	Color game.CardColor
+	Value game.CardValue
+}
+
+type Variants struct {
+	PCards []*Card
+	Color  game.CardColor
+	Value  game.CardValue
+}
+
+func (ai *BaseAI) SetProbabilities_ConvergenceOfProbability(cards Cards, variants []Variants) {
+	delta := 0.0001
+	needUpdate := true
+	k := cards.Len()
+
+	for i := 0; i < k; i++ {
+		card := cards[i].Card
+		for color, _ := range card.ProbabilityColors {
+			card.ProbabilityColors[color] = 0.0
 		}
-		card.ProbabilityColors[color] = correction * float64(cardsCount[game.HashColorValue(color, value)]) / float64(count)
+
+		for value, _ := range card.ProbabilityValues {
+			card.ProbabilityValues[value] = 0.0
+		}
 	}
 
-	if len(card.ProbabilityColors) == 1 {
-		keys := reflect.ValueOf(card.ProbabilityColors).MapKeys()
-		color := keys[0].Interface().(game.CardColor)
-		card.KnownColor = true
-		card.Color = color
-		card.ProbabilityColors[color] = 1.0
-		return true
+	for needUpdate {
+		needUpdate = false
+		for i := 0; i < k; i++ {
+			sum := 0.0
+			for j := 0; j < k; j++ {
+				sum += cards[i].Probs[j]
+			}
+
+			if math.Abs(sum-1.0) < delta {
+				continue
+			}
+			for j := 0; j < k; j++ {
+				cards[i].Probs[j] /= sum
+			}
+		}
+
+		for j := 0; j < k; j++ {
+			sum := 0.0
+			for i := 0; i < k; i++ {
+				sum += cards[i].Probs[j]
+			}
+
+			if math.Abs(sum-1.0) < delta {
+				continue
+			}
+
+			needUpdate = true
+			for i := 0; i < k; i++ {
+				cards[i].Probs[j] /= sum
+			}
+		}
 	}
-	return false
+
+	for i := 0; i < k; i++ {
+		for j := 0; j < k; j++ {
+			c := cards[i]
+			if c.Probs[j] < delta {
+				continue
+			}
+			v := variants[j]
+			card := c.Card
+			card.ProbabilityColors[v.Color] += c.Probs[j]
+			card.ProbabilityValues[v.Value] += c.Probs[j]
+			card.ProbabilityCard[game.HashColorValue(v.Color, v.Value)] += c.Probs[j]
+		}
+	}
+
+	for i := 0; i < k; i++ {
+		card := cards[i].Card
+		for color, _ := range card.ProbabilityColors {
+			if card.ProbabilityColors[color] == 0 {
+				delete(card.ProbabilityColors, color)
+			}
+		}
+
+		if !card.KnownColor && len(card.ProbabilityColors) == 1 {
+			keys := reflect.ValueOf(card.ProbabilityColors).MapKeys()
+			color := keys[0].Interface().(game.CardColor)
+			card.KnownColor = true
+			card.Color = color
+		}
+
+		for value, _ := range card.ProbabilityValues {
+			if card.ProbabilityValues[value] == 0 {
+				delete(card.ProbabilityValues, value)
+			}
+		}
+
+		if !card.KnownValue && len(card.ProbabilityValues) == 1 {
+			keys := reflect.ValueOf(card.ProbabilityValues).MapKeys()
+			value := keys[0].Interface().(game.CardValue)
+			card.KnownValue = true
+			card.Value = value
+		}
+	}
+}
+
+func (ai *BaseAI) setCard(card *game.Card, cardVariants []Variants) *Card {
+	newCardRef := &Card{
+		Card:  card,
+		Probs: make([]float64, len(cardVariants)),
+	}
+
+	count := 0.0
+	for k := 0; k < len(cardVariants); k++ {
+		_, colorOK := card.ProbabilityColors[cardVariants[k].Color]
+		_, valueOK := card.ProbabilityValues[cardVariants[k].Value]
+		if colorOK && valueOK {
+			count++
+			newCardRef.Probs[k] = 1.0
+		} else {
+			newCardRef.Probs[k] = 0.0
+		}
+	}
+
+	for k := 0; k < len(cardVariants); k++ {
+		if newCardRef.Probs[k] == 1.0 {
+			newCardRef.Probs[k] /= count
+		}
+	}
+	return newCardRef
 }
 
 func (ai *BaseAI) setProbabilities() {
 	info := &ai.PlayerInfo
-	pos := info.CurrentPostion
-	copyCardsCount := map[game.HashValue]int{}
-	for _, color := range append(game.Colors, game.NoneColor) {
-		val := 1
+	cardsCount := map[CardColorValue]int{}
+	for _, color := range game.Colors {
 		if color == game.NoneColor {
-			val = 0
-		}
-		copyCardsCount[game.HashColorValue(color, game.One)] = 3 * val
-		copyCardsCount[game.HashColorValue(color, game.Two)] = 2 * val
-		copyCardsCount[game.HashColorValue(color, game.Three)] = 2 * val
-		copyCardsCount[game.HashColorValue(color, game.Four)] = 2 * val
-		copyCardsCount[game.HashColorValue(color, game.Five)] = 1 * val
-		copyCardsCount[game.HashColorValue(color, game.NoneValue)] = 0
-	}
-
-	for pos, cards := range info.PlayerCards {
-		if pos == info.CurrentPostion {
 			continue
 		}
+		cardsCount[CardColorValue{color, game.One}] = 3
+		cardsCount[CardColorValue{color, game.Two}] = 2
+		cardsCount[CardColorValue{color, game.Three}] = 2
+		cardsCount[CardColorValue{color, game.Four}] = 2
+		cardsCount[CardColorValue{color, game.Five}] = 1
+	}
+
+	for _, cards := range info.PlayerCards {
 		for idx, _ := range cards {
 			card := &cards[idx]
 			if !card.KnownColor || !card.KnownValue {
-				bytes, _ := json.Marshal(info)
-				fmt.Println(string(bytes))
-				panic("I don't know color or value of card other player")
+				continue
 			}
-			card.ProbabilityColors[card.Color] = 1.0
-			card.ProbabilityValues[card.Value] = 1.0
-			card.ProbabilityCard[game.HashColorValue(card.Color, card.Value)] = 1.0
-			copyCardsCount[game.HashColorValue(card.Color, card.Value)]--
+
+			card.ProbabilityColors = map[game.CardColor]float64{
+				card.Color: 1.0,
+			}
+
+			card.ProbabilityValues = map[game.CardValue]float64{
+				card.Value: 1.0,
+			}
+			cardsCount[CardColorValue{card.Color, card.Value}]--
 		}
 	}
 
 	for _, card := range info.UsedCards {
-		copyCardsCount[game.HashColorValue(card.Color, card.Value)]--
+		cardsCount[CardColorValue{card.Color, card.Value}]--
 	}
 
-	needUpdate := true
-	for needUpdate {
-		needUpdate = false
-		cardsCount := map[game.HashValue]int{}
-		for k, v := range copyCardsCount {
-			cardsCount[k] = v
+	for _, card := range info.TableCards {
+		for i := 1; i <= int(card.Value); i++ {
+			cardsCount[CardColorValue{card.Color, game.CardValue(i)}]--
 		}
-		for idx, _ := range info.PlayerCards[pos] {
-			card := &info.PlayerCards[pos][idx]
-			if card.KnownColor && card.KnownValue {
-				cardsCount[game.HashColorValue(card.Color, card.Value)]--
-			} else if card.KnownColor {
-				cardsCount[game.HashColorValue(card.Color, game.NoneValue)]--
-			} else if card.KnownValue {
-				cardsCount[game.HashColorValue(game.NoneColor, card.Value)]--
-			}
-		}
+	}
 
-		for idx, _ := range info.PlayerCards[pos] {
-			card := &info.PlayerCards[pos][idx]
+	cardsRef := Cards{}
+	cardVariants := []Variants{}
+	for colorValue, count := range cardsCount {
+		for i := 0; i < count; i++ {
+			cardVariants = append(cardVariants, Variants{
+				Color: colorValue.Color,
+				Value: colorValue.Value,
+			})
+		}
+	}
+
+	for _, cards := range info.PlayerCards {
+		for idx, _ := range cards {
+			card := &cards[idx]
 			if card.KnownColor && card.KnownValue {
-				card.ProbabilityColors[card.Color] = 1.0
-				card.ProbabilityValues[card.Value] = 1.0
-				card.ProbabilityCard[game.HashColorValue(card.Color, card.Value)] = 1.0
 				continue
-			} else if card.KnownValue {
-				card.ProbabilityValues[card.Value] = 1.0
-				needUpdate = needUpdate || ai.setProbabilityColors(card, cardsCount, card.Value, 1)
-			} else if card.KnownColor {
-				card.ProbabilityColors[card.Color] = 1.0
-				needUpdate = needUpdate || ai.setProbabilityValues(card, cardsCount, card.Color, 1)
-			} else {
-				for _, color := range game.Colors {
-					needUpdate = needUpdate || ai.setProbabilityValues(card, cardsCount, color, 0)
-				}
-
-				for _, value := range game.Values {
-					needUpdate = needUpdate || ai.setProbabilityColors(card, cardsCount, value, 0)
-				}
 			}
 
-			for color, _ := range card.ProbabilityColors {
-				for value, _ := range card.ProbabilityValues {
-					card.ProbabilityCard[game.HashColorValue(color, value)] = card.ProbabilityColors[color] * card.ProbabilityValues[value]
-				}
-			}
+			cardsRef = append(cardsRef, *ai.setCard(card, cardVariants))
 		}
 	}
 
+	for idx, _ := range info.Deck {
+		card := &info.Deck[idx]
+		if card.KnownColor && card.KnownValue {
+			continue
+		}
+
+		cardsRef = append(cardsRef, *ai.setCard(card, cardVariants))
+	}
+
+	ai.SetProbabilities_ConvergenceOfProbability(cardsRef, cardVariants)
 	return
 }
 
