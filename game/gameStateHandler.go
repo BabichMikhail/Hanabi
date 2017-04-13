@@ -173,7 +173,8 @@ func (state *GameState) GetPoints() (points int, err error) {
 func (state *GameState) Sprint() string {
 	b, err := json.Marshal(state)
 	if err != nil {
-		return ""
+		fmt.Println(state)
+		panic(err)
 	}
 	return fmt.Sprint(string(b))
 }
