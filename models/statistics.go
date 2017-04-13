@@ -80,8 +80,12 @@ func StartStat(id int, aiTypes []int, count int, saveDistrInExcel bool) {
 			JoinGame(gameId, ids[i])
 		}
 
-		UpdateInitGameState(gameId, game.InitState)
-		UpdateGameState(gameId, game.CurrentState)
+		if err := UpdateInitGameState(gameId, game.InitState); err != nil {
+			panic(err)
+		}
+		if err := UpdateGameState(gameId, game.CurrentState); err != nil {
+			panic(err)
+		}
 		for _, action := range game.Actions {
 			NewAction(gameId, action)
 		}
