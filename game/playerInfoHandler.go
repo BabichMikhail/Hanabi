@@ -10,6 +10,7 @@ type PlayerGameInfo struct {
 	Round           int                `json:"round"`
 	PlayerId        int                `json:"player_id"`
 	DeckSize        int                `json:"deck_size"`
+	Deck            []Card             `json:"deck"`
 	UsedCards       []Card             `json:"used_cards"`
 	TableCards      map[CardColor]Card `json:"table_cards"`
 	PlayerCards     [][]Card           `json:"player_cards"`
@@ -69,6 +70,9 @@ func (state *GameState) GetPlayerGameInfoByPos(playerPosition int) PlayerGameInf
 		}
 	}
 
+	deckCopy := make([]Card, len(state.Deck), len(state.Deck))
+	copy(deckCopy, state.Deck)
+
 	return PlayerGameInfo{
 		MyTurn:          state.CurrentPosition == playerPosition,
 		CurrentPostion:  state.CurrentPosition,
@@ -79,6 +83,7 @@ func (state *GameState) GetPlayerGameInfoByPos(playerPosition int) PlayerGameInf
 		Round:           state.Round,
 		PlayerId:        state.PlayerStates[playerPosition].PlayerId,
 		DeckSize:        len(state.Deck),
+		Deck:            deckCopy,
 		UsedCards:       state.UsedCards,
 		TableCards:      state.TableCards,
 		PlayerCards:     playerCards,
@@ -125,7 +130,10 @@ func (info *PlayerGameInfo) Copy() *PlayerGameInfo {
 	newInfo.MaxStep = info.MaxStep
 	newInfo.Round = info.Round
 	newInfo.PlayerId = info.PlayerId
+	deckCopy := make([]Card, len(info.Deck), len(info.Deck))
+	copy(deckCopy, info.Deck)
 	newInfo.DeckSize = info.DeckSize
+	newInfo.Deck = deckCopy
 	newInfo.Points = info.Points
 
 	newInfo.UsedCards = make([]Card, len(info.UsedCards), cap(info.UsedCards))
