@@ -62,16 +62,21 @@ func (state *GameState) GetPlayerGameInfoByPos(playerPosition int) PlayerGameInf
 		for j := 0; j < len(playerCardsInfo[i]); j++ {
 			card := &playerCardsInfo[i][j]
 			if !card.KnownColor {
-				(*card).Color = NoneColor
+				card.Color = NoneColor
 			}
 			if !card.KnownValue {
-				(*card).Value = NoneValue
+				card.Value = NoneValue
 			}
 		}
 	}
 
 	deckCopy := make([]Card, len(state.Deck), len(state.Deck))
 	copy(deckCopy, state.Deck)
+	for i := 0; i < len(deckCopy); i++ {
+		card := &deckCopy[i]
+		card.Color = NoneColor
+		card.Value = NoneValue
+	}
 
 	return PlayerGameInfo{
 		MyTurn:          state.CurrentPosition == playerPosition,
@@ -130,30 +135,37 @@ func (info *PlayerGameInfo) Copy() *PlayerGameInfo {
 	newInfo.MaxStep = info.MaxStep
 	newInfo.Round = info.Round
 	newInfo.PlayerId = info.PlayerId
-	deckCopy := make([]Card, len(info.Deck), len(info.Deck))
-	copy(deckCopy, info.Deck)
+	newInfo.Deck = make([]Card, len(info.Deck), len(info.Deck))
+	for i := 0; i < len(info.Deck); i++ {
+		newInfo.Deck[i] = info.Deck[i].Copy()
+	}
 	newInfo.DeckSize = info.DeckSize
-	newInfo.Deck = deckCopy
 	newInfo.Points = info.Points
 
 	newInfo.UsedCards = make([]Card, len(info.UsedCards), cap(info.UsedCards))
-	copy(newInfo.UsedCards, info.UsedCards)
+	for i := 0; i < len(newInfo.UsedCards); i++ {
+		newInfo.UsedCards[i] = info.UsedCards[i].Copy()
+	}
 
 	newInfo.TableCards = map[CardColor]Card{}
 	for color, card := range info.TableCards {
-		newInfo.TableCards[color] = card
+		newInfo.TableCards[color] = card.Copy()
 	}
 
 	newInfo.PlayerCards = make([][]Card, len(info.PlayerCards), len(info.PlayerCards))
 	for i := 0; i < len(newInfo.PlayerCards); i++ {
 		newInfo.PlayerCards[i] = make([]Card, len(info.PlayerCards[i]), len(info.PlayerCards[i]))
-		copy(newInfo.PlayerCards[i], info.PlayerCards[i])
+		for j := 0; j < len(newInfo.PlayerCards[i]); j++ {
+			newInfo.PlayerCards[i][j] = info.PlayerCards[i][j].Copy()
+		}
 	}
 
 	newInfo.PlayerCardsInfo = make([][]Card, len(info.PlayerCardsInfo), len(info.PlayerCardsInfo))
 	for i := 0; i < len(newInfo.PlayerCardsInfo); i++ {
 		newInfo.PlayerCardsInfo[i] = make([]Card, len(info.PlayerCardsInfo[i]), len(info.PlayerCardsInfo[i]))
-		copy(newInfo.PlayerCardsInfo[i], info.PlayerCardsInfo[i])
+		for j := 0; j < len(newInfo.PlayerCardsInfo[i]); j++ {
+			newInfo.PlayerCardsInfo[i][j] = info.PlayerCardsInfo[i][j].Copy()
+		}
 	}
 
 	newInfo.BlueTokens = info.BlueTokens
