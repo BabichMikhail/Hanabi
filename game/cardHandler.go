@@ -1,11 +1,23 @@
 package game
 
-import "math/rand"
+import (
+	"math/rand"
+)
 
 type HashValue int
 
 func HashColorValue(color CardColor, value CardValue) HashValue {
 	return HashValue(int(color) + 10*int(value))
+}
+
+func ColorValueByHashColorValue(colorValue HashValue) (CardColor, CardValue) {
+	val := int(colorValue)
+	return CardColor(val % 10), CardValue(val / 10)
+}
+
+type ColorValue struct {
+	Color CardColor
+	Value CardValue
 }
 
 type Card struct {

@@ -18,6 +18,7 @@ type PlayerGameInfo struct {
 	BlueTokens      int                `json:"blue_tokens"`
 	RedTokens       int                `json:"red_tokens"`
 	Points          int                `json:"points"`
+	VariantsCount   map[ColorValue]int `json:"-"`
 }
 
 func (game *Game) GetPlayerGameInfo(playerId int) PlayerGameInfo {

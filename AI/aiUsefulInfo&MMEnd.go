@@ -142,8 +142,9 @@ func (ai *AIUsefulInfoAndMMEnd) getBestResultWithDepth() *game.ResultPreviewPlay
 		}
 	}
 
+	isActionInfo := false
 	for i := 0; i < len(info.PlayerCards); i++ {
-		if i == pos || (i-info.CurrentPostion)%len(info.PlayerCards) > info.MaxStep-info.Step {
+		if i == pos || isActionInfo && info.MaxStep > info.Step && (i-info.CurrentPostion+len(info.PlayerCards))%len(info.PlayerCards) > info.MaxStep-info.Step {
 			continue
 		}
 
@@ -153,8 +154,14 @@ func (ai *AIUsefulInfoAndMMEnd) getBestResultWithDepth() *game.ResultPreviewPlay
 			if !ai.isCardMayBeUsefull(info.PlayerCards[i][k]) {
 				continue
 			}
+			isActionInfo = true
 			cardColors[info.PlayerCards[i][k].Color] = struct{}{}
 			cardValues[info.PlayerCards[i][k].Value] = struct{}{}
+		}
+
+		if i == len(info.PlayerCards)-1 && !isActionInfo {
+			k := len(info.PlayerCards[i]) - 1
+			cardColors[info.PlayerCards[i][k].Color] = struct{}{}
 		}
 
 		for cardColor, _ := range cardColors {
@@ -236,6 +243,7 @@ func (ai *AIUsefulInfoAndMMEnd) getBestResultWithoutDepth() *game.ResultPreviewP
 	info := &ai.PlayerInfo
 	var bestResult *game.ResultPreviewPlayerInformations
 	newAI := NewAI(*info, ai.History, Type_AIUsefulInformationV3, ai.Informator).(*AIUsefulInformationV3)
+	newAI.setAvailableInformation()
 	action := newAI.GetAction()
 	switch action.ActionType {
 	case game.TypeActionDiscard:

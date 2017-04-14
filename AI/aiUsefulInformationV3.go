@@ -49,7 +49,11 @@ func (ai *AIUsefulInformationV3) SetCoefs(kPlayByValue, kPlayByColor, kInfoValue
 func (ai *AIUsefulInformationV3) GetAction() *game.Action {
 	info := &ai.PlayerInfo
 	myPos := info.CurrentPostion
+	oldPlayerCards := info.PlayerCards[myPos]
 	info.PlayerCards[myPos] = info.PlayerCardsInfo[myPos]
+	defer func() {
+		info.PlayerCards[myPos] = oldPlayerCards
+	}()
 	ai.setAvailableInformation()
 	usefulActions := Actions{}
 
