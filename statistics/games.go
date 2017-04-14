@@ -59,6 +59,9 @@ func RunGames(aiTypes []int, playerIds []int, count int) (Stat, []*game.Game) {
 	}
 
 	limit := 100
+	if count < limit {
+		limit = count
+	}
 	newCount := count / limit
 	if count%limit > 0 {
 		newCount++
