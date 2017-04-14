@@ -222,10 +222,12 @@ function gameHandler() {
             }
 
             html += `<div class="col-md-12" style="text-align:center"></ul>`
-            for (let i = 0; i < gameInfo.used_cards.length; ++i) {
-                html += `<li class="list-inline" style="display: inline-block; margin:1px">` +
-                    `<img src="` + Game.GetCardUrlByCardIgnoreKnown(gameInfo.used_cards[i]) + `" class="my-card">` +
-                `</li>`
+            if (gameInfo.used_cards) {
+                for (let i = 0; i < gameInfo.used_cards.length; ++i) {
+                    html += `<li class="list-inline" style="display: inline-block; margin:1px">` +
+                        `<img src="` + Game.GetCardUrlByCardIgnoreKnown(gameInfo.used_cards[i]) + `" class="my-card">` +
+                    `</li>`
+                }
             }
             html += `</ul></div>`
 
