@@ -11,7 +11,7 @@ type AIUsefulInfoAndMaxMax struct {
 func NewAIUsefulInfoAndMaxMax(baseAI *BaseAI) *AIUsefulInfoAndMaxMax {
 	ai := new(AIUsefulInfoAndMaxMax)
 	ai.BaseAI = *baseAI
-	ai.Depth = 3
+	ai.Depth = 4
 	ai.AIUsefulInfoAndMMEnd.resultIsBetterThan = ai.resultIsBetterThan
 	return ai
 }
