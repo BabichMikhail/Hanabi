@@ -15,21 +15,21 @@ type Action struct {
 	Value          int        `json:"value"`
 }
 
-func (game *Game) AppendAction(action Action, err error) (Action, error) {
+func (game *Game) AppendAction(action *Action, err error) (*Action, error) {
 	if err == nil {
-		game.Actions = append(game.Actions, action)
+		game.Actions = append(game.Actions, *action)
 	}
 	return action, err
 }
 
-func (state *GameState) NewAction(actionType ActionType, playerPosition int, value int) Action {
+func (state *GameState) NewAction(actionType ActionType, playerPosition int, value int) *Action {
 	action := NewAction(actionType, playerPosition, value)
 	state.IncreaseStep()
 	return action
 }
 
-func NewAction(actionType ActionType, playerPosition int, value int) Action {
-	return Action{
+func NewAction(actionType ActionType, playerPosition int, value int) *Action {
+	return &Action{
 		ActionType:     actionType,
 		PlayerPosition: playerPosition,
 		Value:          value,
@@ -50,7 +50,7 @@ func (game *Game) ApplyAction(action Action) (err error) {
 	return
 }
 
-func (state *GameState) ApplyAction(action Action) (err error) {
+func (state *GameState) ApplyAction(action *Action) (err error) {
 	switch action.ActionType {
 	case TypeActionDiscard:
 		_, err = state.NewActionDiscard(action.PlayerPosition, action.Value)

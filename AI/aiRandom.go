@@ -17,12 +17,12 @@ func NewAIRandom(baseAI *BaseAI) *AIRandom {
 	return ai
 }
 
-func (ai *AIRandom) GetAction() game.Action {
+func (ai *AIRandom) GetAction() *game.Action {
 	return ai.getActionRandom()
 }
 
-func (ai *BaseAI) getActionRandom() game.Action {
+func (ai *BaseAI) getActionRandom() *game.Action {
 	ai.setAvailableActions()
 	rand.Seed(time.Now().UTC().UnixNano())
-	return ai.Actions[rand.Intn(len(ai.Actions))].Action
+	return &ai.Actions[rand.Intn(len(ai.Actions))].Action
 }

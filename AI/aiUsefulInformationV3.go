@@ -46,7 +46,7 @@ func (ai *AIUsefulInformationV3) SetCoefs(kPlayByValue, kPlayByColor, kInfoValue
 	ai.CoefDiscardUnknownCard = kDiscardUnknown
 }
 
-func (ai *AIUsefulInformationV3) GetAction() game.Action {
+func (ai *AIUsefulInformationV3) GetAction() *game.Action {
 	info := &ai.PlayerInfo
 	myPos := info.CurrentPostion
 	info.PlayerCards[myPos] = info.PlayerCardsInfo[myPos]

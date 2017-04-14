@@ -48,7 +48,7 @@ type BaseAI struct {
 }
 
 type AI interface {
-	GetAction() game.Action
+	GetAction() *game.Action
 }
 
 const (

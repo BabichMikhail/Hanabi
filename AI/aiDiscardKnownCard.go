@@ -14,7 +14,7 @@ func NewAIDiscardKnownCard(baseAI *BaseAI) *AIDiscardKnownCard {
 	return ai
 }
 
-func (ai *AIDiscardKnownCard) GetAction() game.Action {
+func (ai *AIDiscardKnownCard) GetAction() *game.Action {
 	ai.setAvailableActions()
 	ai.setAvailableInformation()
 	info := &ai.PlayerInfo

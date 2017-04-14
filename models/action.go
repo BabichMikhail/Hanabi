@@ -24,7 +24,7 @@ func (a *Action) TableName() string {
 	return "actions"
 }
 
-func NewAction(gameId int, action gamePackage.Action) (err error) {
+func NewAction(gameId int, action *gamePackage.Action) (err error) {
 	o := orm.NewOrm()
 	dbAction := &Action{
 		Position: action.PlayerPosition,

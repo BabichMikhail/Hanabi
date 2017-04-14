@@ -34,13 +34,13 @@ func (info *Informator) NextAI(aiType int) ai.AI {
 	return ai.NewAI(playerInfo, info.actions, aiType, info)
 }
 
-func (info *Informator) ApplyAction(action game.Action) error {
+func (info *Informator) ApplyAction(action *game.Action) error {
 	state := info.getCurrentState()
 	if err := state.ApplyAction(action); err != nil {
 		return err
 	}
 
-	info.actions = append(info.actions, action)
+	info.actions = append(info.actions, *action)
 	info.gameStates[len(info.actions)] = *state.Copy()
 	return nil
 }

@@ -17,11 +17,11 @@ func NewAISmartyRandom(baseAI *BaseAI) *AIRandom {
 	return ai
 }
 
-func (ai *AISmartyRandom) GetAction() game.Action {
+func (ai *AISmartyRandom) GetAction() *game.Action {
 	return ai.getActionSmartyRandom()
 }
 
-func (ai *BaseAI) getActionSmartyRandom() game.Action {
+func (ai *BaseAI) getActionSmartyRandom() *game.Action {
 	ai.setAvailableActions()
 	ai.setAvailableInformation()
 	info := &ai.PlayerInfo
@@ -52,7 +52,7 @@ func (ai *BaseAI) getActionSmartyRandom() game.Action {
 
 	if len(usefullActions) > 0 {
 		rand.Seed(time.Now().UTC().UnixNano())
-		return usefullActions[rand.Intn(len(usefullActions))].Action
+		return &usefullActions[rand.Intn(len(usefullActions))].Action
 	} else {
 		return ai.getActionRandom()
 	}

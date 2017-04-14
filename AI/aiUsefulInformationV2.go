@@ -9,7 +9,7 @@ import (
 )
 
 type UsefulAction struct {
-	Action     game.Action
+	Action     *game.Action
 	Usefulness float64
 }
 
@@ -53,7 +53,7 @@ func (ai *AIUsefulInformationV2) SetCoefs(kPlayByValue, kPlayByColor, kInfoValue
 	ai.CoefInfoColor = kInfoColor
 }
 
-func (ai *AIUsefulInformationV2) GetAction() game.Action {
+func (ai *AIUsefulInformationV2) GetAction() *game.Action {
 	ai.setAvailableInformation()
 	info := &ai.PlayerInfo
 	myPos := info.CurrentPostion

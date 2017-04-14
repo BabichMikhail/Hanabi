@@ -21,10 +21,10 @@ func (ai *AIUsefulInfoAndMMEnd) SetDepth(depth int) {
 	ai.Depth = depth
 }
 
-func (ai *AIUsefulInfoAndMMEnd) GetNewHistory(newAction game.Action) []game.Action {
+func (ai *AIUsefulInfoAndMMEnd) GetNewHistory(newAction *game.Action) []game.Action {
 	newActions := make([]game.Action, len(ai.History)+1, len(ai.History)+1)
 	copy(newActions, ai.History)
-	newActions[len(newActions)-1] = newAction
+	newActions[len(newActions)-1] = *newAction
 	return newActions
 }
 
@@ -274,7 +274,7 @@ func (ai *AIUsefulInfoAndMMEnd) GetBestResult() *game.ResultPreviewPlayerInforma
 	return ai.getBestResultWithoutDepth()
 }
 
-func (ai *AIUsefulInfoAndMMEnd) GetAction() game.Action {
+func (ai *AIUsefulInfoAndMMEnd) GetAction() *game.Action {
 	ai.setAvailableInformation()
 	info := &ai.PlayerInfo
 	if info.DeckSize > 0 {

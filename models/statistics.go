@@ -87,7 +87,7 @@ func StartStat(id int, aiTypes []int, count int, saveDistrInExcel bool) {
 			panic(err)
 		}
 		for _, action := range game.Actions {
-			NewAction(gameId, action)
+			NewAction(gameId, &action)
 		}
 		SetGameFinishedStatus(gameId)
 	}

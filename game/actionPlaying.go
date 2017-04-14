@@ -2,25 +2,20 @@ package game
 
 import "errors"
 
-func (game *Game) NewActionPlaying(playerPosition int, cardPosition int) (Action, error) {
+func (game *Game) NewActionPlaying(playerPosition int, cardPosition int) (*Action, error) {
 	return game.AppendAction(game.CurrentState.NewActionPlaying(playerPosition, cardPosition))
 }
 
-func (state *GameState) NewActionPlaying(playerPosition int, cardPosition int) (Action, error) {
+func (state *GameState) NewActionPlaying(playerPosition int, cardPosition int) (*Action, error) {
 	if state.RedTokens == 0 {
-		return Action{}, errors.New("No red tokens")
+		return nil, errors.New("No red tokens")
 	}
 
-	card := state.PlayerStates[playerPosition].PlayerCards[cardPosition]
+	card := state.PlayerStates[playerPosition].PlayerCards[cardPosition].Copy()
 	card.SetKnown(true)
 
 	if state.TableCards[card.Color].Value+1 == card.Value {
-		state.TableCards[card.Color] = Card{
-			Color:      card.Color,
-			KnownColor: true,
-			Value:      card.Value,
-			KnownValue: true,
-		}
+		state.TableCards[card.Color] = *NewCard(card.Color, card.Value, true)
 		if card.Value == Five && state.BlueTokens < MaxBlueTokens {
 			state.BlueTokens++
 		}
