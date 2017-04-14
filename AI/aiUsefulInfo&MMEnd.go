@@ -143,7 +143,7 @@ func (ai *AIUsefulInfoAndMMEnd) getBestResultWithDepth() *game.ResultPreviewPlay
 	}
 
 	for i := 0; i < len(info.PlayerCards); i++ {
-		if i == pos || i-info.CurrentPostion > info.MaxStep-info.Step {
+		if i == pos || (i-info.CurrentPostion)%len(info.PlayerCards) > info.MaxStep-info.Step {
 			continue
 		}
 
@@ -234,47 +234,31 @@ func (ai *AIUsefulInfoAndMMEnd) getBestResultWithDepth() *game.ResultPreviewPlay
 
 func (ai *AIUsefulInfoAndMMEnd) getBestResultWithoutDepth() *game.ResultPreviewPlayerInformations {
 	info := &ai.PlayerInfo
-	pos := info.CurrentPostion
 	var bestResult *game.ResultPreviewPlayerInformations
-
-	for i := 0; i < len(info.PlayerCards[pos]); i++ {
-		resultDiscard, err := info.PreviewActionDiscard(i)
+	newAI := NewAI(*info, ai.History, Type_AIUsefulInformationV3, ai.Informator).(*AIUsefulInformationV3)
+	action := newAI.GetAction()
+	switch action.ActionType {
+	case game.TypeActionDiscard:
+		resultDiscard, err := info.PreviewActionDiscard(action.Value)
 		if err == nil && ai.resultIsBetterThan(resultDiscard, bestResult) {
 			bestResult = resultDiscard
 		}
-
-		resultPlaying, err := info.PreviewActionPlaying(i)
+	case game.TypeActionPlaying:
+		resultPlaying, err := info.PreviewActionPlaying(action.Value)
 		if err == nil && ai.resultIsBetterThan(resultPlaying, bestResult) {
 			bestResult = resultPlaying
 		}
-	}
-
-	for i := 0; i < len(info.PlayerCards); i++ {
-		if i == pos {
-			continue
+	case game.TypeActionInformationColor:
+		resultInfoColor, err := info.PreviewActionInformationColor(action.PlayerPosition, game.CardColor(action.Value))
+		if err == nil && ai.resultIsBetterThan(resultInfoColor, bestResult) {
+			bestResult = resultInfoColor
 		}
-		cardColors := map[game.CardColor]struct{}{}
-		cardValues := map[game.CardValue]struct{}{}
-		for k := 0; k < len(info.PlayerCards[i]); k++ {
-			cardColors[info.PlayerCards[i][k].Color] = struct{}{}
-			cardValues[info.PlayerCards[i][k].Value] = struct{}{}
-		}
-
-		for cardColor, _ := range cardColors {
-			resultInfo, err := info.PreviewActionInformationColor(i, cardColor)
-			if err == nil && ai.resultIsBetterThan(resultInfo, bestResult) {
-				bestResult = resultInfo
-			}
-		}
-
-		for cardValue, _ := range cardValues {
-			resultInfo, err := info.PreviewActionInformationValue(i, cardValue)
-			if err == nil && ai.resultIsBetterThan(resultInfo, bestResult) {
-				bestResult = resultInfo
-			}
+	case game.TypeActionInformationValue:
+		resultInfoValue, err := info.PreviewActionInformationValue(action.PlayerPosition, game.CardValue(action.Value))
+		if err == nil && ai.resultIsBetterThan(resultInfoValue, bestResult) {
+			bestResult = resultInfoValue
 		}
 	}
-
 	return bestResult
 }
 
@@ -287,7 +271,6 @@ func (ai *AIUsefulInfoAndMMEnd) GetBestResult() *game.ResultPreviewPlayerInforma
 	if ai.Depth > 1 && info.Step <= info.MaxStep {
 		return ai.getBestResultWithDepth()
 	}
-
 	return ai.getBestResultWithoutDepth()
 }
 
