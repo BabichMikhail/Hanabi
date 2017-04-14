@@ -67,6 +67,10 @@ func (c *AdminController) GameUsefullInformationCreate() {
 	c.GameCreate(ai.Type_AIUsefulInformation)
 }
 
+func (c *AdminController) GameUsefulAndMaxMaxCreate() {
+	c.GameCreate(ai.Type_AIUsefulInfoAndMaxMax)
+}
+
 func (c *AdminController) GameUsefullInformationRun() {
 	countGames, err := c.GetInt(":count_games")
 	if err != nil {
