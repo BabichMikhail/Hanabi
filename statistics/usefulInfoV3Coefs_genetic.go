@@ -147,14 +147,16 @@ func (gen *GeneticAlgorithm) NewMutationAbsolute(idx int) *GeneticNode {
 	return newNode
 }
 
-func (gen *GeneticAlgorithm) NewMutationRelative(idx int) *GeneticNode {
+func (gen *GeneticAlgorithm) NewMutationRelative(idx int, k float64, N int) *GeneticNode {
 	node := &gen.Nodes[idx]
 	newNode := new(GeneticNode)
 	newNode.Coefs = make([]float64, len(node.Coefs), len(node.Coefs))
 	newNode.Percent = 0
 	newNode.Result = 0
-	newCoef := 2*rand.Float64()*gen.Mutations[gen.Current] - gen.Mutations[gen.Current]
-	newNode.Coefs[rand.Intn(len(node.Coefs))] += newCoef
+	for i := 0; i < N; i++ {
+		newCoef := (rand.Float64()*gen.Mutations[gen.Current] - gen.Mutations[gen.Current]/2) * k
+		newNode.Coefs[rand.Intn(len(node.Coefs))] += newCoef
+	}
 	copy(newNode.Coefs, node.Coefs)
 	return newNode
 }
@@ -252,14 +254,19 @@ func (gen *GeneticAlgorithm) FindUsefulInfoV3Coefs() {
 			newNodes[i] = *gen.NewDescendant(idx1, idx2)
 		}
 
-		for i := N / 2; i < 3*N/4; i++ {
+		for i := N / 2; i < 2*N/3; i++ {
 			idx := gen.GetRandIdx()
 			newNodes[i] = *gen.NewMutationAbsolute(idx)
 		}
 
-		for i := 3 * N / 4; i < N; i++ {
+		for i := 2 * N / 3; i < 5*N/6; i++ {
 			idx := gen.GetRandIdx()
-			newNodes[i] = *gen.NewMutationRelative(idx)
+			newNodes[i] = *gen.NewMutationRelative(idx, 2, 1)
+		}
+
+		for i := 5 * N / 6; i < N; i++ {
+			idx := gen.GetRandIdx()
+			newNodes[i] = *gen.NewMutationRelative(idx, 0.2, 4)
 		}
 
 		fmt.Println("Minimum: ", min, gen.Nodes[minIdx].Coefs)
