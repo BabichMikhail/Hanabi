@@ -39,7 +39,7 @@ type AIUsefulInformationV2 struct {
 func NewAIUsefulInformationV2(baseAI *BaseAI) *AIUsefulInformationV2 {
 	ai := new(AIUsefulInformationV2)
 	ai.BaseAI = *baseAI
-	ai.CoefPlayByValue = 2.1
+	ai.CoefPlayByValue = 1.1
 	ai.CoefPlayByColor = -0.9
 	ai.CoefInfoValue = 1.05
 	ai.CoefInfoColor = 1.0
