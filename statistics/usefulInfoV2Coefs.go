@@ -77,14 +77,23 @@ func FindUsefulInfoV2Coefs() {
 				{usefulCoefs[0], usefulCoefs[1], usefulCoefs[2], usefulCoefs[3] - d},
 			}
 
+			chans := make(chan struct{}, 8)
 			for _, k := range newK {
-				if result := RunGamesWithCoefs(N[idx], k[0], k[1], k[2], k[3]); result > newMax {
-					usefulCoefs = k
-					newMax = result
-					fmt.Println("NewMax:", result, k[0], k[1], k[2], k[3])
-				} else {
-					fmt.Println("Fail  :", result, k[0], k[1], k[2], k[3])
+				f := func(k []float64) {
+					if result := RunGamesWithCoefs(N[idx], k[0], k[1], k[2], k[3]); result > newMax {
+						usefulCoefs = k
+						newMax = result
+						fmt.Println("NewMax:", result, k[0], k[1], k[2], k[3])
+					} else {
+						fmt.Println("Fail  :", result, k[0], k[1], k[2], k[3])
+					}
+					chans <- struct{}{}
 				}
+				go f(k)
+			}
+
+			for i := 0; i < len(newK); i++ {
+				<-chans
 			}
 
 			if newMax <= max {
