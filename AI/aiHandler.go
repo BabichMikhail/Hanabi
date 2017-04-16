@@ -14,6 +14,7 @@ const (
 	Type_AIUsefulInfoAndMaxMax
 	Type_AIUsefulInfoAndMinMax
 	Type_AIUsefulInfoAndMedMax
+	Type_AIUsefulInfoV4AndParts
 )
 
 var AITypes = []int{
@@ -26,6 +27,7 @@ var AITypes = []int{
 	Type_AIUsefulInfoAndMaxMax,
 	Type_AIUsefulInfoAndMinMax,
 	Type_AIUsefulInfoAndMedMax,
+	Type_AIUsefulInfoV4AndParts,
 }
 
 type Action struct {
@@ -54,30 +56,33 @@ type AI interface {
 const (
 	AI_NamePrefix = "AI_"
 
-	Name_AIRandom              = "Random"
-	Name_AISmartyRandom        = "SmartyRandom"
-	Name_AIDiscardUsefulCard   = "DiscardKnownCard"
-	Name_AIUsefulInformation   = "UsefulInformation"
-	Name_AIUsefulInformationV2 = "UsefulInformationV2"
-	Name_AIUsefulInformationV3 = "UsefulInformationV3"
-	Name_AIUsefulInfoAndMaxMax = "UsefulInfo&MaxMax"
-	Name_AIUsefulInfoAndMinMax = "UsefulInfo&MinMax"
-	Name_AIUsefulInfoAndMedMax = "UsefulInfo&MedMax"
+	Name_AIRandom               = "Random"
+	Name_AISmartyRandom         = "SmartyRandom"
+	Name_AIDiscardUsefulCard    = "DiscardKnownCard"
+	Name_AIUsefulInformation    = "UsefulInformation"
+	Name_AIUsefulInformationV2  = "UsefulInformationV2"
+	Name_AIUsefulInformationV3  = "UsefulInformationV3"
+	Name_AIUsefulInfoAndMaxMax  = "UsefulInfo&MaxMax"
+	Name_AIUsefulInfoAndMinMax  = "UsefulInfo&MinMax"
+	Name_AIUsefulInfoAndMedMax  = "UsefulInfo&MedMax"
+	Name_AIUsefulInfoV4AndParts = "UsefulInfoV4AndParts"
 )
 
 var AINames = map[int]string{
-	Type_AIRandom:              Name_AIRandom,
-	Type_AISmartyRandom:        Name_AISmartyRandom,
-	Type_AIDiscardUsefulCard:   Name_AIDiscardUsefulCard,
-	Type_AIUsefulInformation:   Name_AIUsefulInformation,
-	Type_AIUsefulInformationV2: Name_AIUsefulInformationV2,
-	Type_AIUsefulInformationV3: Name_AIUsefulInformationV3,
-	Type_AIUsefulInfoAndMaxMax: Name_AIUsefulInfoAndMaxMax,
-	Type_AIUsefulInfoAndMinMax: Name_AIUsefulInfoAndMinMax,
-	Type_AIUsefulInfoAndMedMax: Name_AIUsefulInfoAndMedMax,
+	Type_AIRandom:               Name_AIRandom,
+	Type_AISmartyRandom:         Name_AISmartyRandom,
+	Type_AIDiscardUsefulCard:    Name_AIDiscardUsefulCard,
+	Type_AIUsefulInformation:    Name_AIUsefulInformation,
+	Type_AIUsefulInformationV2:  Name_AIUsefulInformationV2,
+	Type_AIUsefulInformationV3:  Name_AIUsefulInformationV3,
+	Type_AIUsefulInfoAndMaxMax:  Name_AIUsefulInfoAndMaxMax,
+	Type_AIUsefulInfoAndMinMax:  Name_AIUsefulInfoAndMinMax,
+	Type_AIUsefulInfoAndMedMax:  Name_AIUsefulInfoAndMedMax,
+	Type_AIUsefulInfoV4AndParts: Name_AIUsefulInfoV4AndParts,
 }
 
 type AIInformator interface {
+	GetPlayerState(step int) game.PlayerGameInfo
 }
 
 func NewAI(playerInfo game.PlayerGameInfo, history []game.Action, aiType int, informator AIInformator) AI {
@@ -108,6 +113,8 @@ func NewAI(playerInfo game.PlayerGameInfo, history []game.Action, aiType int, in
 		ai = NewAIUsefulInfoAndMinMax(baseAI)
 	case Type_AIUsefulInfoAndMedMax:
 		ai = NewAIUsefulInfoAndMedMax(baseAI)
+	case Type_AIUsefulInfoV4AndParts:
+		ai = NewAIUsefulInfoV4AndParts(baseAI)
 	default:
 		panic("Unknown aiType")
 	}
