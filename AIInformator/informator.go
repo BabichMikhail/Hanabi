@@ -34,6 +34,11 @@ func (info *Informator) NextAI(aiType int) ai.AI {
 	return ai.NewAI(playerInfo, info.actions, aiType, info)
 }
 
+func (info *Informator) GetPlayerState(step int) game.PlayerGameInfo {
+	state := info.gameStates[step]
+	return state.GetPlayerGameInfoByPos(info.currentState.CurrentPosition)
+}
+
 func (info *Informator) ApplyAction(action *game.Action) error {
 	state := info.getCurrentState()
 	if err := state.ApplyAction(action); err != nil {
