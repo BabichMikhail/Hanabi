@@ -119,6 +119,8 @@ func NewAI(playerInfo game.PlayerGameInfo, history []game.Action, aiType int, in
 		ai = NewAIUsefulInfoAndMedMax(baseAI)
 	case Type_AIUsefulInfoV4AndParts:
 		ai = NewAIUsefulInfoV4AndParts(baseAI)
+	case Type_AIUsefulInfoV3AndParts:
+		ai = NewAIUsefulInfoV3AndParts(baseAI)
 	default:
 		panic("Unknown aiType")
 	}
