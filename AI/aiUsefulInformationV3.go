@@ -8,9 +8,7 @@ import (
 	"github.com/BabichMikhail/Hanabi/game"
 )
 
-type AIUsefulInformationV3 struct {
-	BaseAI
-
+type AIUsefulInfoV3Coefs struct {
 	CoefPlayByValue           float64
 	CoefPlayByColor           float64
 	CoefInfoValue             float64
@@ -21,29 +19,67 @@ type AIUsefulInformationV3 struct {
 	CoefDiscardMaybeUsefuCard float64
 }
 
+type AIUsefulInformationV3 struct {
+	BaseAI
+	PartOfGame int
+	Coefs      []AIUsefulInfoV3Coefs
+}
+
 func NewAIUsefulInformationV3(baseAI *BaseAI) *AIUsefulInformationV3 {
 	ai := new(AIUsefulInformationV3)
 	ai.BaseAI = *baseAI
-	ai.CoefPlayByValue = 2.1
-	ai.CoefPlayByColor = -0.9
-	ai.CoefInfoValue = 1.05
-	ai.CoefInfoColor = 1.0
-	ai.CoefDiscardUsefulCard = 0.1
-	ai.CoefDiscardMaybeUsefuCard = 0.04
-	ai.CoefDiscardUselessCard = 0.01
-	ai.CoefDiscardUnknownCard = 0.07
+	ai.Coefs = []AIUsefulInfoV3Coefs{
+		AIUsefulInfoV3Coefs{
+			CoefPlayByValue:           2.1,
+			CoefPlayByColor:           -0.9,
+			CoefInfoValue:             1.05,
+			CoefInfoColor:             1.0,
+			CoefDiscardUsefulCard:     0.1,
+			CoefDiscardMaybeUsefuCard: 0.04,
+			CoefDiscardUselessCard:    0.01,
+			CoefDiscardUnknownCard:    0.07,
+		},
+	}
+
 	return ai
 }
 
-func (ai *AIUsefulInformationV3) SetCoefs(kPlayByValue, kPlayByColor, kInfoValue, kInfoColor, kDiscardUseful, kDiscardMaybeUseful, kDiscardUseless, kDiscardUnknown float64) {
-	ai.CoefPlayByValue = kPlayByValue
-	ai.CoefPlayByColor = kPlayByColor
-	ai.CoefInfoValue = kInfoValue
-	ai.CoefInfoColor = kInfoColor
-	ai.CoefDiscardUsefulCard = kDiscardUseful
-	ai.CoefDiscardMaybeUsefuCard = kDiscardMaybeUseful
-	ai.CoefDiscardUselessCard = kDiscardUseless
-	ai.CoefDiscardUnknownCard = kDiscardUnknown
+func (ai *AIUsefulInformationV3) GetCoefs(part int) []float64 {
+	if part >= len(ai.Coefs) || part < 0 {
+		panic("Bad part for ai.GetCoefs()")
+	}
+	coefs := ai.Coefs[part]
+	return []float64{
+		coefs.CoefPlayByValue,
+		coefs.CoefPlayByColor,
+		coefs.CoefInfoValue,
+		coefs.CoefInfoColor,
+		coefs.CoefDiscardUsefulCard,
+		coefs.CoefDiscardMaybeUsefuCard,
+		coefs.CoefDiscardUselessCard,
+		coefs.CoefDiscardUnknownCard,
+	}
+}
+
+func (ai *AIUsefulInformationV3) SetCoefs(part int, coefs ...float64) {
+	if part >= len(ai.Coefs) || part < 0 {
+		panic("Bad part for ai.SetCoefs()")
+	}
+
+	ai.Coefs[part] = AIUsefulInfoV3Coefs{
+		CoefPlayByValue:           coefs[0],
+		CoefPlayByColor:           coefs[1],
+		CoefInfoValue:             coefs[2],
+		CoefInfoColor:             coefs[3],
+		CoefDiscardUsefulCard:     coefs[4],
+		CoefDiscardMaybeUsefuCard: coefs[5],
+		CoefDiscardUselessCard:    coefs[6],
+		CoefDiscardUnknownCard:    coefs[7],
+	}
+}
+
+func (ai *AIUsefulInformationV3) GetPartOfGame() int {
+	return 0
 }
 
 func (ai *AIUsefulInformationV3) GetAction() *game.Action {
@@ -54,9 +90,8 @@ func (ai *AIUsefulInformationV3) GetAction() *game.Action {
 	defer func() {
 		info.PlayerCards[myPos] = oldPlayerCards
 	}()
-	ai.setAvailableInformation()
-	usefulActions := Actions{}
 
+	ai.setAvailableInformation()
 	for color, tableCard := range info.TableCards {
 		for idx, card := range info.PlayerCards[myPos] {
 			if card.KnownColor && card.KnownValue && card.Color == color && card.Value == tableCard.Value+1 {
@@ -65,6 +100,8 @@ func (ai *AIUsefulInformationV3) GetAction() *game.Action {
 		}
 	}
 
+	usefulActions := Actions{}
+	coefs := ai.Coefs[ai.GetPartOfGame()]
 	subHistory := ai.History[Max(len(ai.History)-len(info.PlayerCards)+1, 0):]
 	historyLength := len(subHistory)
 	for i, action := range subHistory {
@@ -84,7 +121,7 @@ func (ai *AIUsefulInformationV3) GetAction() *game.Action {
 				if card.KnownValue && card.Value == game.CardValue(action.Value) {
 					action := UsefulAction{
 						Action:     game.NewAction(game.TypeActionPlaying, myPos, idx),
-						Usefulness: ai.CoefPlayByValue / float64(historyLength-i) / math.Sqrt(count),
+						Usefulness: coefs.CoefPlayByValue / float64(historyLength-i) / math.Sqrt(count),
 					}
 					usefulActions = append(usefulActions, action)
 				}
@@ -107,7 +144,7 @@ func (ai *AIUsefulInformationV3) GetAction() *game.Action {
 				if card.KnownColor && card.Color == game.CardColor(action.Value) {
 					action := UsefulAction{
 						Action:     game.NewAction(game.TypeActionPlaying, myPos, idx),
-						Usefulness: ai.CoefPlayByColor / float64(historyLength-i) / math.Sqrt(count),
+						Usefulness: coefs.CoefPlayByColor / float64(historyLength-i) / math.Sqrt(count),
 					}
 					usefulActions = append(usefulActions, action)
 				}
@@ -125,7 +162,7 @@ func (ai *AIUsefulInformationV3) GetAction() *game.Action {
 						if !cardInfo.KnownValue {
 							action := UsefulAction{
 								Action:     game.NewAction(game.TypeActionInformationValue, nextPos, int(card.Value)),
-								Usefulness: ai.CoefInfoValue * (1.0 - float64(i)/float64(len(info.PlayerCards))),
+								Usefulness: coefs.CoefInfoValue * (1.0 - float64(i)/float64(len(info.PlayerCards))),
 							}
 							usefulActions = append(usefulActions, action)
 						}
@@ -133,7 +170,7 @@ func (ai *AIUsefulInformationV3) GetAction() *game.Action {
 						if !cardInfo.KnownColor {
 							action := UsefulAction{
 								Action:     game.NewAction(game.TypeActionInformationColor, nextPos, int(card.Color)),
-								Usefulness: ai.CoefInfoColor * (1.0 - float64(i)/float64(len(info.PlayerCards))),
+								Usefulness: coefs.CoefInfoColor * (1.0 - float64(i)/float64(len(info.PlayerCards))),
 							}
 							usefulActions = append(usefulActions, action)
 						}
@@ -148,25 +185,25 @@ func (ai *AIUsefulInformationV3) GetAction() *game.Action {
 			var coef float64
 			if card.KnownColor && card.KnownValue {
 				if card.Value > info.TableCards[card.Color].Value {
-					coef = ai.CoefDiscardUsefulCard
+					coef = coefs.CoefDiscardUsefulCard
 				} else {
-					coef = ai.CoefDiscardUselessCard
+					coef = coefs.CoefDiscardUselessCard
 				}
 			} else if card.KnownValue {
-				coef = ai.CoefDiscardUselessCard
+				coef = coefs.CoefDiscardUselessCard
 				for _, card := range info.TableCards {
 					if card.Value+1 == card.Value {
-						coef = ai.CoefDiscardMaybeUsefuCard
+						coef = coefs.CoefDiscardMaybeUsefuCard
 					}
 				}
 			} else if card.KnownColor {
 				if info.TableCards[card.Color].Value == 5 {
-					coef = ai.CoefDiscardUselessCard
+					coef = coefs.CoefDiscardUselessCard
 				} else {
-					coef = ai.CoefDiscardMaybeUsefuCard
+					coef = coefs.CoefDiscardMaybeUsefuCard
 				}
 			} else {
-				coef = ai.CoefDiscardUnknownCard
+				coef = coefs.CoefDiscardUnknownCard
 			}
 			action := UsefulAction{
 				Action:     game.NewAction(game.TypeActionDiscard, myPos, idx),
