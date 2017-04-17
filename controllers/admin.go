@@ -92,8 +92,28 @@ func (c *AdminController) GameUsefullInformationRun() {
 	c.Ctx.Redirect(302, c.URLFor("LobbyController.GameList"))
 }
 
-func (c *AdminController) FindUsefulInformationCoefs() {
-	go stat.FindUsefulInfoV2Coefs()
+func (c *AdminController) FindUsefulInformationCoefsForPartAndAIType() {
+	part, err := c.GetInt(":part", 0)
+	if err != nil {
+		c.Ctx.Redirect(302, c.URLFor("LobbyController.GameList"))
+		return
+	}
+
+	aiName := c.GetString(":ai_nickname")
+	aiType := -1
+	for t, name := range ai.AINames {
+		if aiName == name {
+			aiType = t
+			break
+		}
+	}
+
+	if aiType == -1 {
+		panic("ABc")
+		c.Ctx.Redirect(302, c.URLFor("AdminController.Home"))
+	}
+
+	go stat.FindUsefulInfoCoefs_Gradient(part, aiType)
 	c.Ctx.Redirect(302, c.URLFor("AdminController.Home"))
 }
 

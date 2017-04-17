@@ -103,7 +103,7 @@ func (gen *GeneticAlgorithm) RunGamesWithCoefs(count int, aiTypes []int, coefs [
 		for !g.IsGameOver() {
 			pos := g.CurrentState.CurrentPosition
 			AI := informator.NextAI(newAITypes[pos])
-			AI.(*ai.AIUsefulInformationV3).SetCoefs(coefs[0], coefs[1], coefs[2], coefs[3], coefs[4], coefs[5], coefs[6], coefs[7])
+			AI.(*ai.AIUsefulInformationV3).SetCoefs(0, coefs[0], coefs[1], coefs[2], coefs[3], coefs[4], coefs[5], coefs[6], coefs[7])
 			action := AI.GetAction()
 			informator.ApplyAction(action)
 		}
