@@ -15,6 +15,7 @@ const (
 	Type_AIUsefulInfoAndMinMax
 	Type_AIUsefulInfoAndMedMax
 	Type_AIUsefulInfoV4AndParts
+	Type_AIUsefulInfoV3AndParts
 )
 
 var AITypes = []int{
@@ -28,6 +29,7 @@ var AITypes = []int{
 	Type_AIUsefulInfoAndMinMax,
 	Type_AIUsefulInfoAndMedMax,
 	Type_AIUsefulInfoV4AndParts,
+	Type_AIUsefulInfoV3AndParts,
 }
 
 type Action struct {
@@ -66,6 +68,7 @@ const (
 	Name_AIUsefulInfoAndMinMax  = "UsefulInfo&MinMax"
 	Name_AIUsefulInfoAndMedMax  = "UsefulInfo&MedMax"
 	Name_AIUsefulInfoV4AndParts = "UsefulInfoV4AndParts"
+	Name_AIUsefulInfoV3AndParts = "UsefulInfoV3AndParts"
 )
 
 var AINames = map[int]string{
@@ -79,6 +82,7 @@ var AINames = map[int]string{
 	Type_AIUsefulInfoAndMinMax:  Name_AIUsefulInfoAndMinMax,
 	Type_AIUsefulInfoAndMedMax:  Name_AIUsefulInfoAndMedMax,
 	Type_AIUsefulInfoV4AndParts: Name_AIUsefulInfoV4AndParts,
+	Type_AIUsefulInfoV3AndParts: Name_AIUsefulInfoV3AndParts,
 }
 
 type AIInformator interface {
