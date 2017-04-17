@@ -3,7 +3,6 @@ package ai
 import (
 	"math"
 	"math/rand"
-	"sort"
 
 	"github.com/BabichMikhail/Hanabi/game"
 )
@@ -46,8 +45,8 @@ func NewAIUsefulInfoV3AndParts(baseAI *BaseAI) *AIUsefulInfoV3AndParts {
 			CoefInfoColor:             1.0,
 			CoefDiscardUsefulCard:     -1.35,
 			CoefDiscardMaybeUsefuCard: 0.03,
-			CoefDiscardUselessCard:    0.04,
-			CoefDiscardUnknownCard:    0.07,
+			CoefDiscardUselessCard:    -0.01,
+			CoefDiscardUnknownCard:    0.06,
 		},
 		AIUsefulInfoV3Coefs{
 			CoefPlayByValue:           1.1,
@@ -182,25 +181,24 @@ func (ai *AIUsefulInfoV3AndParts) GetAction() *game.Action {
 	if info.BlueTokens > 0 {
 		for i := 1; i < len(info.PlayerCards); i++ {
 			nextPos := (myPos + i) % len(info.PlayerCards)
-			for color, tableCard := range info.TableCards {
-				for idx, card := range info.PlayerCards[nextPos] {
-					if card.Color == color && card.Value == tableCard.Value+1 {
-						cardInfo := &info.PlayerCardsInfo[nextPos][idx]
-						if !cardInfo.KnownValue {
-							action := UsefulAction{
-								Action:     game.NewAction(game.TypeActionInformationValue, nextPos, int(card.Value)),
-								Usefulness: coefs.CoefInfoValue * (1.0 - float64(i)/float64(len(info.PlayerCards))),
-							}
-							usefulActions = append(usefulActions, action)
+			for idx, card := range info.PlayerCards[nextPos] {
+				tableCard := info.TableCards[card.Color]
+				if card.Value == tableCard.Value+1 {
+					cardInfo := &info.PlayerCardsInfo[nextPos][idx]
+					if !cardInfo.KnownValue {
+						action := UsefulAction{
+							Action:     game.NewAction(game.TypeActionInformationValue, nextPos, int(card.Value)),
+							Usefulness: coefs.CoefInfoValue * (1.0 - float64(i)/float64(len(info.PlayerCards))),
 						}
+						usefulActions = append(usefulActions, action)
+					}
 
-						if !cardInfo.KnownColor {
-							action := UsefulAction{
-								Action:     game.NewAction(game.TypeActionInformationColor, nextPos, int(card.Color)),
-								Usefulness: coefs.CoefInfoColor * (1.0 - float64(i)/float64(len(info.PlayerCards))),
-							}
-							usefulActions = append(usefulActions, action)
+					if !cardInfo.KnownColor {
+						action := UsefulAction{
+							Action:     game.NewAction(game.TypeActionInformationColor, nextPos, int(card.Color)),
+							Usefulness: coefs.CoefInfoColor * (1.0 - float64(i)/float64(len(info.PlayerCards))),
 						}
+						usefulActions = append(usefulActions, action)
 					}
 				}
 			}
@@ -241,8 +239,15 @@ func (ai *AIUsefulInfoV3AndParts) GetAction() *game.Action {
 	}
 
 	if len(usefulActions) > 0 {
-		sort.Sort(usefulActions)
-		return usefulActions[0].Action
+		var bestAction *game.Action
+		var topUsefulness float64
+		for i := 0; i < len(usefulActions); i++ {
+			if bestAction == nil || topUsefulness < usefulActions[i].Usefulness {
+				bestAction = usefulActions[i].Action
+				topUsefulness = usefulActions[i].Usefulness
+			}
+		}
+		return bestAction
 	}
 
 	if info.BlueTokens < game.MaxBlueTokens {
