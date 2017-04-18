@@ -2,6 +2,7 @@ package statistics
 
 import (
 	"math"
+	"math/rand"
 
 	info "github.com/BabichMikhail/Hanabi/AIInformator"
 	"github.com/BabichMikhail/Hanabi/game"
@@ -81,6 +82,12 @@ func RunGames(aiTypes []int, playerIds []int, count int) (Stat, []*game.Game) {
 
 	var bestGame *game.Game
 	var worstGame *game.Game
+	additionalGames := map[int]*game.Game{}
+	if count > limit {
+		for i := 0; i < 4; i++ {
+			additionalGames[rand.Intn(count)] = nil
+		}
+	}
 	maxPoints := -1
 	minPoints := 26
 
@@ -123,6 +130,10 @@ func RunGames(aiTypes []int, playerIds []int, count int) (Stat, []*game.Game) {
 					worstGame = g
 					minPoints = gamePoints
 				}
+
+				if _, ok := additionalGames[i]; ok {
+					additionalGames[i] = g
+				}
 			}
 			chans <- struct{}{}
 		}(j)
@@ -131,5 +142,9 @@ func RunGames(aiTypes []int, playerIds []int, count int) (Stat, []*game.Game) {
 		<-chans
 	}
 	stat.SetCharacteristics()
-	return stat, []*game.Game{worstGame, bestGame}
+	games := []*game.Game{worstGame, bestGame}
+	for _, g := range additionalGames {
+		games = append(games, g)
+	}
+	return stat, games
 }
