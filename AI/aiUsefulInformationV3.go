@@ -3,7 +3,6 @@ package ai
 import (
 	"math"
 	"math/rand"
-	"sort"
 
 	"github.com/BabichMikhail/Hanabi/game"
 )
@@ -155,25 +154,24 @@ func (ai *AIUsefulInformationV3) GetAction() *game.Action {
 	if info.BlueTokens > 0 {
 		for i := 1; i < len(info.PlayerCards); i++ {
 			nextPos := (myPos + i) % len(info.PlayerCards)
-			for color, tableCard := range info.TableCards {
-				for idx, card := range info.PlayerCards[nextPos] {
-					if card.Color == color && card.Value == tableCard.Value+1 {
-						cardInfo := &info.PlayerCardsInfo[nextPos][idx]
-						if !cardInfo.KnownValue {
-							action := UsefulAction{
-								Action:     game.NewAction(game.TypeActionInformationValue, nextPos, int(card.Value)),
-								Usefulness: coefs.CoefInfoValue * (1.0 - float64(i)/float64(len(info.PlayerCards))),
-							}
-							usefulActions = append(usefulActions, action)
+			for idx, card := range info.PlayerCards[nextPos] {
+				tableCard := info.TableCards[card.Color]
+				if card.Value == tableCard.Value+1 {
+					cardInfo := &info.PlayerCardsInfo[nextPos][idx]
+					if !cardInfo.KnownValue {
+						action := UsefulAction{
+							Action:     game.NewAction(game.TypeActionInformationValue, nextPos, int(card.Value)),
+							Usefulness: coefs.CoefInfoValue * (1.0 - float64(i)/float64(len(info.PlayerCards))),
 						}
+						usefulActions = append(usefulActions, action)
+					}
 
-						if !cardInfo.KnownColor {
-							action := UsefulAction{
-								Action:     game.NewAction(game.TypeActionInformationColor, nextPos, int(card.Color)),
-								Usefulness: coefs.CoefInfoColor * (1.0 - float64(i)/float64(len(info.PlayerCards))),
-							}
-							usefulActions = append(usefulActions, action)
+					if !cardInfo.KnownColor {
+						action := UsefulAction{
+							Action:     game.NewAction(game.TypeActionInformationColor, nextPos, int(card.Color)),
+							Usefulness: coefs.CoefInfoColor * (1.0 - float64(i)/float64(len(info.PlayerCards))),
 						}
+						usefulActions = append(usefulActions, action)
 					}
 				}
 			}
@@ -214,8 +212,13 @@ func (ai *AIUsefulInformationV3) GetAction() *game.Action {
 	}
 
 	if len(usefulActions) > 0 {
-		sort.Sort(usefulActions)
-		return usefulActions[0].Action
+		bestActionIdx := 0
+		for i := 1; i < len(usefulActions); i++ {
+			if usefulActions.Less(i, bestActionIdx) {
+				bestActionIdx = i
+			}
+		}
+		return usefulActions[bestActionIdx].Action
 	}
 
 	if info.BlueTokens < game.MaxBlueTokens {
