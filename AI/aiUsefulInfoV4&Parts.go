@@ -19,16 +19,16 @@ type AIUsefulInfoV4AndPartsCoefs struct {
 
 type AIUsefulInfoV4AndParts struct {
 	BaseAI
-
-	Coefs []AIUsefulInfoV4AndPartsCoefs
+	isUniversal bool
+	Coefs       []AIUsefulInfoV4AndPartsCoefs
 }
 
-func NewAIUsefulInfoV4AndParts(baseAI *BaseAI) *AIUsefulInfoV4AndParts {
+func NewAIUsefulInfoV4AndParts(baseAI *BaseAI, isUniversal bool) *AIUsefulInfoV4AndParts {
 	ai := new(AIUsefulInfoV4AndParts)
 	ai.BaseAI = *baseAI
-	ai.Coefs = []AIUsefulInfoV4AndPartsCoefs{
-		/*
-			// Universal coefs
+	ai.isUniversal = isUniversal
+	if ai.isUniversal {
+		ai.Coefs = []AIUsefulInfoV4AndPartsCoefs{
 			AIUsefulInfoV4AndPartsCoefs{
 				CoefPlayByInfoA: 2.47,
 				CoefPlayByInfoB: -0.07,
@@ -39,38 +39,42 @@ func NewAIUsefulInfoV4AndParts(baseAI *BaseAI) *AIUsefulInfoV4AndParts {
 				CoefPlayA:       2.5,
 				CoefPlayB:       -0.6,
 			},
-		*/
-		AIUsefulInfoV4AndPartsCoefs{
-			CoefPlayByInfoA: 2.47,
-			CoefPlayByInfoB: -0.07,
-			CoefInfoA:       2.7,
-			CoefInfoB:       -0.61,
-			CoefDiscardA:    0.7,
-			CoefDiscardB:    0.7,
-			CoefPlayA:       2.5,
-			CoefPlayB:       -0.6,
-		},
-		AIUsefulInfoV4AndPartsCoefs{
-			CoefPlayByInfoA: 2.64,
-			CoefPlayByInfoB: 0.23,
-			CoefInfoA:       2.6,
-			CoefInfoB:       -0.06,
-			CoefDiscardA:    0.7,
-			CoefDiscardB:    0.7,
-			CoefPlayA:       2.6,
-			CoefPlayB:       -0.3,
-		},
-		AIUsefulInfoV4AndPartsCoefs{
-			CoefPlayByInfoA: 1.87,
-			CoefPlayByInfoB: 0.83,
-			CoefInfoA:       3.2,
-			CoefInfoB:       -0.61,
-			CoefDiscardA:    0.7,
-			CoefDiscardB:    0.7,
-			CoefPlayA:       4.5,
-			CoefPlayB:       0.7,
-		},
+		}
+	} else {
+		ai.Coefs = []AIUsefulInfoV4AndPartsCoefs{
+			AIUsefulInfoV4AndPartsCoefs{
+				CoefPlayByInfoA: 2.47,
+				CoefPlayByInfoB: -0.07,
+				CoefInfoA:       2.7,
+				CoefInfoB:       -0.61,
+				CoefDiscardA:    0.7,
+				CoefDiscardB:    0.7,
+				CoefPlayA:       2.5,
+				CoefPlayB:       -0.6,
+			},
+			AIUsefulInfoV4AndPartsCoefs{
+				CoefPlayByInfoA: 2.64,
+				CoefPlayByInfoB: 0.23,
+				CoefInfoA:       2.6,
+				CoefInfoB:       -0.06,
+				CoefDiscardA:    0.7,
+				CoefDiscardB:    0.7,
+				CoefPlayA:       2.6,
+				CoefPlayB:       -0.3,
+			},
+			AIUsefulInfoV4AndPartsCoefs{
+				CoefPlayByInfoA: 1.87,
+				CoefPlayByInfoB: 0.83,
+				CoefInfoA:       3.2,
+				CoefInfoB:       -0.61,
+				CoefDiscardA:    0.7,
+				CoefDiscardB:    0.7,
+				CoefPlayA:       4.5,
+				CoefPlayB:       0.7,
+			},
+		}
 	}
+
 	return ai
 }
 
@@ -108,6 +112,9 @@ func (ai *AIUsefulInfoV4AndParts) SetCoefs(part int, coefs ...float64) {
 }
 
 func (ai *AIUsefulInfoV4AndParts) GetPartOfGame() int {
+	if ai.isUniversal {
+		return 0
+	}
 	info := &ai.PlayerInfo
 	if info.Step <= 16 {
 		return 0
