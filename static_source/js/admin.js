@@ -33,8 +33,8 @@ function adminHandler() {
                     <td>` + stat.count + `</td>
                     <td>` + stat.ai_types.length + `</td>
                     <td>` + stat.points + `</td>
-                    <td>` + stat.execution_time + `</td>
-                    <td>` + stat.ready_at + `</td>
+                    <td>` + (stat.is_ready ? stat.execution_time : "") + `</td>
+                    <td>` + (stat.is_ready ? stat.ready_at : stat.ready_part + "%") + `</td>
                     <td>` + stat.created_at + `</td>
                     <td><button class="btn btn-link" onClick="Admin.DeleteStat(` + stat.id + `)">Delete</button></td>
                 </tr>`

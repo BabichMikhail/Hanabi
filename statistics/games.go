@@ -53,7 +53,7 @@ func (stat *Stat) SetCharacteristics() {
 	return
 }
 
-func RunGames(aiTypes []int, playerIds []int, count int) (Stat, []*game.Game) {
+func RunGames(aiTypes []int, playerIds []int, count int, fUpdateReady func(*int, int)) (Stat, []*game.Game) {
 	playersCount := len(aiTypes)
 	if playersCount > 5 && playersCount < 2 {
 		panic("bad players count")
@@ -92,6 +92,8 @@ func RunGames(aiTypes []int, playerIds []int, count int) (Stat, []*game.Game) {
 	minPoints := 26
 
 	chans := make(chan struct{}, 2*limit)
+	readyCount := 0
+	go fUpdateReady(&readyCount, count)
 	for j := 0; j < limit; j++ {
 		go func(j int) {
 			for k := 0; k < count/limit; k++ {
@@ -134,6 +136,7 @@ func RunGames(aiTypes []int, playerIds []int, count int) (Stat, []*game.Game) {
 				if _, ok := additionalGames[i]; ok {
 					additionalGames[i] = g
 				}
+				readyCount++
 			}
 			chans <- struct{}{}
 		}(j)

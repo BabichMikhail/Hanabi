@@ -29,6 +29,9 @@ type Stat struct {
 	Created     time.Time `orm:"column(created_at)" json:"-"`
 	CreatedStr  string    `orm:"-" json:"created_at"`
 	ExecTime    int       `orm:"-" json:"execution_time"`
+	ReadyPart   int       `orm:"column(ready_part);default(0)" json:"-"`
+	ReadyJSON   float64   `orm:"-" json:"ready_part"`
+	IsReady     bool      `orm:"-" json:"is_ready"`
 }
 
 func (stat *Stat) TableName() string {
@@ -56,6 +59,51 @@ func NewStat(aiTypes []int, count int, saveDistrInExcel bool) {
 	StartStat(statId, aiTypes, count, saveDistrInExcel)
 }
 
+func updateReady(id int) func(*int, int) {
+	updateFunc := func(readyCount *int, count int) {
+		repeats := 0
+		time.Sleep(time.Second * 10)
+		var g func(*int, int, int)
+		f := func(readyCount *int, lastReadyCount int, count int) {
+			if *readyCount == count {
+				return
+			}
+
+			if *readyCount == lastReadyCount {
+				repeats++
+			} else {
+				repeats = 0
+			}
+
+			if repeats == 10 {
+				return
+			}
+			lastReadyCount = *readyCount
+
+			o := orm.NewOrm()
+			qb, _ := orm.NewQueryBuilder("mysql")
+			sql := qb.Update("stats").
+				Set(
+					"ready_part = " + strconv.Itoa((*readyCount)*10000/count),
+				).
+				Where("id = ?").
+				String()
+
+			_, err := o.Raw(sql, id).Exec()
+			if err != nil {
+				panic(err)
+			}
+
+			time.Sleep(time.Second * 6)
+			g(readyCount, lastReadyCount, count)
+		}
+
+		g = f
+		f(readyCount, -1, count)
+	}
+	return updateFunc
+}
+
 func StartStat(id int, aiTypes []int, count int, saveDistrInExcel bool) {
 	ids := make([]int, len(aiTypes), len(aiTypes))
 	var err error
@@ -70,7 +118,8 @@ func StartStat(id int, aiTypes []int, count int, saveDistrInExcel bool) {
 			}
 		}
 	}
-	stat, games := stats.RunGames(aiTypes, ids, count)
+
+	stat, games := stats.RunGames(aiTypes, ids, count, updateReady(id))
 	ReadyStat(id, &stat, saveDistrInExcel)
 
 	for _, game := range games {
@@ -128,28 +177,35 @@ func ReadStats() (stats []Stat) {
 	stats = []Stat{}
 	o := orm.NewOrm()
 	qb, _ := orm.NewQueryBuilder("mysql")
-	qb.Select("id", "player_count", "ai_types", "count", "points", "ready_at", "created_at").
+	qb.Select("id", "player_count", "ai_types", "count", "points", "ready_at", "created_at", "ready_part").
 		From("stats").
-		Where("points IS NOT NULL").
 		OrderBy("created_at DESC")
 	_, err := o.Raw(qb.String()).QueryRows(&stats)
 	if err != nil {
 		return []Stat{}
 	}
 
-	for idx, stat := range stats {
-		err := json.Unmarshal([]byte(stat.AITypesJSON), &stats[idx].AITypes)
+	for idx, _ := range stats {
+		stat := &stats[idx]
+		err := json.Unmarshal([]byte(stat.AITypesJSON), &stat.AITypes)
 		if err != nil {
 			return []Stat{}
 		}
 
-		stats[idx].AINames = make([]string, len(stats[idx].AITypes), cap(stats[idx].AITypes))
-		for i, aiType := range stats[idx].AITypes {
-			stats[idx].AINames[i] = ai.AINames[aiType]
+		stat.AINames = make([]string, len(stat.AITypes), cap(stat.AITypes))
+		for i, aiType := range stat.AITypes {
+			stat.AINames[i] = ai.AINames[aiType]
 		}
-		stats[idx].ReadyStr = stat.Ready.Format("15:04:05 02.01.2006")
-		stats[idx].CreatedStr = stat.Created.Format("15:04:05 02.01.2006")
-		stats[idx].ExecTime = int((stat.Ready.UnixNano() - stat.Created.UnixNano()) / 1000000000)
+
+		stat.CreatedStr = stat.Created.Format("15:04:05 02.01.2006")
+
+		stat.IsReady = stat.Points > 0
+		if stat.IsReady {
+			stat.ReadyStr = stat.Ready.Format("15:04:05 02.01.2006")
+			stat.ExecTime = int((stat.Ready.UnixNano() - stat.Created.UnixNano()) / 1000000000)
+		} else {
+			stat.ReadyJSON = float64(stat.ReadyPart) / 100
+		}
 	}
 
 	return
