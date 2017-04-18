@@ -71,27 +71,6 @@ func (c *AdminController) GameUsefulAndMaxMaxCreate() {
 	c.GameCreate(ai.Type_AIUsefulInfoAndMaxMax)
 }
 
-func (c *AdminController) GameUsefullInformationRun() {
-	countGames, err := c.GetInt(":count_games")
-	if err != nil {
-		panic(err)
-	}
-	countPlayers, err := c.GetInt(":count_players")
-	if err != nil {
-		panic(err)
-	}
-
-	aiTypes := []int{
-		ai.Type_AIUsefulInformation,
-		ai.Type_AIUsefulInformation,
-		ai.Type_AIUsefulInformation,
-		ai.Type_AIUsefulInformation,
-		ai.Type_AIUsefulInformation,
-	}
-	stat.RunGames(aiTypes[0:countPlayers-1], []int{1, 2, 3, 4, 5}, countGames)
-	c.Ctx.Redirect(302, c.URLFor("LobbyController.GameList"))
-}
-
 func (c *AdminController) FindUsefulInformationCoefsForPartAndAIType() {
 	part, err := c.GetInt(":part", 0)
 	if err != nil {
@@ -109,7 +88,6 @@ func (c *AdminController) FindUsefulInformationCoefsForPartAndAIType() {
 	}
 
 	if aiType == -1 {
-		panic("ABc")
 		c.Ctx.Redirect(302, c.URLFor("AdminController.Home"))
 	}
 
