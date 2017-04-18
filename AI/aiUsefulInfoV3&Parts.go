@@ -7,6 +7,17 @@ import (
 	"github.com/BabichMikhail/Hanabi/game"
 )
 
+type AIUsefulInfoV3Coefs struct {
+	CoefPlayByValue           float64
+	CoefPlayByColor           float64
+	CoefInfoValue             float64
+	CoefInfoColor             float64
+	CoefDiscardUselessCard    float64
+	CoefDiscardUnknownCard    float64
+	CoefDiscardUsefulCard     float64
+	CoefDiscardMaybeUsefuCard float64
+}
+
 type AIUsefulInfoV3AndPartsCoefs struct {
 	CoefPlayByValue           float64
 	CoefPlayByColor           float64
@@ -20,44 +31,60 @@ type AIUsefulInfoV3AndPartsCoefs struct {
 
 type AIUsefulInfoV3AndParts struct {
 	BaseAI
-	PartOfGame int
-	Coefs      []AIUsefulInfoV3Coefs
+	isUniversal bool
+	Coefs       []AIUsefulInfoV3Coefs
 }
 
-func NewAIUsefulInfoV3AndParts(baseAI *BaseAI) *AIUsefulInfoV3AndParts {
+func NewAIUsefulInfoV3AndParts(baseAI *BaseAI, isUniversal bool) *AIUsefulInfoV3AndParts {
 	ai := new(AIUsefulInfoV3AndParts)
 	ai.BaseAI = *baseAI
-	ai.Coefs = []AIUsefulInfoV3Coefs{
-		AIUsefulInfoV3Coefs{
-			CoefPlayByValue:           1.1,
-			CoefPlayByColor:           -0.9,
-			CoefInfoValue:             1.05,
-			CoefInfoColor:             1.0,
-			CoefDiscardUsefulCard:     -0.85,
-			CoefDiscardMaybeUsefuCard: 0.03,
-			CoefDiscardUselessCard:    0.04,
-			CoefDiscardUnknownCard:    0.07,
-		},
-		AIUsefulInfoV3Coefs{
-			CoefPlayByValue:           2.0,
-			CoefPlayByColor:           -0.9,
-			CoefInfoValue:             1.05,
-			CoefInfoColor:             1.0,
-			CoefDiscardUsefulCard:     -1.35,
-			CoefDiscardMaybeUsefuCard: 0.03,
-			CoefDiscardUselessCard:    -0.01,
-			CoefDiscardUnknownCard:    0.06,
-		},
-		AIUsefulInfoV3Coefs{
-			CoefPlayByValue:           1.1,
-			CoefPlayByColor:           -0.85,
-			CoefInfoValue:             1.05,
-			CoefInfoColor:             0.95,
-			CoefDiscardUsefulCard:     -0.86,
-			CoefDiscardMaybeUsefuCard: 1.03,
-			CoefDiscardUselessCard:    -0.06,
-			CoefDiscardUnknownCard:    0.07,
-		},
+	ai.isUniversal = isUniversal
+	if ai.isUniversal {
+		ai.Coefs = []AIUsefulInfoV3Coefs{
+			AIUsefulInfoV3Coefs{
+				CoefPlayByValue:           2.1,
+				CoefPlayByColor:           -0.9,
+				CoefInfoValue:             1.05,
+				CoefInfoColor:             1.0,
+				CoefDiscardUsefulCard:     0.1,
+				CoefDiscardMaybeUsefuCard: 0.04,
+				CoefDiscardUselessCard:    0.01,
+				CoefDiscardUnknownCard:    0.07,
+			},
+		}
+	} else {
+		ai.Coefs = []AIUsefulInfoV3Coefs{
+			AIUsefulInfoV3Coefs{
+				CoefPlayByValue:           1.1,
+				CoefPlayByColor:           -0.9,
+				CoefInfoValue:             1.05,
+				CoefInfoColor:             1.0,
+				CoefDiscardUsefulCard:     -0.85,
+				CoefDiscardMaybeUsefuCard: 0.03,
+				CoefDiscardUselessCard:    0.04,
+				CoefDiscardUnknownCard:    0.07,
+			},
+			AIUsefulInfoV3Coefs{
+				CoefPlayByValue:           2.0,
+				CoefPlayByColor:           -0.9,
+				CoefInfoValue:             1.05,
+				CoefInfoColor:             1.0,
+				CoefDiscardUsefulCard:     -1.35,
+				CoefDiscardMaybeUsefuCard: 0.03,
+				CoefDiscardUselessCard:    -0.01,
+				CoefDiscardUnknownCard:    0.06,
+			},
+			AIUsefulInfoV3Coefs{
+				CoefPlayByValue:           1.1,
+				CoefPlayByColor:           -0.85,
+				CoefInfoValue:             1.05,
+				CoefInfoColor:             0.95,
+				CoefDiscardUsefulCard:     -0.86,
+				CoefDiscardMaybeUsefuCard: 1.03,
+				CoefDiscardUselessCard:    -0.06,
+				CoefDiscardUnknownCard:    0.07,
+			},
+		}
 	}
 
 	return ai
@@ -98,6 +125,9 @@ func (ai *AIUsefulInfoV3AndParts) SetCoefs(part int, coefs ...float64) {
 }
 
 func (ai *AIUsefulInfoV3AndParts) GetPartOfGame() int {
+	if ai.isUniversal {
+		return 0
+	}
 	info := &ai.PlayerInfo
 	if info.Step <= 16 {
 		return 0
@@ -239,15 +269,13 @@ func (ai *AIUsefulInfoV3AndParts) GetAction() *game.Action {
 	}
 
 	if len(usefulActions) > 0 {
-		var bestAction *game.Action
-		var topUsefulness float64
-		for i := 0; i < len(usefulActions); i++ {
-			if bestAction == nil || topUsefulness < usefulActions[i].Usefulness {
-				bestAction = usefulActions[i].Action
-				topUsefulness = usefulActions[i].Usefulness
+		bestActionIdx := 0
+		for i := 1; i < len(usefulActions); i++ {
+			if usefulActions.Less(i, bestActionIdx) {
+				bestActionIdx = i
 			}
 		}
-		return bestAction
+		return usefulActions[bestActionIdx].Action
 	}
 
 	if info.BlueTokens < game.MaxBlueTokens {

@@ -242,7 +242,7 @@ func (ai *AIUsefulInfoAndMMEnd) getBestResultWithDepth() *game.ResultPreviewPlay
 func (ai *AIUsefulInfoAndMMEnd) getBestResultWithoutDepth() *game.ResultPreviewPlayerInformations {
 	info := &ai.PlayerInfo
 	var bestResult *game.ResultPreviewPlayerInformations
-	newAI := NewAI(*info, ai.History, Type_AIUsefulInformationV3, ai.Informator).(*AIUsefulInformationV3)
+	newAI := NewAI(*info, ai.History, Type_AIUsefulInformationV3, ai.Informator).(*AIUsefulInfoV3AndParts)
 	newAI.setAvailableInformation()
 	action := newAI.GetAction()
 	switch action.ActionType {
