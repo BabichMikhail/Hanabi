@@ -3,6 +3,7 @@ package controllers
 import (
 	"strconv"
 
+	ai "github.com/BabichMikhail/Hanabi/AI"
 	"github.com/BabichMikhail/Hanabi/models"
 	"github.com/beego/wetalk/modules/auth"
 	wetalk "github.com/beego/wetalk/modules/models"
@@ -30,6 +31,43 @@ func (c *ApiLobbyController) GameCreate() {
 		RedirectURL string               `json:"redirectURL"`
 	}{game.Id, game.Owner, game.Status, game.Players, user.Id, c.URLFor("GameController.Game", ":id", game.Id)}
 	c.SetData(&data)
+}
+
+func (c *ApiLobbyController) GameAICreate() {
+	var user wetalk.User
+	playersCount, _ := c.GetInt("playersCount")
+	auth.GetUserFromSession(&user, c.Ctx.Input.CruSession)
+	game, err := models.NewGame(user.Id, playersCount, models.StatusWait, false)
+	var gameStatus string
+	for i := 1; i < playersCount; i++ {
+		var userId int
+		userId, err = models.GetAIUserId(ai.Type_AIUsefulInfoV4AndParts, i)
+		if c.SetFail(err) {
+			return
+		}
+
+		err, gameStatus = models.JoinGame(game.Id, userId)
+		if c.SetFail(err) {
+			return
+		}
+
+	}
+
+	if c.SetFail(err) {
+		return
+	}
+
+	players := models.GetGamePlayers([]int{game.Id})[game.Id]
+	data := struct {
+		Id          int                  `json:"id"`
+		Owner       string               `json:"owner"`
+		Status      string               `json:"status"`
+		Players     []models.LobbyPlayer `json:"players"`
+		UserId      int                  `json:"currentUserId"`
+		RedirectURL string               `json:"redirectURL"`
+	}{game.Id, game.Owner, gameStatus, players, user.Id, c.URLFor("GameController.Game", ":id", game.Id)}
+	c.SetData(&data)
+	go models.CheckAI(game.Id)
 }
 
 func (c *ApiLobbyController) GameJoin() {

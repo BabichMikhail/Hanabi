@@ -43,7 +43,10 @@
             </tbody>
         </table>
         <div class="form-group col-md-2">
-            <button type="button" class="btn btn-default" onclick="Lobby.Create();" value="create">New Game</button>
+            <button type="button" class="btn btn-default" onclick="Lobby.Create(false);" value="create">New Game</button>
+        </div>
+        <div class="form-group col-md-2">
+            <button type="button" class="btn btn-default" onclick="Lobby.Create(true);" value="create">New Game with AI</button>
         </div>
         <div class="form-group col-md-4">
             <input type="number" min="2" max="5" class="form-control" name="playersCount" placeholder="Players count 2..5"/>

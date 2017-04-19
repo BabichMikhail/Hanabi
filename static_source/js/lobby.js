@@ -1,11 +1,12 @@
 function lobbyHandler() {
-    this.Create = function () {
+    this.Create = function (isAIGame) {
+        let createUrl = isAIGame ? "/api/lobby/createAI" : "/api/lobby/create"
         let count = $("input[name=playersCount]").val()
         count = count < 2 ? 2 : count
         count = count > 5 ? 5 : count
         $.ajax({
             type: "POST",
-            url: "/api/lobby/create",
+            url: createUrl,
             data: {
                 playersCount: count,
             },

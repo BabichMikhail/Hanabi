@@ -104,7 +104,7 @@ func RunGames(aiTypes []int, playerIds []int, count int, fUpdateReady func(*int,
 					newAITypes[posById[state.PlayerId]] = aiTypes[idx]
 				}
 
-				informator := info.NewInformator(g.CurrentState, g.Actions)
+				informator := info.NewInformator(g.CurrentState, g.InitState, g.Actions)
 				for !g.IsGameOver() {
 					pos := g.CurrentState.CurrentPosition
 					AI := informator.NextAI(newAITypes[pos])

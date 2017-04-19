@@ -40,7 +40,7 @@ func RunGamesWithCoefs(count int, part int, aiType int, coefs []float64) float64
 
 	for step := 0; step < count; step++ {
 		g := game.NewGame(playerIds)
-		informator := info.NewInformator(g.CurrentState, g.Actions)
+		informator := info.NewInformator(g.CurrentState, g.InitState, g.Actions)
 
 		for !g.IsGameOver() {
 			AI := informator.NextAI(aiType)
@@ -70,7 +70,7 @@ func GetUsefulCoefs(part, aiType int) []float64 {
 		posById[playerIds[i]] = i
 	}
 	g := game.NewGame(playerIds)
-	informator := info.NewInformator(g.CurrentState, g.Actions)
+	informator := info.NewInformator(g.CurrentState, g.InitState, g.Actions)
 	newAI := informator.NextAI(aiType)
 	return newAI.(AIWithCoefs).GetCoefs(part)
 }
@@ -78,8 +78,8 @@ func GetUsefulCoefs(part, aiType int) []float64 {
 func FindUsefulInfoCoefs_Gradient(part, aiType int) {
 	time.Sleep(5 * time.Second)
 	fmt.Println("Start FindUsefulInfoCoefs_Gradient", part, aiType)
-	delta := []float64{1.0, 0.5, 0.1, 0.05, 0.01}
-	N := []int{1000, 5000, 10000, 10000, 10000}
+	delta := []float64{1.0, 0.7, 0.5, 0.3, 0.1, 0.05, 0.03}
+	N := []int{1000, 5000, 10000, 10000, 10000, 12000, 15000}
 	usefulCoefs := GetUsefulCoefs(part, aiType)
 
 	for idx, d := range delta {

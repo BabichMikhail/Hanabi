@@ -10,6 +10,7 @@ func init() {
 		// @todo add auth filter for api
 		beego.NSNamespace("/lobby",
 			beego.NSRouter("/create", &controllers.ApiLobbyController{}, "post:GameCreate"),
+			beego.NSRouter("/createAI", &controllers.ApiLobbyController{}, "post:GameAICreate"),
 			beego.NSRouter("/join/:id", &controllers.ApiLobbyController{}, "post:GameJoin"),
 			beego.NSRouter("/leave/:id", &controllers.ApiLobbyController{}, "post:GameLeave"),
 			beego.NSNamespace("/games",

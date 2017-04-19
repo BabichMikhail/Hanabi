@@ -11,11 +11,12 @@ type Informator struct {
 	currentState *game.GameState
 }
 
-func NewInformator(currentGameState *game.GameState, actions []game.Action) *Informator {
+func NewInformator(currentGameState *game.GameState, initialGameState *game.GameState, actions []game.Action) *Informator {
 	info := new(Informator)
 	info.actions = actions
 	info.currentState = currentGameState
 	info.gameStates = map[int]game.GameState{}
+	info.gameStates[0] = *initialGameState.Copy()
 	info.gameStates[len(info.actions)] = *currentGameState.Copy()
 	return info
 }
@@ -35,7 +36,22 @@ func (info *Informator) NextAI(aiType int) ai.AI {
 }
 
 func (info *Informator) GetPlayerState(step int) game.PlayerGameInfo {
-	state := info.gameStates[step]
+	state, ok := info.gameStates[step]
+	if !ok {
+		prevStep := step
+		var prevState game.GameState
+		for !ok {
+			prevStep--
+			prevState, ok = info.gameStates[prevStep]
+		}
+
+		prevState = *prevState.Copy()
+		for i := prevStep; i < step; i++ {
+			prevState.ApplyAction(&info.actions[i])
+			info.gameStates[i+1] = *prevState.Copy()
+		}
+		state = info.gameStates[step]
+	}
 	return state.GetPlayerGameInfoByPos(info.currentState.CurrentPosition)
 }
 

@@ -35,6 +35,8 @@ func CheckAI(gameId int) {
 		return
 	}
 
+	initState, _ := ReadInitialGameState(gameId)
+
 	if state.IsGameOver() {
 		SetGameFinishedStatus(gameId)
 		return
@@ -49,7 +51,7 @@ func CheckAI(gameId int) {
 
 	aiType := ai.GetAITypeByUserNickName(nickname)
 	actions, _ := ReadActions(gameId)
-	informator := info.NewInformator(&state, actions)
+	informator := info.NewInformator(&state, &initState, actions)
 	AI := informator.NextAI(aiType)
 	action := AI.GetAction()
 	if err := informator.ApplyAction(action); err != nil {
