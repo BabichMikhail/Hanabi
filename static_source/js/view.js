@@ -268,7 +268,7 @@ function viewHandler() {
         let prevRows = 2
         let low = Math.max(View.currentStep - prevRows - 1, 0)
         let high = Math.min(View.actions.length - 1, low + maxRows - 1)
-        if (high - low  + 1 < 10) {
+        if (high - low  + 1 < maxRows) {
             low = Math.max(high - maxRows + prevRows - 1, 0)
         }
         for (let i = low; i <= high; ++i) {
