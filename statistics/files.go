@@ -107,7 +107,10 @@ func (stat *Stat) setSheetInfo(excel *xlsx.File) error {
 	sh.Cell(7, 1).SetInt(sum)
 	sh.Cell(7, 2).SetString(strconv.Itoa(int(100.0*float64(sum)/float64(len(stat.Games)))) + "%")
 
-	offset := 9
+	sh.Cell(8, 0).SetString("Wins")
+	sh.Cell(8, 1).SetInt(stat.Wins)
+
+	offset := 10
 	sh.Cell(offset, 0).SetString("Medium")
 	sh.Cell(offset, 1).SetFloat(stat.Medium)
 	sh.Cell(offset+1, 0).SetString("Dispersion")

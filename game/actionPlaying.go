@@ -33,7 +33,7 @@ func (state *GameState) NewActionPlaying(playerPosition int, cardPosition int) (
 	}
 
 	action := state.NewAction(TypeActionPlaying, playerPosition, cardPosition)
-	if len(state.Deck) == 0 && state.MaxStep == 0 {
+	if state.GameType == Type_NormalGame && len(state.Deck) == 0 && state.MaxStep == 0 {
 		state.MaxStep = state.Step + len(state.PlayerStates)
 	}
 	return action, nil

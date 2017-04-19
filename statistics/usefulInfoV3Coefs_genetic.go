@@ -93,7 +93,7 @@ func (gen *GeneticAlgorithm) RunGamesWithCoefs(count int, aiTypes []int, coefs [
 	}
 
 	for step := 0; step < count; step++ {
-		g := game.NewGame(playerIds)
+		g := game.NewGame(playerIds, game.Type_NormalGame)
 		informator := info.NewInformator(g.CurrentState, g.InitState, g.Actions)
 		newAITypes := make([]int, len(stat.AITypes), len(stat.AITypes))
 		for idx, state := range g.CurrentState.PlayerStates {

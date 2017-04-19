@@ -39,7 +39,7 @@ func RunGamesWithCoefs(count int, part int, aiType int, coefs []float64) float64
 	}
 
 	for step := 0; step < count; step++ {
-		g := game.NewGame(playerIds)
+		g := game.NewGame(playerIds, game.Type_NormalGame)
 		informator := info.NewInformator(g.CurrentState, g.InitState, g.Actions)
 
 		for !g.IsGameOver() {
@@ -69,7 +69,7 @@ func GetUsefulCoefs(part, aiType int) []float64 {
 	for i := 0; i < len(playerIds); i++ {
 		posById[playerIds[i]] = i
 	}
-	g := game.NewGame(playerIds)
+	g := game.NewGame(playerIds, game.Type_NormalGame)
 	informator := info.NewInformator(g.CurrentState, g.InitState, g.Actions)
 	newAI := informator.NextAI(aiType)
 	return newAI.(AIWithCoefs).GetCoefs(part)

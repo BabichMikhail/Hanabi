@@ -19,6 +19,7 @@ type Stat struct {
 	AITypes     []int     `orm:"-" json:"ai_types"`
 	AINames     []string  `orm:"-" json:"ai_names"`
 	GameCount   int       `orm:"column(count)" json:"count"`
+	WinCount    int       `orm:"column(win_count);default(0)" json:"win_count"`
 	Points      float64   `orm:"column(points);null" json:"points"`
 	Dispersion  float64   `orm:"column(dispersion);null" json:"dispersion"`
 	Kurtosis    float64   `orm:"column(kurtosis);null" json:"curtosis"`
@@ -157,6 +158,7 @@ func ReadyStat(id int, stat *stats.Stat, saveDistrInExcel bool) {
 	qb, _ := orm.NewQueryBuilder("mysql")
 	sql := qb.Update("stats").
 		Set(
+			"win_count = "+strconv.Itoa(stat.Wins),
 			"ready_at = CURRENT_TIMESTAMP",
 			"points = "+strconv.FormatFloat(stat.Medium, 'E', -1, 64),
 			"dispersion = "+strconv.FormatFloat(stat.Disp, 'E', -1, 64),

@@ -19,6 +19,7 @@ type PlayerGameInfo struct {
 	RedTokens       int                `json:"red_tokens"`
 	Points          int                `json:"points"`
 	VariantsCount   map[ColorValue]int `json:"-"`
+	GameType        int                `json:"game_type"`
 }
 
 func (game *Game) GetPlayerGameInfo(playerId int) PlayerGameInfo {
@@ -39,11 +40,11 @@ func (state *GameState) GetPlayerGameInfoByPos(playerPosition int) PlayerGameInf
 
 	for i := 0; i < len(playerCards[playerPosition]); i++ {
 		card := &playerCards[playerPosition][i]
-		if !(*card).KnownColor {
-			(*card).Color = NoneColor
+		if !card.KnownColor {
+			card.Color = NoneColor
 		}
-		if !(*card).KnownValue {
-			(*card).Value = NoneValue
+		if !card.KnownValue {
+			card.Value = NoneValue
 		}
 	}
 
@@ -97,6 +98,7 @@ func (state *GameState) GetPlayerGameInfoByPos(playerPosition int) PlayerGameInf
 		BlueTokens:      state.BlueTokens,
 		RedTokens:       MaxRedTokens - state.RedTokens,
 		Points:          0,
+		GameType:        state.GameType,
 	}
 }
 
@@ -136,6 +138,7 @@ func (info *PlayerGameInfo) Copy() *PlayerGameInfo {
 	newInfo.MaxStep = info.MaxStep
 	newInfo.Round = info.Round
 	newInfo.PlayerId = info.PlayerId
+	newInfo.GameType = info.GameType
 	newInfo.Deck = make([]Card, len(info.Deck), len(info.Deck))
 	for i := 0; i < len(info.Deck); i++ {
 		newInfo.Deck[i] = info.Deck[i].Copy()
@@ -179,11 +182,31 @@ func (info *PlayerGameInfo) IsGameOver() bool {
 		return true
 	}
 
+	if info.GameType == Type_InfinityGame {
+		for i := 0; i < len(info.PlayerCards); i++ {
+			if len(info.PlayerCards[i]) == 0 && info.BlueTokens == 0 {
+				return true
+			}
+		}
+
+		gameOver := true
+		for i := 0; i < len(info.PlayerCards); i++ {
+			if len(info.PlayerCards[i]) > 0 {
+				gameOver = false
+			}
+		}
+
+		if gameOver {
+			return gameOver
+		}
+	}
+
 	for _, card := range info.TableCards {
 		if card.Value != Five {
 			return false
 		}
 	}
+
 	return true
 }
 

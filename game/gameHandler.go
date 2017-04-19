@@ -7,6 +7,11 @@ import (
 	"time"
 )
 
+const (
+	Type_NormalGame = iota
+	Type_InfinityGame
+)
+
 type Game struct {
 	PlayerCount  int        `json:"player_count"`
 	InitState    *GameState `json:"init_state"`
@@ -14,9 +19,10 @@ type Game struct {
 	Actions      []Action   `json:"actions"`
 	Seed         int64      `json:"seed"`
 	Points       int        `json:"points"`
+	Type         int        `json:"game_type"`
 }
 
-func NewGame(originalIds []int, seed ...int64) *Game {
+func NewGame(originalIds []int, gameType int, seed ...int64) *Game {
 	ids := make([]int, len(originalIds), len(originalIds))
 	copy(ids, originalIds)
 	game := new(Game)
@@ -40,9 +46,10 @@ func NewGame(originalIds []int, seed ...int64) *Game {
 	RandomIntPermutation(ids)
 	game.PlayerCount = len(ids)
 	game.Actions = []Action{}
-	state := NewGameState(ids, cards)
+	state := NewGameState(ids, gameType, cards)
 	game.InitState = state
 	game.CurrentState = state.Copy()
+	game.Type = gameType
 
 	return game
 }

@@ -6,7 +6,7 @@ import (
 )
 
 func CreateActiveGame(playerIds []int, gameId int) (game *gamePackage.Game, err error) {
-	game = gamePackage.NewGame(playerIds)
+	game = gamePackage.NewGame(playerIds, gamePackage.Type_NormalGame)
 	o := orm.NewOrm()
 	o.Begin()
 	var ormGame Game

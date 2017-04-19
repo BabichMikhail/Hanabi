@@ -17,6 +17,7 @@ type GameStat struct {
 
 type Stat struct {
 	Count   int        `json:"count"`
+	Wins    int        `json:"wins"`
 	Medium  float64    `json:"medium"`
 	Disp    float64    `json:"disp"`
 	Asym    float64    `json:"asymmetry"`
@@ -72,6 +73,7 @@ func RunGames(aiTypes []int, playerIds []int, count int, fUpdateReady func(*int,
 	stat := Stat{
 		AITypes: aiTypes,
 		Count:   count,
+		Wins:    0,
 		Games:   make([]GameStat, count, count),
 	}
 
@@ -98,7 +100,7 @@ func RunGames(aiTypes []int, playerIds []int, count int, fUpdateReady func(*int,
 		go func(j int) {
 			for k := 0; k < count/limit; k++ {
 				i := k*limit + j
-				g := game.NewGame(playerIds)
+				g := game.NewGame(playerIds, game.Type_NormalGame)
 				newAITypes := make([]int, len(aiTypes), len(aiTypes))
 				for idx, state := range g.CurrentState.PlayerStates {
 					newAITypes[posById[state.PlayerId]] = aiTypes[idx]
@@ -131,6 +133,10 @@ func RunGames(aiTypes []int, playerIds []int, count int, fUpdateReady func(*int,
 				if gamePoints < minPoints {
 					worstGame = g
 					minPoints = gamePoints
+				}
+
+				if gamePoints == 25 {
+					stat.Wins++
 				}
 
 				if _, ok := additionalGames[i]; ok {

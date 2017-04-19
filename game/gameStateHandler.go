@@ -23,6 +23,7 @@ type GameState struct {
 	TableCards      map[CardColor]Card `json:"table_cards"`
 	PlayerStates    []PlayerState      `json:"player_state"`
 	MaxStep         int                `json:"max_step"`
+	GameType        int                `json:"game_type"`
 }
 
 type Pair struct {
@@ -72,7 +73,7 @@ func (state *GameState) GetCardCountByPlayerCount(count int) int {
 	return 5
 }
 
-func NewGameState(ids []int, pcards []*Card) *GameState {
+func NewGameState(ids []int, gameType int, pcards []*Card) *GameState {
 	state := GameState{
 		CurrentPosition: 0,
 		BlueTokens:      MaxBlueTokens,
@@ -81,6 +82,7 @@ func NewGameState(ids []int, pcards []*Card) *GameState {
 		Round:           0,
 		UsedCards:       []Card{},
 		MaxStep:         0,
+		GameType:        gameType,
 	}
 
 	state.TableCards = map[CardColor]Card{
@@ -116,6 +118,7 @@ func (state *GameState) Copy() *GameState {
 		Step:            state.Step,
 		Round:           state.Round,
 		MaxStep:         state.MaxStep,
+		GameType:        state.GameType,
 	}
 
 	newState.TableCards = map[CardColor]Card{
@@ -155,11 +158,31 @@ func (state *GameState) IsGameOver() bool {
 		return true
 	}
 
+	if state.GameType == Type_InfinityGame {
+		for i := 0; i < len(state.PlayerStates); i++ {
+			if len(state.PlayerStates[i].PlayerCards) == 0 && state.BlueTokens == 0 {
+				return true
+			}
+		}
+
+		gameOver := true
+		for i := 0; i < len(state.PlayerStates); i++ {
+			if len(state.PlayerStates[i].PlayerCards) > 0 {
+				gameOver = false
+			}
+		}
+
+		if gameOver {
+			return gameOver
+		}
+	}
+
 	for _, card := range state.TableCards {
 		if card.Value != Five {
 			return false
 		}
 	}
+
 	return true
 }
 
