@@ -25,8 +25,13 @@
                     <td>{{ $stat.GameCount }}</td>
                     <td>{{ $stat.PlayerCount }}</td>
                     <td>{{ $stat.Points }}</td>
+                    {{ if $stat.IsReady }}
                     <td>{{ $stat.ExecTime }}</td>
                     <td>{{ $stat.ReadyStr }}</td>
+                    {{ else }}
+                    <td></td>
+                    <td>{{ $stat.ReadyJSON }}%</td>
+                    {{ end }}
                     <td>{{ $stat.CreatedStr }}</td>
                     <td><button class="btn btn-link" onClick="Admin.DeleteStat({{ $stat.Id }})">Delete</button></td>
                 </td>
