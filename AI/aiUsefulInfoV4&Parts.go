@@ -276,6 +276,13 @@ func (ai *AIUsefulInfoV4AndParts) GetAction() *game.Action {
 				}
 			}
 
+			testIsBetter := func(adverse1, adverse2 int, value1, value2 game.CardValue, useful1, useful2, neutral1, neutral2 int) bool {
+				return adverse1 < adverse2 ||
+					adverse1 == adverse2 && value1 < value2 ||
+					adverse1 == adverse2 && value1 == value2 && useful1 > useful2 ||
+					adverse1 == adverse2 && value1 == value2 && useful1 == useful2 && neutral1 > neutral2
+			}
+
 			for _, idx := range usefulCards {
 				card := &cards[idx]
 				cardInfo := &cardsInfo[idx]
@@ -312,10 +319,11 @@ func (ai *AIUsefulInfoV4AndParts) GetAction() *game.Action {
 
 				}
 
-				isBetter := adverseByValue < minAdverseByValue ||
-					adverseByValue == minAdverseByValue && card.Value < minCardValueByValue ||
-					adverseByValue == minAdverseByValue && card.Value == minCardValueByValue && usefulByValue > maxUsefulByValue ||
-					adverseByValue == minAdverseByValue && card.Value == minCardValueByValue && usefulByValue == maxUsefulByValue && neutralByValue > maxNeutralByValue
+				isBetter := testIsBetter(
+					adverseByValue, minAdverseByValue, card.Value, minCardValueByValue,
+					usefulByValue, maxUsefulByValue, neutralByValue, maxNeutralByValue,
+				)
+
 				if isBetter {
 					maxUsefulByValue = usefulByValue
 					maxNeutralByValue = neutralByValue
@@ -324,10 +332,11 @@ func (ai *AIUsefulInfoV4AndParts) GetAction() *game.Action {
 					idxValue = idx
 				}
 
-				isBetter = adverseByColor < minAdverseByColor ||
-					adverseByColor == minAdverseByColor && card.Value < minCardValueByColor ||
-					adverseByColor == minAdverseByColor && card.Value == minCardValueByColor && usefulByColor > maxUsefulByColor ||
-					adverseByColor == minAdverseByColor && card.Value == minCardValueByColor && usefulByColor == maxUsefulByColor && neutralByColor > maxNeutralByColor
+				isBetter = testIsBetter(
+					adverseByColor, minAdverseByColor, card.Value, minCardValueByColor,
+					usefulByColor, maxUsefulByColor, neutralByColor, maxNeutralByColor,
+				)
+
 				if isBetter {
 					maxUsefulByColor = usefulByColor
 					maxNeutralByColor = neutralByColor
@@ -340,12 +349,10 @@ func (ai *AIUsefulInfoV4AndParts) GetAction() *game.Action {
 			if maxUsefulByValue == 0 && maxUsefulByColor == 0 && maxNeutralByValue == 0 && maxNeutralByColor == 0 {
 				continue
 			}
-
-			isBetterInfoByValue := minAdverseByValue < minAdverseByColor ||
-				minAdverseByValue == minAdverseByColor && minCardValueByValue < minCardValueByColor ||
-				minAdverseByValue == minAdverseByColor && minCardValueByValue == minCardValueByColor && maxUsefulByValue > maxUsefulByColor ||
-				minAdverseByValue == minAdverseByColor && minCardValueByValue == minCardValueByColor && maxUsefulByValue == maxUsefulByColor && maxNeutralByValue > maxNeutralByColor ||
-				minAdverseByValue == minAdverseByColor && minCardValueByValue == minCardValueByColor && maxUsefulByValue == maxUsefulByColor && maxNeutralByValue == maxNeutralByColor
+			isBetterInfoByValue := testIsBetter(
+				minAdverseByValue, minAdverseByColor, minCardValueByValue, minCardValueByColor,
+				maxUsefulByValue, maxUsefulByColor, maxNeutralByValue, maxNeutralByColor,
+			)
 
 			if isBetterInfoByValue {
 				card := &cards[idxValue]
