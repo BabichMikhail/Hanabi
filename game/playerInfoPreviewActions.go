@@ -18,13 +18,16 @@ type ResultPlayerInfo struct {
 	Info        *PlayerGameInfo
 }
 
+func (info *PlayerGameInfo) MoveCardFromDeckToPlayer(playerPosition int) {
+	card := info.Deck[0]
+	info.Deck = info.Deck[1:]
+	info.PlayerCards[playerPosition] = append(info.PlayerCards[playerPosition], card.Copy())
+	info.PlayerCardsInfo[playerPosition] = append(info.PlayerCardsInfo[playerPosition], card.Copy())
+}
+
 func (info *PlayerGameInfo) PreviewActionDiscard(cardPosition int) (*ResultPreviewPlayerInformations, error) {
 	if info.BlueTokens == MaxBlueTokens {
 		return nil, errors.New("Max blue tokens")
-	}
-
-	if info.DeckSize > 0 {
-		panic("Not implemented")
 	}
 
 	newPlayerInfo := info.Copy()
@@ -60,6 +63,10 @@ func (info *PlayerGameInfo) PreviewActionDiscard(cardPosition int) (*ResultPrevi
 		}
 		newPlayerInfo.UsedCards = append(newPlayerInfo.UsedCards, card)
 		newPlayerInfo.BlueTokens++
+
+		if newPlayerInfo.DeckSize > 0 {
+			newPlayerInfo.MoveCardFromDeckToPlayer(playerPosition)
+		}
 
 		points := newPlayerInfo.GetPoints()
 		med += float64(points) * probability
@@ -150,10 +157,6 @@ func (info *PlayerGameInfo) PreviewActionDiscard(cardPosition int) (*ResultPrevi
 }
 
 func (info *PlayerGameInfo) PreviewActionPlaying(cardPosition int) (*ResultPreviewPlayerInformations, error) {
-	if info.DeckSize > 0 {
-		panic("Not implemented")
-	}
-
 	if info.IsGameOver() {
 		panic("GameOver")
 	}
@@ -194,6 +197,11 @@ func (info *PlayerGameInfo) PreviewActionPlaying(cardPosition int) (*ResultPrevi
 			newPlayerInfo.UsedCards = append(newPlayerInfo.UsedCards, card)
 			newPlayerInfo.RedTokens++
 		}
+
+		if newPlayerInfo.DeckSize > 0 {
+			newPlayerInfo.MoveCardFromDeckToPlayer(playerPosition)
+		}
+
 		points := newPlayerInfo.GetPoints()
 		med += float64(points) * probability
 		if points > max {
