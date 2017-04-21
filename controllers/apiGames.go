@@ -97,7 +97,7 @@ func (c *ApiGameController) GameInfo() {
 	}
 
 	playerPosition, err := state.GetPlayerPositionById(auth.GetUserIdFromSession(c.Ctx.Input.CruSession))
-	gameInfo := state.GetPlayerGameInfoByPos(playerPosition)
+	gameInfo := state.GetPlayerGameInfoByPos(playerPosition, false)
 	if c.SetFail(err) {
 		return
 	}

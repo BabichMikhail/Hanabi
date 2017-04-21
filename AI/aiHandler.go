@@ -17,6 +17,7 @@ const (
 	Type_AIUsefulInfoV4AndParts
 	Type_AIUsefulInfoV3AndParts
 	Type_AIUsefulInformationV4
+	Type_AICheater
 )
 
 var AITypes = []int{
@@ -32,6 +33,7 @@ var AITypes = []int{
 	Type_AIUsefulInfoV4AndParts,
 	Type_AIUsefulInfoV3AndParts,
 	Type_AIUsefulInformationV4,
+	Type_AICheater,
 }
 
 type Action struct {
@@ -72,6 +74,7 @@ const (
 	Name_AIUsefulInfoV4AndParts = "UsefulInfoV4AndParts"
 	Name_AIUsefulInfoV3AndParts = "UsefulInfoV3AndParts"
 	Name_AIUsefulInformationV4  = "UsefulInformationV4"
+	Name_AICheater              = "Cheater"
 )
 
 var AINames = map[int]string{
@@ -87,6 +90,7 @@ var AINames = map[int]string{
 	Type_AIUsefulInfoV4AndParts: Name_AIUsefulInfoV4AndParts,
 	Type_AIUsefulInfoV3AndParts: Name_AIUsefulInfoV3AndParts,
 	Type_AIUsefulInformationV4:  Name_AIUsefulInformationV4,
+	Type_AICheater:              Name_AICheater,
 }
 
 type AIInformator interface {
