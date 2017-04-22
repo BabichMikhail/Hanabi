@@ -287,6 +287,26 @@ func (ai *BaseAI) setProbabilities() {
 		}
 	}
 
+	if ai.Type == Type_AICheater {
+		for idx, _ := range info.Deck {
+			card := &info.Deck[idx]
+			card.ProbabilityColors = map[game.CardColor]float64{
+				card.Color: 1.0,
+			}
+
+			card.ProbabilityValues = map[game.CardValue]float64{
+				card.Value: 1.0,
+			}
+
+			card.ProbabilityCard = map[game.HashValue]float64{
+				game.HashColorValue(card.Color, card.Value): 1.0,
+			}
+			variantsCount[game.ColorValue{Color: card.Color, Value: card.Value}]--
+		}
+		info.VariantsCount = map[game.ColorValue]int{}
+		return
+	}
+
 	cardsRef := Cards{}
 	cardVariants := []Variants{}
 	for colorValue, count := range variantsCount {

@@ -28,7 +28,7 @@ func (ai *AIUsefulInfoAndMMEnd) GetNewHistory(newAction *game.Action) []game.Act
 	return newActions
 }
 
-func (ai *AIUsefulInfoAndMMEnd) isCardMayBeUsefull(card game.Card) bool {
+func (ai *BaseAI) isCardMayBeUsefull(card game.Card) bool {
 	info := &ai.PlayerInfo
 	if card.KnownColor && card.KnownValue {
 		if card.Value <= info.TableCards[card.Color].Value {

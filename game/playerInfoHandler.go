@@ -149,6 +149,10 @@ func (info *PlayerGameInfo) Copy() *PlayerGameInfo {
 	newInfo.Round = info.Round
 	newInfo.PlayerId = info.PlayerId
 	newInfo.GameType = info.GameType
+	newInfo.VariantsCount = map[ColorValue]int{}
+	for k, v := range info.VariantsCount {
+		newInfo.VariantsCount[k] = v
+	}
 	newInfo.Deck = make([]Card, len(info.Deck), len(info.Deck))
 	for i := 0; i < len(info.Deck); i++ {
 		newInfo.Deck[i] = info.Deck[i].Copy()

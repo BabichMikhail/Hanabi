@@ -131,6 +131,8 @@ func NewAI(playerInfo game.PlayerGameInfo, history []game.Action, aiType int, in
 		ai = NewAIUsefulInfoV3AndParts(baseAI, false)
 	case Type_AIUsefulInformationV4:
 		ai = NewAIUsefulInfoV4AndParts(baseAI, true)
+	case Type_AICheater:
+		ai = NewAICheater(baseAI)
 	default:
 		panic("Unknown aiType")
 	}

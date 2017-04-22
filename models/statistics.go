@@ -76,7 +76,7 @@ func updateReady(id int) func(*int, int) {
 				repeats = 0
 			}
 
-			if repeats == 10 {
+			if repeats == 100 {
 				return
 			}
 			lastReadyCount = *readyCount

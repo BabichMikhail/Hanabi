@@ -21,6 +21,7 @@ type ResultPlayerInfo struct {
 func (info *PlayerGameInfo) MoveCardFromDeckToPlayer(playerPosition int) {
 	card := info.Deck[0]
 	info.Deck = info.Deck[1:]
+	info.DeckSize--
 	info.PlayerCards[playerPosition] = append(info.PlayerCards[playerPosition], card.Copy())
 	info.PlayerCardsInfo[playerPosition] = append(info.PlayerCardsInfo[playerPosition], card.Copy())
 }
