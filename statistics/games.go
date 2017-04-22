@@ -119,7 +119,7 @@ func RunGames(aiTypes []int, playerIds []int, count int, fUpdateReady func(*int,
 				g.Actions = informator.GetActions()
 				gamePoints, _ := g.GetPoints()
 				stat.Games[i].Points = gamePoints
-				stat.Games[i].RedTokens = g.CurrentState.RedTokens
+				stat.Games[i].RedTokens = game.MaxRedTokens - g.CurrentState.RedTokens
 				stat.Games[i].Step = len(g.Actions)
 				stat.Games[i].Values = map[game.CardColor]int{}
 				for _, color := range game.Colors {
