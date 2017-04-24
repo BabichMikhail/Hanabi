@@ -32,7 +32,7 @@ type AIUsefulInfoV3AndPartsCoefs struct {
 type AIUsefulInfoV3AndParts struct {
 	BaseAI
 	isUniversal bool
-	Coefs       []AIUsefulInfoV3Coefs
+	Coefs       map[int][]AIUsefulInfoV3Coefs
 }
 
 func NewAIUsefulInfoV3AndParts(baseAI *BaseAI, isUniversal bool) *AIUsefulInfoV3AndParts {
@@ -40,49 +40,53 @@ func NewAIUsefulInfoV3AndParts(baseAI *BaseAI, isUniversal bool) *AIUsefulInfoV3
 	ai.BaseAI = *baseAI
 	ai.isUniversal = isUniversal
 	if ai.isUniversal {
-		ai.Coefs = []AIUsefulInfoV3Coefs{
-			AIUsefulInfoV3Coefs{
-				CoefPlayByValue:           2.1,
-				CoefPlayByColor:           -0.9,
-				CoefInfoValue:             1.05,
-				CoefInfoColor:             1.0,
-				CoefDiscardUsefulCard:     0.1,
-				CoefDiscardMaybeUsefuCard: 0.04,
-				CoefDiscardUselessCard:    0.01,
-				CoefDiscardUnknownCard:    0.07,
+		ai.Coefs = map[int][]AIUsefulInfoV3Coefs{
+			5: []AIUsefulInfoV3Coefs{
+				AIUsefulInfoV3Coefs{
+					CoefPlayByValue:           2.1,
+					CoefPlayByColor:           -0.9,
+					CoefInfoValue:             1.05,
+					CoefInfoColor:             1.0,
+					CoefDiscardUsefulCard:     0.1,
+					CoefDiscardMaybeUsefuCard: 0.04,
+					CoefDiscardUselessCard:    0.01,
+					CoefDiscardUnknownCard:    0.07,
+				},
 			},
 		}
 	} else {
-		ai.Coefs = []AIUsefulInfoV3Coefs{
-			AIUsefulInfoV3Coefs{
-				CoefPlayByValue:           1.1,
-				CoefPlayByColor:           -0.9,
-				CoefInfoValue:             1.05,
-				CoefInfoColor:             1.0,
-				CoefDiscardUsefulCard:     -0.85,
-				CoefDiscardMaybeUsefuCard: 0.03,
-				CoefDiscardUselessCard:    0.04,
-				CoefDiscardUnknownCard:    0.07,
-			},
-			AIUsefulInfoV3Coefs{
-				CoefPlayByValue:           2.0,
-				CoefPlayByColor:           -0.9,
-				CoefInfoValue:             1.05,
-				CoefInfoColor:             1.0,
-				CoefDiscardUsefulCard:     -1.35,
-				CoefDiscardMaybeUsefuCard: 0.03,
-				CoefDiscardUselessCard:    -0.01,
-				CoefDiscardUnknownCard:    0.06,
-			},
-			AIUsefulInfoV3Coefs{
-				CoefPlayByValue:           1.1,
-				CoefPlayByColor:           -0.85,
-				CoefInfoValue:             1.05,
-				CoefInfoColor:             0.95,
-				CoefDiscardUsefulCard:     -0.86,
-				CoefDiscardMaybeUsefuCard: 1.03,
-				CoefDiscardUselessCard:    -0.06,
-				CoefDiscardUnknownCard:    0.07,
+		ai.Coefs = map[int][]AIUsefulInfoV3Coefs{
+			5: []AIUsefulInfoV3Coefs{
+				AIUsefulInfoV3Coefs{
+					CoefPlayByValue:           1.1,
+					CoefPlayByColor:           -0.9,
+					CoefInfoValue:             1.05,
+					CoefInfoColor:             1.0,
+					CoefDiscardUsefulCard:     -0.85,
+					CoefDiscardMaybeUsefuCard: 0.03,
+					CoefDiscardUselessCard:    0.04,
+					CoefDiscardUnknownCard:    0.07,
+				},
+				AIUsefulInfoV3Coefs{
+					CoefPlayByValue:           2.0,
+					CoefPlayByColor:           -0.9,
+					CoefInfoValue:             1.05,
+					CoefInfoColor:             1.0,
+					CoefDiscardUsefulCard:     -1.35,
+					CoefDiscardMaybeUsefuCard: 0.03,
+					CoefDiscardUselessCard:    -0.01,
+					CoefDiscardUnknownCard:    0.06,
+				},
+				AIUsefulInfoV3Coefs{
+					CoefPlayByValue:           1.1,
+					CoefPlayByColor:           -0.85,
+					CoefInfoValue:             1.05,
+					CoefInfoColor:             0.95,
+					CoefDiscardUsefulCard:     -0.86,
+					CoefDiscardMaybeUsefuCard: 1.03,
+					CoefDiscardUselessCard:    -0.06,
+					CoefDiscardUnknownCard:    0.07,
+				},
 			},
 		}
 	}
@@ -94,7 +98,7 @@ func (ai *AIUsefulInfoV3AndParts) GetCoefs(part int) []float64 {
 	if part >= len(ai.Coefs) || part < 0 {
 		panic("Bad part for ai.GetCoefs()")
 	}
-	coefs := ai.Coefs[part]
+	coefs := ai.Coefs[len(ai.PlayerInfo.PlayerCards)][part]
 	return []float64{
 		coefs.CoefPlayByValue,
 		coefs.CoefPlayByColor,
@@ -112,7 +116,7 @@ func (ai *AIUsefulInfoV3AndParts) SetCoefs(part int, coefs ...float64) {
 		panic("Bad part for ai.SetCoefs()")
 	}
 
-	ai.Coefs[part] = AIUsefulInfoV3Coefs{
+	ai.Coefs[len(ai.PlayerInfo.PlayerCards)][part] = AIUsefulInfoV3Coefs{
 		CoefPlayByValue:           coefs[0],
 		CoefPlayByColor:           coefs[1],
 		CoefInfoValue:             coefs[2],
@@ -157,7 +161,11 @@ func (ai *AIUsefulInfoV3AndParts) GetAction() *game.Action {
 	}
 
 	usefulActions := Actions{}
-	coefs := ai.Coefs[ai.GetPartOfGame()]
+	coefsByPlayerCount, ok := ai.Coefs[len(ai.PlayerInfo.PlayerCards)]
+	if !ok {
+		panic("Coefs are undefined")
+	}
+	coefs := coefsByPlayerCount[ai.GetPartOfGame()]
 	subHistory := ai.History[Max(len(ai.History)-len(info.PlayerCards)+1, 0):]
 	historyLength := len(subHistory)
 	for i, action := range subHistory {
