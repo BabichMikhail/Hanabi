@@ -287,7 +287,7 @@ func (ai *BaseAI) setProbabilities() {
 		}
 	}
 
-	if ai.Type == Type_AICheater {
+	if ai.Type == Type_AIFullCheater {
 		for idx, _ := range info.Deck {
 			card := &info.Deck[idx]
 			card.ProbabilityColors = map[game.CardColor]float64{

@@ -22,11 +22,11 @@ type PlayerGameInfo struct {
 	GameType        int                `json:"game_type"`
 }
 
-func (game *Game) GetPlayerGameInfo(playerId int, isCheater bool) PlayerGameInfo {
-	return game.CurrentState.GetPlayerGameInfo(playerId, isCheater)
+func (game *Game) GetPlayerGameInfo(playerId int, infoType int) PlayerGameInfo {
+	return game.CurrentState.GetPlayerGameInfo(playerId, infoType)
 }
 
-func (state *GameState) GetPlayerGameInfoByPos(playerPosition int, isCheater bool) PlayerGameInfo {
+func (state *GameState) GetPlayerGameInfoByPos(playerPosition int, infoType int) PlayerGameInfo {
 	playerCardsInfo := [][]Card{}
 	playerCards := [][]Card{}
 	for i := 0; i < len(state.PlayerStates); i++ {
@@ -40,7 +40,7 @@ func (state *GameState) GetPlayerGameInfoByPos(playerPosition int, isCheater boo
 
 	for i := 0; i < len(playerCards[playerPosition]); i++ {
 		card := &playerCards[playerPosition][i]
-		if !isCheater {
+		if infoType == InfoTypeUsually {
 			if !card.KnownColor {
 				card.Color = NoneColor
 			}
@@ -81,7 +81,7 @@ func (state *GameState) GetPlayerGameInfoByPos(playerPosition int, isCheater boo
 	copy(deckCopy, state.Deck)
 	for i := 0; i < len(deckCopy); i++ {
 		card := &deckCopy[i]
-		if !isCheater {
+		if infoType != InfoTypeFullCheat {
 			card.Color = NoneColor
 			card.Value = NoneValue
 		} else {
@@ -123,18 +123,24 @@ func (info *PlayerGameInfo) GetPoints() int {
 	return info.Points
 }
 
-func (state *GameState) GetPlayerGameInfo(playerId int, isCheater bool) PlayerGameInfo {
+const (
+	InfoTypeUsually = iota
+	InfoTypeCheat
+	InfoTypeFullCheat
+)
+
+func (state *GameState) GetPlayerGameInfo(playerId int, infoType int) PlayerGameInfo {
 	var playerPosition int
 	for i := 0; i < len(state.PlayerStates); i++ {
 		if state.PlayerStates[i].PlayerId == playerId {
 			playerPosition = i
 		}
 	}
-	return state.GetPlayerGameInfoByPos(playerPosition, isCheater)
+	return state.GetPlayerGameInfoByPos(playerPosition, infoType)
 }
 
-func NewPlayerInfo(game *Game, playerId int, isCheater bool) PlayerGameInfo {
-	return game.GetPlayerGameInfo(playerId, isCheater)
+func NewPlayerInfo(game *Game, playerId int, infoType int) PlayerGameInfo {
+	return game.GetPlayerGameInfo(playerId, infoType)
 }
 
 func (info *PlayerGameInfo) Copy() *PlayerGameInfo {

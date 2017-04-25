@@ -38,9 +38,11 @@ func (ai *AICheater) GetAction() *game.Action {
 		return game.NewAction(game.TypeActionInformationValue, pos, int(info.PlayerCards[pos][0].Value))
 	}
 
-	for idx, card := range myCards {
-		if card.Value <= info.TableCards[card.Color].Value {
-			return game.NewAction(game.TypeActionDiscard, myPos, idx)
+	if info.BlueTokens < game.MaxBlueTokens {
+		for idx, card := range myCards {
+			if card.Value <= info.TableCards[card.Color].Value {
+				return game.NewAction(game.TypeActionDiscard, myPos, idx)
+			}
 		}
 	}
 

@@ -29,7 +29,7 @@ func (c *GameController) Game() {
 	}
 
 	userId := auth.GetUserIdFromSession(c.Ctx.Input.CruSession)
-	gameInfo := state.GetPlayerGameInfo(userId, false)
+	gameInfo := state.GetPlayerGameInfo(userId, gamePackage.InfoTypeUsually)
 
 	c.SetBaseLayout()
 	c.TplName = "templates/game.html"

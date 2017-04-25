@@ -31,7 +31,13 @@ func (info *Informator) GetActions() []game.Action {
 
 func (info *Informator) NextAI(aiType int) ai.AI {
 	state := info.getCurrentState()
-	playerInfo := state.GetPlayerGameInfoByPos(state.CurrentPosition, aiType == ai.Type_AICheater)
+	infoType := game.InfoTypeUsually
+	if aiType == ai.Type_AICheater {
+		infoType = game.InfoTypeCheat
+	} else if aiType == ai.Type_AIFullCheater {
+		infoType = game.InfoTypeFullCheat
+	}
+	playerInfo := state.GetPlayerGameInfoByPos(state.CurrentPosition, infoType)
 	return ai.NewAI(playerInfo, info.actions, aiType, info)
 }
 
@@ -52,7 +58,7 @@ func (info *Informator) GetPlayerState(step int) game.PlayerGameInfo {
 		}
 		state = info.gameStates[step]
 	}
-	return state.GetPlayerGameInfoByPos(info.currentState.CurrentPosition, false)
+	return state.GetPlayerGameInfoByPos(info.currentState.CurrentPosition, game.InfoTypeUsually)
 }
 
 func (info *Informator) ApplyAction(action *game.Action) error {
