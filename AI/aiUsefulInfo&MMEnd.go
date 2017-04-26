@@ -28,41 +28,33 @@ func (ai *AIUsefulInfoAndMMEnd) GetNewHistory(newAction *game.Action) []game.Act
 	return newActions
 }
 
-func (ai *BaseAI) isCardMayBeUsefull(card game.Card) bool {
+func (ai *BaseAI) checkCardUsefulByValues(card game.Card, f func(tableValue, cardValue game.CardValue) bool) bool {
 	info := &ai.PlayerInfo
 	if card.KnownColor && card.KnownValue {
-		if card.Value <= info.TableCards[card.Color].Value {
-			return false
-		}
+		return f(info.TableCards[card.Color].Value, card.Value)
 	}
 
-	if card.KnownColor {
-		for value, _ := range card.ProbabilityValues {
-			if value > info.TableCards[card.Color].Value {
-				return true
-			}
-		}
-		return false
-	}
-
-	if card.KnownValue {
-		for color, _ := range card.ProbabilityColors {
-			if info.TableCards[color].Value+1 == card.Value {
-				return true
-			}
-		}
-		return false
-	}
-
-	for color, _ := range card.ProbabilityColors {
-		for value, _ := range card.ProbabilityValues {
-			if info.TableCards[color].Value+1 == value {
-				return true
-			}
+	for colorValue, _ := range card.ProbabilityCard {
+		color, value := game.ColorValueByHashColorValue(colorValue)
+		if f(info.TableCards[color].Value, value) {
+			return true
 		}
 	}
-
 	return false
+}
+
+func (ai *BaseAI) isCardPlayable(card game.Card) bool {
+	f := func(tableValue, cardValue game.CardValue) bool {
+		return tableValue+1 == cardValue
+	}
+	return ai.checkCardUsefulByValues(card, f)
+}
+
+func (ai *BaseAI) isCardMayBeUsefull(card game.Card) bool {
+	f := func(tableValue, cardValue game.CardValue) bool {
+		return tableValue < cardValue
+	}
+	return ai.checkCardUsefulByValues(card, f)
 }
 
 func (ai *AIUsefulInfoAndMMEnd) getBestResultWithDepth() *game.ResultPreviewPlayerInformations {

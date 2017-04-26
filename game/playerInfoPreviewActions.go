@@ -26,6 +26,20 @@ func (info *PlayerGameInfo) MoveCardFromDeckToPlayer(playerPosition int) {
 	info.PlayerCardsInfo[playerPosition] = append(info.PlayerCardsInfo[playerPosition], card.Copy())
 }
 
+func (info *PlayerGameInfo) PreviewAction(action *Action) (*ResultPreviewPlayerInformations, error) {
+	switch action.ActionType {
+	case TypeActionDiscard:
+		return info.PreviewActionDiscard(action.Value)
+	case TypeActionInformationColor:
+		return info.PreviewActionInformationColor(action.PlayerPosition, CardColor(action.Value))
+	case TypeActionInformationValue:
+		return info.PreviewActionInformationValue(action.PlayerPosition, CardValue(action.Value))
+	case TypeActionPlaying:
+		return info.PreviewActionPlaying(action.Value)
+	}
+	panic("Unknown ActionType")
+}
+
 func (info *PlayerGameInfo) PreviewActionDiscard(cardPosition int) (*ResultPreviewPlayerInformations, error) {
 	if info.BlueTokens == MaxBlueTokens {
 		return nil, errors.New("Max blue tokens")

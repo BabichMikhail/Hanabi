@@ -20,6 +20,7 @@ type AIUsefulInfoV4AndPartsCoefs struct {
 type AIUsefulInfoV4AndParts struct {
 	BaseAI
 	isUniversal bool
+	SafeMode    bool
 	Coefs       map[int][]AIUsefulInfoV4AndPartsCoefs
 }
 
@@ -27,6 +28,7 @@ func NewAIUsefulInfoV4AndParts(baseAI *BaseAI, isUniversal bool) *AIUsefulInfoV4
 	ai := new(AIUsefulInfoV4AndParts)
 	ai.BaseAI = *baseAI
 	ai.isUniversal = isUniversal
+	ai.SafeMode = true
 	if ai.isUniversal {
 		ai.Coefs = map[int][]AIUsefulInfoV4AndPartsCoefs{
 			2: []AIUsefulInfoV4AndPartsCoefs{
@@ -194,8 +196,8 @@ func (ai *AIUsefulInfoV4AndParts) GetAction() *game.Action {
 				continue
 			}
 
-			for idx, _ := range info.PlayerCards[myPos] {
-				if _, ok := newCardIdxs[idx]; ok {
+			for idx, card := range info.PlayerCards[myPos] {
+				if _, ok := newCardIdxs[idx]; ai.isCardPlayable(card) && ok {
 					action := UsefulAction{
 						Action:     game.NewAction(game.TypeActionPlaying, myPos, idx),
 						Usefulness: coefs.CoefPlayByInfoA*float64(i)/float64(len(subHistory)) + coefs.CoefPlayByInfoB,
@@ -240,8 +242,8 @@ func (ai *AIUsefulInfoV4AndParts) GetAction() *game.Action {
 				continue
 			}
 
-			for idx, _ := range info.PlayerCards[myPos] {
-				if _, ok := newCardIdxs[idx]; ok {
+			for idx, card := range info.PlayerCards[myPos] {
+				if _, ok := newCardIdxs[idx]; ai.isCardPlayable(card) && ok {
 					action := UsefulAction{
 						Action:     game.NewAction(game.TypeActionPlaying, myPos, idx),
 						Usefulness: coefs.CoefPlayByInfoA*float64(i)/float64(len(subHistory)) + coefs.CoefPlayByInfoB,
@@ -449,7 +451,67 @@ func (ai *AIUsefulInfoV4AndParts) GetAction() *game.Action {
 				bestActionIdx = i
 			}
 		}
-		return usefulActions[bestActionIdx].Action
+		bestAction := usefulActions[bestActionIdx].Action
+		if !ai.SafeMode || info.BlueTokens == 0 {
+			return bestAction
+		}
+
+		newInfo := info.Copy()
+		newInfo.PreviewAction(bestAction)
+		newAI := NewAI(*newInfo, append(ai.History, *bestAction), ai.Type, ai.Informator)
+		newAI.(*AIUsefulInfoV4AndParts).SafeMode = false
+		nextAction := newAI.GetAction()
+		if nextAction.ActionType == game.TypeActionDiscard || nextAction.ActionType == game.TypeActionPlaying {
+			card := &info.PlayerCards[nextAction.PlayerPosition][nextAction.Value]
+			if info.VariantsCount[game.ColorValue{Color: card.Color, Value: card.Value}] == 1 {
+				nextPos := nextAction.PlayerPosition
+				cardPos := nextAction.Value
+				if info.TableCards[card.Color].Value+1 == card.Value {
+					if nextAction.ActionType == game.TypeActionDiscard {
+						return game.NewAction(game.TypeActionInformationValue, nextPos, cardPos)
+					} else {
+						return bestAction
+					}
+				} else {
+					card := newInfo.PlayerCardsInfo[nextPos][cardPos]
+					if ai.isCardPlayable(card) {
+						copyCard := card.Copy()
+						if !card.KnownValue {
+							card.Value = newInfo.PlayerCards[nextPos][cardPos].Value
+							card.KnownValue = true
+							for _, color := range game.ColorsTable {
+								hashValue := game.HashColorValue(color, card.Value)
+								if _, ok := card.ProbabilityCard[hashValue]; ok {
+									delete(card.ProbabilityCard, hashValue)
+								}
+							}
+
+							if !ai.isCardPlayable(card) {
+								return game.NewAction(game.TypeActionInformationValue, nextPos, cardPos)
+							}
+						}
+
+						card = copyCard
+						if !card.KnownColor {
+							card.Color = newInfo.PlayerCards[nextPos][cardPos].Color
+							card.KnownColor = true
+							for _, value := range game.Values {
+								hashValue := game.HashColorValue(card.Color, value)
+								if _, ok := card.ProbabilityCard[hashValue]; ok {
+									delete(card.ProbabilityCard, hashValue)
+								}
+							}
+
+							if !ai.isCardPlayable(card) {
+								return game.NewAction(game.TypeActionInformationColor, nextPos, cardPos)
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return bestAction
 	}
 	return ai.getActionSmartyRandom()
 }
