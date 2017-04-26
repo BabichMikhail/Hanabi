@@ -91,12 +91,12 @@ func (c *AdminController) FindUsefulInformationCoefsForPartAndAIType() {
 		c.Ctx.Redirect(302, c.URLFor("AdminController.Home"))
 	}
 
-	go stat.FindUsefulInfoCoefs_Gradient(part, aiType)
+	go stat.FindUsefulInfoCoefs_Gradient(part, aiType, models.QRead)
 	c.Ctx.Redirect(302, c.URLFor("AdminController.Home"))
 }
 
 func (c *AdminController) FindUsefulInformationCoefsV3() {
 	gen := stat.NewGeneticAlgorithm()
-	go gen.FindUsefulInfoV3Coefs()
+	go gen.FindUsefulInfoV3Coefs(models.QRead)
 	c.Ctx.Redirect(302, c.URLFor("AdminController.Home"))
 }

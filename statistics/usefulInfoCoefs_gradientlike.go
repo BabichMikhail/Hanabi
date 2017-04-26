@@ -13,7 +13,7 @@ type AIWithCoefs interface {
 	GetCoefs(part int) []float64
 }
 
-func RunGamesWithCoefs(count int, part int, aiType int, coefs []float64) float64 {
+func RunGamesWithCoefs(count int, part int, aiType int, coefs []float64, qRead info.QReadFunc) float64 {
 	playersCount := 5
 	pseudoIds := make([]int, playersCount, playersCount)
 	for i := 0; i < playersCount; i++ {
@@ -40,7 +40,7 @@ func RunGamesWithCoefs(count int, part int, aiType int, coefs []float64) float64
 
 	for step := 0; step < count; step++ {
 		g := game.NewGame(playerIds, game.Type_NormalGame)
-		informator := info.NewInformator(g.CurrentState, g.InitState, g.Actions)
+		informator := info.NewInformator(g.CurrentState, g.InitState, g.Actions, qRead, nil)
 
 		for !g.IsGameOver() {
 			AI := informator.NextAI(aiType)
@@ -57,7 +57,7 @@ func RunGamesWithCoefs(count int, part int, aiType int, coefs []float64) float64
 	return stat.Medium
 }
 
-func GetUsefulCoefs(part, aiType int) []float64 {
+func GetUsefulCoefs(part, aiType int, qRead info.QReadFunc) []float64 {
 	playersCount := 5
 	pseudoIds := make([]int, playersCount, playersCount)
 	for i := 0; i < playersCount; i++ {
@@ -70,20 +70,20 @@ func GetUsefulCoefs(part, aiType int) []float64 {
 		posById[playerIds[i]] = i
 	}
 	g := game.NewGame(playerIds, game.Type_NormalGame)
-	informator := info.NewInformator(g.CurrentState, g.InitState, g.Actions)
+	informator := info.NewInformator(g.CurrentState, g.InitState, g.Actions, qRead, nil)
 	newAI := informator.NextAI(aiType)
 	return newAI.(AIWithCoefs).GetCoefs(part)
 }
 
-func FindUsefulInfoCoefs_Gradient(part, aiType int) {
+func FindUsefulInfoCoefs_Gradient(part, aiType int, qRead info.QReadFunc) {
 	time.Sleep(5 * time.Second)
 	fmt.Println("Start FindUsefulInfoCoefs_Gradient", part, aiType)
 	delta := []float64{1.0, 0.7, 0.5, 0.3, 0.1, 0.05, 0.03}
 	N := []int{1000, 5000, 10000, 10000, 10000, 12000, 15000}
-	usefulCoefs := GetUsefulCoefs(part, aiType)
+	usefulCoefs := GetUsefulCoefs(part, aiType, qRead)
 
 	for idx, d := range delta {
-		max := RunGamesWithCoefs(N[idx], part, aiType, usefulCoefs)
+		max := RunGamesWithCoefs(N[idx], part, aiType, usefulCoefs, qRead)
 		for {
 			newMax := max
 			length := len(usefulCoefs)
@@ -105,7 +105,7 @@ func FindUsefulInfoCoefs_Gradient(part, aiType int) {
 			chans := make(chan struct{}, 2*length)
 			for _, k := range newK {
 				f := func(k []float64) {
-					if result := RunGamesWithCoefs(N[idx], part, aiType, k); result > newMax {
+					if result := RunGamesWithCoefs(N[idx], part, aiType, k, qRead); result > newMax {
 						usefulCoefs = k
 						newMax = result
 						fmt.Print("NewMax:", result)

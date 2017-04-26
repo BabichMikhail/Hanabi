@@ -5,19 +5,28 @@ import (
 	game "github.com/BabichMikhail/Hanabi/game"
 )
 
+type QReadFunc func(*game.PlayerGameInfo) float64
+type QUpdateFunc func(*game.GameState, float64)
+
 type Informator struct {
-	actions      []game.Action
-	gameStates   map[int]game.GameState
-	currentState *game.GameState
+	actions       []game.Action
+	gameStates    map[int]game.GameState
+	currentState  *game.GameState
+	QRead         func(*game.PlayerGameInfo) float64
+	QUpdate       func(*game.GameState, float64)
+	isLearnOnStep bool
 }
 
-func NewInformator(currentGameState *game.GameState, initialGameState *game.GameState, actions []game.Action) *Informator {
+func NewInformator(currentGameState *game.GameState, initialGameState *game.GameState, actions []game.Action, qRead QReadFunc, qUpdate QUpdateFunc) *Informator {
 	info := new(Informator)
 	info.actions = actions
 	info.currentState = currentGameState
 	info.gameStates = map[int]game.GameState{}
 	info.gameStates[0] = *initialGameState.Copy()
 	info.gameStates[len(info.actions)] = *currentGameState.Copy()
+	info.QRead = qRead
+	info.QUpdate = qUpdate
+	info.isLearnOnStep = false
 	return info
 }
 
@@ -70,4 +79,43 @@ func (info *Informator) ApplyAction(action *game.Action) error {
 	info.actions = append(info.actions, *action)
 	info.gameStates[len(info.actions)] = *state.Copy()
 	return nil
+}
+
+func (info *Informator) Copy() *Informator {
+	newInfo := new(Informator)
+	newInfo.currentState = info.currentState.Copy()
+	newInfo.gameStates = map[int]game.GameState{}
+	newInfo.QRead = info.QRead
+	newInfo.QUpdate = info.QUpdate
+	for step, state := range info.gameStates {
+		newInfo.gameStates[step] = *state.Copy()
+	}
+
+	newInfo.actions = make([]game.Action, len(info.actions))
+	for i, action := range info.actions {
+		newInfo.actions[i] = action
+	}
+	return newInfo
+}
+
+func (info *Informator) GetQualitativeAssessmentOfState(playerInfo *game.PlayerGameInfo) float64 {
+	if info.QUpdate != nil && !info.isLearnOnStep {
+		newInformator := info.Copy()
+		for !newInformator.getCurrentState().IsGameOver() {
+			AI := newInformator.NextAI(ai.Type_AICheater)
+			action := AI.GetAction()
+			err := newInformator.ApplyAction(action)
+			if err != nil {
+				panic(err)
+			}
+		}
+		info.isLearnOnStep = true
+		state := newInformator.getCurrentState()
+		points, err := state.GetPoints()
+		if err == nil {
+			newInformator.QUpdate(state, float64(points))
+		}
+	}
+
+	return info.QRead(playerInfo)
 }

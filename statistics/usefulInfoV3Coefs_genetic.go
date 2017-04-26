@@ -73,7 +73,7 @@ func NewGeneticAlgorithm() *GeneticAlgorithm {
 	return gen
 }
 
-func (gen *GeneticAlgorithm) RunGamesWithCoefs(count int, aiTypes []int, coefs []float64) float64 {
+func (gen *GeneticAlgorithm) RunGamesWithCoefs(count int, aiTypes []int, coefs []float64, qRead info.QReadFunc) float64 {
 	playersCount := 5
 	pseudoIds := make([]int, playersCount, playersCount)
 	for i := 0; i < playersCount; i++ {
@@ -94,7 +94,7 @@ func (gen *GeneticAlgorithm) RunGamesWithCoefs(count int, aiTypes []int, coefs [
 
 	for step := 0; step < count; step++ {
 		g := game.NewGame(playerIds, game.Type_NormalGame)
-		informator := info.NewInformator(g.CurrentState, g.InitState, g.Actions)
+		informator := info.NewInformator(g.CurrentState, g.InitState, g.Actions, qRead, nil)
 		newAITypes := make([]int, len(stat.AITypes), len(stat.AITypes))
 		for idx, state := range g.CurrentState.PlayerStates {
 			newAITypes[posById[state.PlayerId]] = stat.AITypes[idx]
@@ -171,7 +171,7 @@ func (gen *GeneticAlgorithm) GetRandIdx() int {
 	return idx
 }
 
-func (gen *GeneticAlgorithm) FindUsefulInfoV3Coefs() {
+func (gen *GeneticAlgorithm) FindUsefulInfoV3Coefs(qRead info.QReadFunc) {
 	time.Sleep(5 * time.Second)
 	fmt.Println("Start algorithm")
 	aiTypes := []int{
@@ -203,7 +203,7 @@ func (gen *GeneticAlgorithm) FindUsefulInfoV3Coefs() {
 
 			f := func(i int) {
 				node := &gen.Nodes[i]
-				node.Result = gen.RunGamesWithCoefs(gen.GamesCounts[gen.Current], aiTypes, node.Coefs)
+				node.Result = gen.RunGamesWithCoefs(gen.GamesCounts[gen.Current], aiTypes, node.Coefs, qRead)
 				if node.Result < gen.LowValues[gen.Current] {
 					isContinue = true
 				}

@@ -54,7 +54,7 @@ func (stat *Stat) SetCharacteristics() {
 	return
 }
 
-func RunGames(aiTypes []int, playerIds []int, count int, fUpdateReady func(*int, int)) (Stat, []*game.Game) {
+func RunGames(aiTypes []int, playerIds []int, count int, fUpdateReady func(*int, int), qRead info.QReadFunc, qUpdate info.QUpdateFunc) (Stat, []*game.Game) {
 	playersCount := len(aiTypes)
 	if playersCount > 5 && playersCount < 2 {
 		panic("bad players count")
@@ -106,7 +106,7 @@ func RunGames(aiTypes []int, playerIds []int, count int, fUpdateReady func(*int,
 					newAITypes[posById[state.PlayerId]] = aiTypes[idx]
 				}
 
-				informator := info.NewInformator(g.CurrentState, g.InitState, g.Actions)
+				informator := info.NewInformator(g.CurrentState, g.InitState, g.Actions, qRead, qUpdate)
 				for !g.IsGameOver() {
 					pos := g.CurrentState.CurrentPosition
 					AI := informator.NextAI(newAITypes[pos])

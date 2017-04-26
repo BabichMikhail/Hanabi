@@ -120,7 +120,7 @@ func StartStat(id int, aiTypes []int, count int, saveDistrInExcel bool) {
 		}
 	}
 
-	stat, games := stats.RunGames(aiTypes, ids, count, updateReady(id))
+	stat, games := stats.RunGames(aiTypes, ids, count, updateReady(id), QRead, QUpdate)
 	ReadyStat(id, &stat, saveDistrInExcel)
 
 	for _, game := range games {

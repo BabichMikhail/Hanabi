@@ -51,7 +51,7 @@ func CheckAI(gameId int) {
 
 	aiType := ai.GetAITypeByUserNickName(nickname)
 	actions, _ := ReadActions(gameId)
-	informator := info.NewInformator(&state, &initState, actions)
+	informator := info.NewInformator(&state, &initState, actions, QRead, nil)
 	AI := informator.NextAI(aiType)
 	action := AI.GetAction()
 	if err := informator.ApplyAction(action); err != nil {
