@@ -19,8 +19,8 @@ func GetCardColor(color CardColor) string {
 		Red:       "Red",
 		Blue:      "Blue",
 		Green:     "Green",
-		Yellow:    "Gold",
-		Orange:    "Black",
+		Yellow:    "Yello",
+		Orange:    "Orange",
 	}[color]
 }
 
