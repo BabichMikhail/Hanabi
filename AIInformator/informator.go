@@ -71,6 +71,26 @@ func (info *Informator) GetPlayerState(step int) game.PlayerGameInfo {
 }
 
 func (info *Informator) ApplyAction(action *game.Action) error {
+	if false && info.QUpdate != nil && !info.isLearnOnStep {
+		newInformator := info.Copy()
+		newInformator.QUpdate = nil
+		saveState := newInformator.getCurrentState().Copy()
+		for !newInformator.getCurrentState().IsGameOver() {
+			AI := newInformator.NextAI(ai.Type_AIUsefulInfoAndMinMax)
+			newAction := AI.GetAction()
+			err := newInformator.ApplyAction(newAction)
+			if err != nil {
+				panic(err)
+			}
+		}
+		info.isLearnOnStep = true
+		state := newInformator.getCurrentState()
+		points, err := state.GetPoints()
+		if err == nil {
+			info.QUpdate(saveState, float64(points))
+		}
+	}
+
 	state := info.getCurrentState()
 	if err := state.ApplyAction(action); err != nil {
 		return err
@@ -98,24 +118,7 @@ func (info *Informator) Copy() *Informator {
 	return newInfo
 }
 
-func (info *Informator) GetQualitativeAssessmentOfState(playerInfo *game.PlayerGameInfo) float64 {
-	if info.QUpdate != nil && !info.isLearnOnStep {
-		newInformator := info.Copy()
-		for !newInformator.getCurrentState().IsGameOver() {
-			AI := newInformator.NextAI(ai.Type_AICheater)
-			action := AI.GetAction()
-			err := newInformator.ApplyAction(action)
-			if err != nil {
-				panic(err)
-			}
-		}
-		info.isLearnOnStep = true
-		state := newInformator.getCurrentState()
-		points, err := state.GetPoints()
-		if err == nil {
-			newInformator.QUpdate(state, float64(points))
-		}
-	}
 
+func (info *Informator) GetQualitativeAssessmentOfState(playerInfo *game.PlayerGameInfo) float64 {
 	return info.QRead(playerInfo)
 }

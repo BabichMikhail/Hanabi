@@ -25,7 +25,7 @@ type Stat struct {
 	Kurtosis    float64   `orm:"column(kurtosis);null" json:"curtosis"`
 	Asymmetry   float64   `orm:"column(asymmenty);null" json:"asymmetry"`
 	Ready       time.Time `orm:"column(ready_at);null" json:"-"`
-	IsMetadata  bool      `orm:"is_metadata" json:"is_metadata"`
+	IsMetadata  bool      `orm:"column(is_metadata)" json:"is_metadata"`
 	ReadyStr    string    `orm:"-" json:"ready_at"`
 	Created     time.Time `orm:"column(created_at)" json:"-"`
 	CreatedStr  string    `orm:"-" json:"created_at"`

@@ -99,6 +99,7 @@ var AINames = map[int]string{
 
 type AIInformator interface {
 	GetPlayerState(step int) game.PlayerGameInfo
+	GetQualitativeAssessmentOfState(*game.PlayerGameInfo) float64
 }
 
 func NewAI(playerInfo game.PlayerGameInfo, history []game.Action, aiType int, informator AIInformator) AI {

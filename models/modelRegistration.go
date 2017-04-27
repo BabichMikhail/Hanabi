@@ -26,4 +26,5 @@ func registerModels() {
 	orm.RegisterModel(new(Action))
 	orm.RegisterModel(new(AIUser))
 	orm.RegisterModel(new(Stat))
+	orm.RegisterModel(new(QData))
 }
