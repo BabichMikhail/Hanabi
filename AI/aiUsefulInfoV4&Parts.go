@@ -203,6 +203,25 @@ func (ai *AIUsefulInfoV4AndParts) GetAction() *game.Action {
 						Usefulness: coefs.CoefPlayByInfoA*float64(i)/float64(len(subHistory)) + coefs.CoefPlayByInfoB,
 					}
 					usefulActions = append(usefulActions, action)
+
+					/*usefulnessNow := 0.0
+					if card.KnownColor && card.KnownValue {
+						tableValue := info.TableCards[card.Color].Value
+						if tableValue+1 == card.Value {
+							usefulnessNow = 1.0
+						} else {
+							usefulnessNow = 0.0
+						}
+					} else {
+						for hashValue, probability := range card.ProbabilityCard {
+							color, value := game.ColorValueByHashColorValue(hashValue)
+							if info.TableCards[color].Value+1 == value {
+								usefulnessNow += probability
+							}
+						}
+					}
+
+					fmt.Println("USEFULNESS NOW: ", usefulnessNow)*/
 				}
 			}
 		}
@@ -257,8 +276,11 @@ func (ai *AIUsefulInfoV4AndParts) GetAction() *game.Action {
 	if info.BlueTokens > 0 {
 		for i := 1; i < len(info.PlayerCards); i++ {
 			nextPos := (myPos + i) % len(info.PlayerCards)
+			newInfo := info.Copy()
+			newInfo.PlayerCards[nextPos] = newInfo.PlayerCardsInfo[nextPos]
+			newInfo.SetProbabilities(false, false)
 			cards := info.PlayerCards[nextPos]
-			cardsInfo := info.PlayerCardsInfo[nextPos]
+			cardsInfo := newInfo.PlayerCardsInfo[nextPos]
 
 			usefulCards := []int{}
 			for idx, card := range cards {
@@ -314,11 +336,24 @@ func (ai *AIUsefulInfoV4AndParts) GetAction() *game.Action {
 				neutralByColor := 0
 				adverseByValue := 0
 				adverseByColor := 0
+				threshold := 0.3
 				for j := 0; j < len(cards); j++ {
 					if _, ok := infoValues[card.Value]; !ok && cards[j].Value == card.Value {
 						if info.TableCards[cards[j].Color].Value+1 == cards[j].Value {
 							if !cardInfo.KnownValue {
-								usefulByValue++
+								isUseful := true
+								for _, prob := range cards[j].ProbabilityCard {
+									if prob > threshold {
+										isUseful = false
+										break
+									}
+								}
+								if isUseful {
+									usefulByValue++
+								} else {
+									neutralByValue++
+								}
+
 							}
 						} else if cardInfo.KnownColor {
 							neutralByValue++
@@ -330,7 +365,18 @@ func (ai *AIUsefulInfoV4AndParts) GetAction() *game.Action {
 					if _, ok := infoColors[card.Color]; !ok && cards[j].Color == card.Color {
 						if info.TableCards[cards[j].Color].Value+1 == cards[j].Value {
 							if !cardInfo.KnownColor {
-								usefulByColor++
+								isUseful := true
+								for _, prob := range cards[j].ProbabilityCard {
+									if prob > threshold {
+										isUseful = false
+										break
+									}
+								}
+								if isUseful {
+									usefulByColor++
+								} else {
+									neutralByColor++
+								}
 							}
 						} else if cardInfo.KnownValue {
 							neutralByColor++
