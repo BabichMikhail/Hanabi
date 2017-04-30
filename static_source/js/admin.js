@@ -89,7 +89,7 @@ function adminHandler() {
                 aiPlayersHtml + `
             </div>
             <div class="col-md-4">
-                <label for="ai-games-count">Thouthands of games</label>
+                <label for="ai-games-count">Number of games</label>
                 <input type="number" id="ai-games-count"></input>
             </div>
             <div class="col-md-12">
