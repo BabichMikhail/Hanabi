@@ -90,7 +90,7 @@ function adminHandler() {
             </div>
             <div class="col-md-4">
                 <label for="ai-games-count">Number of games</label>
-                <input type="number" id="ai-games-count"></input>
+                <input type="number" id="ai-games-count" min="1" value="1000"></input>
             </div>
             <div class="col-md-12">
                 <label for="save-distribution-in-excel">Save distribution points in Excel</label>
