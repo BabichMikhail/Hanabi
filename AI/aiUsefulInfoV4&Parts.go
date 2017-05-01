@@ -274,6 +274,7 @@ func (ai *AIUsefulInfoV4AndParts) GetAction() *game.Action {
 	}
 
 	if info.BlueTokens > 0 {
+		isInformation := false
 		for i := 1; i < len(info.PlayerCards); i++ {
 			nextPos := (myPos + i) % len(info.PlayerCards)
 			newInfo := info.Copy()
@@ -422,9 +423,19 @@ func (ai *AIUsefulInfoV4AndParts) GetAction() *game.Action {
 				maxUsefulByValue, maxUsefulByColor, maxNeutralByValue, maxNeutralByColor,
 			)
 
+			if isInformation {
+				if minAdverseByColor > 0 && minAdverseByValue > 0 {
+					continue
+				}
+
+				if maxUsefulByColor == 0 || maxUsefulByValue > 0 {
+					continue
+				}
+			}
+
 			if isBetterInfoByValue {
 				card := &cards[idxValue]
-				bonus := -float64(i)/1000 - float64(minAdverseByValue)/1001 + float64(maxUsefulByValue)/100 + float64(maxNeutralByValue)/1002
+				bonus := -float64(i)/100 - float64(minAdverseByValue)/1000 + float64(maxUsefulByValue)/10000 + float64(maxNeutralByValue)/100000
 				action := UsefulAction{
 					Action:     game.NewAction(game.TypeActionInformationValue, nextPos, int(card.Value)),
 					Usefulness: coefs.CoefInfoA*(1.0-float64(i)/float64(len(info.PlayerCards))+bonus) + coefs.CoefInfoB,
@@ -432,7 +443,7 @@ func (ai *AIUsefulInfoV4AndParts) GetAction() *game.Action {
 				usefulActions = append(usefulActions, action)
 			} else {
 				card := &cards[idxColor]
-				bonus := -float64(i)/1000 - float64(minAdverseByColor)/1001 + float64(maxUsefulByColor)/100 + float64(maxNeutralByColor)/1002
+				bonus := -float64(i)/100 - float64(minAdverseByColor)/1000 + float64(maxUsefulByColor)/10000 + float64(maxNeutralByColor)/100000
 				action := UsefulAction{
 					Action:     game.NewAction(game.TypeActionInformationColor, nextPos, int(card.Color)),
 					Usefulness: coefs.CoefInfoA*(1.0-float64(i)/float64(len(info.PlayerCards))+bonus) + coefs.CoefInfoB,
