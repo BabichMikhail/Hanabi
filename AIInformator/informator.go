@@ -14,6 +14,7 @@ type Informator struct {
 	currentState  *game.GameState
 	QRead         func(*game.PlayerGameInfo) float64
 	QUpdate       func(*game.GameState, float64)
+	Cache         map[int]interface{}
 	isLearnOnStep bool
 }
 
@@ -118,7 +119,19 @@ func (info *Informator) Copy() *Informator {
 	return newInfo
 }
 
-
 func (info *Informator) GetQualitativeAssessmentOfState(playerInfo *game.PlayerGameInfo) float64 {
 	return info.QRead(playerInfo)
+}
+
+func (info *Informator) SetCache(data interface{}) {
+	pos := info.currentState.CurrentPosition
+	if info.Cache == nil {
+		info.Cache = map[int]interface{}{}
+	}
+	info.Cache[pos] = data
+}
+
+func (info *Informator) GetCache() interface{} {
+	pos := info.currentState.CurrentPosition
+	return info.Cache[pos]
 }
