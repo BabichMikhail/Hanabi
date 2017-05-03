@@ -192,6 +192,12 @@ func (info *PlayerGameInfo) SetProbabilities_ConvergenceOfProbability(cards Card
 				info.VariantsCount[ColorValue{Color: card.Color, Value: card.Value}]--
 			}
 		}
+
+		for key, prob := range card.ProbabilityCard {
+			if prob < math.Pow(deltaVerifyProbs, 2) {
+				delete(card.ProbabilityCard, key)
+			}
+		}
 	}
 }
 
