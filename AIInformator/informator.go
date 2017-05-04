@@ -1,6 +1,8 @@
 package informator
 
 import (
+	"fmt"
+
 	ai "github.com/BabichMikhail/Hanabi/AI"
 	game "github.com/BabichMikhail/Hanabi/game"
 )
@@ -51,8 +53,17 @@ func (info *Informator) NextAI(aiType int) ai.AI {
 	return ai.NewAI(playerInfo, info.actions, aiType, info)
 }
 
+func (info *Informator) getPlayerState(step, infoType int, currentPosition ...int) game.PlayerGameInfo {
+	state := info.gameStates[step]
+	pos := state.CurrentPosition
+	if len(currentPosition) == 1 {
+		pos = currentPosition[0]
+	}
+	return state.GetPlayerGameInfoByPos(pos, infoType)
+}
+
 func (info *Informator) GetPlayerState(step int) game.PlayerGameInfo {
-	state, ok := info.gameStates[step]
+	_, ok := info.gameStates[step]
 	if !ok {
 		prevStep := step
 		var prevState game.GameState
@@ -66,9 +77,9 @@ func (info *Informator) GetPlayerState(step int) game.PlayerGameInfo {
 			prevState.ApplyAction(&info.actions[i])
 			info.gameStates[i+1] = *prevState.Copy()
 		}
-		state = info.gameStates[step]
+		_ = info.gameStates[step]
 	}
-	return state.GetPlayerGameInfoByPos(info.currentState.CurrentPosition, game.InfoTypeUsually)
+	return info.getPlayerState(step, game.InfoTypeUsually, info.currentState.CurrentPosition)
 }
 
 func (info *Informator) ApplyAction(action *game.Action) error {
@@ -134,4 +145,78 @@ func (info *Informator) SetCache(data interface{}) {
 func (info *Informator) GetCache() interface{} {
 	pos := info.currentState.CurrentPosition
 	return info.Cache[pos]
+}
+
+// Don't use this function in AI package. Use only for debugging
+func (info *Informator) CheckAvailablePlayerInformation(availableGameInfo []*game.AvailablePlayerGameInfo, step int) int {
+	okIdx := -1
+	playerInfo := info.getPlayerState(step, game.InfoTypeCheat)
+	for idx, information := range availableGameInfo {
+		availablePlayerInfo := information.PlayerInfo
+		for pos, cards := range availablePlayerInfo.PlayerCards {
+			for j := 0; j < len(cards); j++ {
+				card1 := &cards[j]
+				card2 := &playerInfo.PlayerCards[pos][j]
+				if !card1.KnownColor || !card1.KnownValue {
+					panic("Bad information about cards")
+				}
+
+				if !card2.KnownColor || !card2.KnownValue {
+					panic("Bad information about cards")
+				}
+
+				if card1.Color != card2.Color || card1.Value != card2.Value {
+					goto needContinue
+				}
+			}
+		}
+
+		for pos, cards := range availablePlayerInfo.PlayerCardsInfo {
+			for j := 0; j < len(cards); j++ {
+				card1 := &cards[j]
+				card2 := &playerInfo.PlayerCardsInfo[pos][j]
+				if card1.KnownColor != card2.KnownColor || card1.KnownValue != card2.KnownValue {
+					fmt.Println(card1.KnownColor, card2.KnownColor, card1.KnownValue, card2.KnownValue, pos, availablePlayerInfo.CurrentPostion, availablePlayerInfo.Position)
+					panic("Bad information about cards")
+				}
+
+				if len(card1.ProbabilityColors) != len(card2.ProbabilityColors) {
+					panic("Bad information about cards")
+				}
+
+				for color, _ := range card1.ProbabilityColors {
+					if _, ok := card2.ProbabilityColors[color]; !ok {
+						panic("Bad information about cards")
+					}
+				}
+
+				for value, _ := range card1.ProbabilityValues {
+					if _, ok := card2.ProbabilityValues[value]; !ok {
+						panic("Bad information about cards")
+					}
+				}
+
+				if len(card1.ProbabilityValues) != len(card2.ProbabilityValues) {
+					panic("Bad information about cards")
+				}
+
+				if card1.Color != card2.Color || card1.Value != card2.Value {
+					goto needContinue
+				}
+			}
+		}
+
+		if availablePlayerInfo.BlueTokens != playerInfo.BlueTokens || availablePlayerInfo.RedTokens != playerInfo.RedTokens {
+			continue
+		}
+
+		okIdx = idx
+	needContinue:
+	}
+
+	if okIdx == -1 {
+		panic("Bad availablePlayerGameInformation")
+	}
+	fmt.Println("Check AvailablePLayerInformation: OK")
+	return okIdx
 }
