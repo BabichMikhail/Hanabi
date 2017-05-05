@@ -22,6 +22,16 @@ func (game *Game) AppendAction(action *Action, err error) (*Action, error) {
 	return action, err
 }
 
+func (action Action) String() string {
+	names := map[int]string{
+		TypeActionInformationColor: "InfoColor",
+		TypeActionInformationValue: "InfoValue",
+		TypeActionPlaying:          "Play",
+		TypeActionDiscard:          "Discard",
+	}
+	return fmt.Sprintf("{%d %s %d}", action.PlayerPosition, names[int(action.ActionType)], action.Value)
+}
+
 func (state *GameState) NewAction(actionType ActionType, playerPosition int, value int) *Action {
 	action := NewAction(actionType, playerPosition, value)
 	state.IncreaseStep()
