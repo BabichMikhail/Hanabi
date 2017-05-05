@@ -1,5 +1,7 @@
 package game
 
+import "fmt"
+
 type ActionType int
 
 const (
@@ -43,6 +45,14 @@ func NewAction(actionType ActionType, playerPosition int, value int) *Action {
 		ActionType:     actionType,
 		PlayerPosition: playerPosition,
 		Value:          value,
+	}
+}
+
+func (action *Action) Copy() *Action {
+	return &Action{
+		ActionType:     action.ActionType,
+		PlayerPosition: action.PlayerPosition,
+		Value:          action.Value,
 	}
 }
 
