@@ -34,6 +34,10 @@ func (action Action) String() string {
 	return fmt.Sprintf("{%d %s %d}", action.PlayerPosition, names[int(action.ActionType)], action.Value)
 }
 
+func (a1 *Action) Equal(a2 *Action) bool {
+	return a1.ActionType == a2.ActionType && a1.PlayerPosition == a2.PlayerPosition && a1.Value == a2.Value
+}
+
 func (state *GameState) NewAction(actionType ActionType, playerPosition int, value int) *Action {
 	action := NewAction(actionType, playerPosition, value)
 	state.IncreaseStep()
