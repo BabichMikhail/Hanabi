@@ -2,7 +2,7 @@ package game
 
 type PlayerGameInfo struct {
 	MyTurn          bool               `json:"my_turn"`
-	CurrentPostion  int                `json:"current_position"`
+	CurrentPosition int                `json:"current_position"`
 	PlayerCount     int                `json:"player_count"`
 	Position        int                `json:"pos"`
 	Step            int                `json:"step"`
@@ -20,6 +20,8 @@ type PlayerGameInfo struct {
 	Points          int                `json:"points"`
 	VariantsCount   map[ColorValue]int `json:"-"`
 	GameType        int                `json:"game_type"`
+	HashKey         *string            `json:"-"`
+	InfoIsSetted    bool               `json:"-"`
 }
 
 func (game *Game) GetPlayerGameInfo(playerId int, infoType int) PlayerGameInfo {
@@ -32,9 +34,11 @@ func (state *GameState) GetPlayerGameInfoByPos(playerPosition int, infoType int)
 	for i := 0; i < len(state.PlayerStates); i++ {
 		cards1 := make([]Card, len(state.PlayerStates[i].PlayerCards))
 		cards2 := make([]Card, len(state.PlayerStates[i].PlayerCards))
-		copy(cards1, state.PlayerStates[i].PlayerCards)
+		for j := 0; j < len(cards1); j++ {
+			cards1[j] = state.PlayerStates[i].PlayerCards[j].Copy()
+			cards2[j] = state.PlayerStates[i].PlayerCards[j].Copy()
+		}
 		playerCardsInfo = append(playerCardsInfo, cards1)
-		copy(cards2, state.PlayerStates[i].PlayerCards)
 		playerCards = append(playerCards, cards2)
 	}
 
@@ -50,6 +54,12 @@ func (state *GameState) GetPlayerGameInfoByPos(playerPosition int, infoType int)
 		} else {
 			card.KnownColor = true
 			card.KnownValue = true
+		}
+		if card.KnownColor {
+			card.ProbabilityColors = map[CardColor]float64{card.Color: 1.0}
+		}
+		if card.KnownValue {
+			card.ProbabilityValues = map[CardValue]float64{card.Value: 1.0}
 		}
 	}
 
@@ -70,15 +80,21 @@ func (state *GameState) GetPlayerGameInfoByPos(playerPosition int, infoType int)
 			card := &playerCardsInfo[i][j]
 			if !card.KnownColor {
 				card.Color = NoneColor
+			} else {
+				card.ProbabilityColors = map[CardColor]float64{card.Color: 1.0}
 			}
 			if !card.KnownValue {
 				card.Value = NoneValue
+			} else {
+				card.ProbabilityValues = map[CardValue]float64{card.Value: 1.0}
 			}
 		}
 	}
 
 	deckCopy := make([]Card, len(state.Deck), len(state.Deck))
-	copy(deckCopy, state.Deck)
+	for i := 0; i < len(deckCopy); i++ {
+		deckCopy[i] = state.Deck[i].Copy()
+	}
 	for i := 0; i < len(deckCopy); i++ {
 		card := &deckCopy[i]
 		if infoType != InfoTypeFullCheat {
@@ -92,7 +108,7 @@ func (state *GameState) GetPlayerGameInfoByPos(playerPosition int, infoType int)
 
 	return PlayerGameInfo{
 		MyTurn:          state.CurrentPosition == playerPosition,
-		CurrentPostion:  state.CurrentPosition,
+		CurrentPosition: state.CurrentPosition,
 		PlayerCount:     len(state.PlayerStates),
 		Position:        playerPosition,
 		Step:            state.Step,
@@ -109,6 +125,8 @@ func (state *GameState) GetPlayerGameInfoByPos(playerPosition int, infoType int)
 		RedTokens:       MaxRedTokens - state.RedTokens,
 		Points:          0,
 		GameType:        state.GameType,
+		HashKey:         nil,
+		InfoIsSetted:    false,
 	}
 }
 
@@ -147,7 +165,7 @@ func (info *PlayerGameInfo) Copy() *PlayerGameInfo {
 	newInfo := new(PlayerGameInfo)
 
 	newInfo.MyTurn = info.MyTurn
-	newInfo.CurrentPostion = info.CurrentPostion
+	newInfo.CurrentPosition = info.CurrentPosition
 	newInfo.PlayerCount = info.PlayerCount
 	newInfo.Position = info.Position
 	newInfo.Step = info.Step
@@ -194,6 +212,8 @@ func (info *PlayerGameInfo) Copy() *PlayerGameInfo {
 
 	newInfo.BlueTokens = info.BlueTokens
 	newInfo.RedTokens = info.RedTokens
+	newInfo.HashKey = info.HashKey
+	newInfo.InfoIsSetted = info.InfoIsSetted
 	return newInfo
 }
 
@@ -232,9 +252,9 @@ func (info *PlayerGameInfo) IsGameOver() bool {
 
 func (info *PlayerGameInfo) IncreasePosition() {
 	info.Step++
-	info.CurrentPostion++
-	if info.CurrentPostion/len(info.PlayerCards) == 1 {
-		info.CurrentPostion = 0
+	info.CurrentPosition++
+	if info.CurrentPosition/len(info.PlayerCards) == 1 {
+		info.CurrentPosition = 0
 		info.Round++
 	}
 }

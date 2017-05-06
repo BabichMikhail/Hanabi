@@ -144,7 +144,7 @@ func (ai *AIUsefulInfoV3AndParts) GetPartOfGame() int {
 
 func (ai *AIUsefulInfoV3AndParts) GetAction() *game.Action {
 	info := &ai.PlayerInfo
-	myPos := info.CurrentPostion
+	myPos := info.CurrentPosition
 	oldPlayerCards := info.PlayerCards[myPos]
 	info.PlayerCards[myPos] = info.PlayerCardsInfo[myPos]
 	defer func() {

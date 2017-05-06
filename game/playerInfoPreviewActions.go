@@ -46,7 +46,7 @@ func (info *PlayerGameInfo) PreviewActionDiscard(cardPosition int) (*ResultPrevi
 	}
 
 	newPlayerInfo := info.Copy()
-	playerPosition := newPlayerInfo.CurrentPostion
+	playerPosition := newPlayerInfo.CurrentPosition
 	cards := newPlayerInfo.PlayerCards[playerPosition]
 	action := NewAction(TypeActionDiscard, playerPosition, cardPosition)
 	if len(cards) <= cardPosition {
@@ -177,7 +177,7 @@ func (info *PlayerGameInfo) PreviewActionPlaying(cardPosition int) (*ResultPrevi
 	}
 
 	newPlayerInfo := info.Copy()
-	playerPosition := newPlayerInfo.CurrentPostion
+	playerPosition := newPlayerInfo.CurrentPosition
 	action := NewAction(TypeActionPlaying, playerPosition, cardPosition)
 
 	max := -1

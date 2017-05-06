@@ -145,7 +145,7 @@ func (ai *AIUsefulInfoV4AndParts) GetPartOfGame() int {
 
 func (ai *AIUsefulInfoV4AndParts) GetAction() *game.Action {
 	info := &ai.PlayerInfo
-	myPos := info.CurrentPostion
+	myPos := info.CurrentPosition
 	oldPlayerCards := info.PlayerCards[myPos]
 	info.PlayerCards[myPos] = info.PlayerCardsInfo[myPos]
 	defer func() {
@@ -181,8 +181,8 @@ func (ai *AIUsefulInfoV4AndParts) GetAction() *game.Action {
 				if actionOld.ActionType == game.TypeActionPlaying {
 					step := len(ai.History) - len(subHistory) + j
 					oldInfo := ai.Informator.GetPlayerState(step)
-					if actionOld.PlayerPosition != oldInfo.CurrentPostion {
-						panic("Bad CurrentPostion")
+					if actionOld.PlayerPosition != oldInfo.CurrentPosition {
+						panic("Bad CurrentPosition")
 					}
 					card := &oldInfo.PlayerCards[actionOld.PlayerPosition][actionOld.Value]
 					if game.CardValue(action.Value) == card.Value {
@@ -246,8 +246,8 @@ func (ai *AIUsefulInfoV4AndParts) GetAction() *game.Action {
 				if actionOld.ActionType == game.TypeActionPlaying {
 					step := len(ai.History) - len(subHistory) + j
 					oldInfo := ai.Informator.GetPlayerState(step)
-					if actionOld.PlayerPosition != oldInfo.CurrentPostion {
-						panic("Bad CurrentPostion")
+					if actionOld.PlayerPosition != oldInfo.CurrentPosition {
+						panic("Bad CurrentPosition")
 					}
 					card := &oldInfo.PlayerCards[actionOld.PlayerPosition][actionOld.Value]
 					if game.CardColor(action.Value) == card.Color {

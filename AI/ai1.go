@@ -13,8 +13,7 @@ type AI1 struct {
 func (ai *AI1) GetAction() *game.Action {
 	info := &ai.PlayerInfo
 	info.SetProbabilities(false, false)
-	myPos := info.CurrentPostion
-
+	myPos := info.CurrentPosition
 	for idx, card := range info.PlayerCards[myPos] {
 		if card.KnownColor && card.KnownValue && info.TableCards[card.Color].Value+1 == card.Value {
 			return game.NewAction(game.TypeActionPlaying, myPos, idx)
@@ -110,10 +109,6 @@ func (ai *AI1) GetAction() *game.Action {
 			}
 		}
 		return game.NewAction(game.TypeActionDiscard, myPos, 0)
-	}
-
-	if info.BlueTokens != game.MaxBlueTokens {
-		panic("Abc")
 	}
 
 	panic("Magic " + strconv.Itoa(info.BlueTokens))

@@ -59,7 +59,7 @@ func (ai *BaseAI) isCardMayBeUsefull(card game.Card) bool {
 
 func (ai *AIUsefulInfoAndMMEnd) getBestResultWithDepth() *game.ResultPreviewPlayerInformations {
 	info := &ai.PlayerInfo
-	pos := info.CurrentPostion
+	pos := info.CurrentPosition
 	var bestResult *game.ResultPreviewPlayerInformations
 
 	for i := 0; i < len(info.PlayerCards[pos]); i++ {
@@ -136,7 +136,7 @@ func (ai *AIUsefulInfoAndMMEnd) getBestResultWithDepth() *game.ResultPreviewPlay
 
 	isActionInfo := false
 	for i := 0; i < len(info.PlayerCards); i++ {
-		if i == pos || isActionInfo && info.MaxStep > info.Step && (i-info.CurrentPostion+len(info.PlayerCards))%len(info.PlayerCards) > info.MaxStep-info.Step {
+		if i == pos || isActionInfo && info.MaxStep > info.Step && (i-info.CurrentPosition+len(info.PlayerCards))%len(info.PlayerCards) > info.MaxStep-info.Step {
 			continue
 		}
 

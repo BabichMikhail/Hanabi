@@ -18,7 +18,7 @@ func (ai *AIDiscardKnownCard) GetAction() *game.Action {
 	ai.setAvailableActions()
 	ai.setAvailableInformation()
 	info := &ai.PlayerInfo
-	pos := info.CurrentPostion
+	pos := info.CurrentPosition
 	for color, tableCard := range info.TableCards {
 		for idx, card := range info.PlayerCards[pos] {
 			if card.KnownColor && card.KnownValue && card.Color == color && card.Value == tableCard.Value+1 {

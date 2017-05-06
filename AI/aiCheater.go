@@ -16,7 +16,7 @@ func NewAICheater(baseAI *BaseAI) *AICheater {
 
 func (ai *AICheater) GetAction() *game.Action {
 	info := &ai.PlayerInfo
-	myPos := info.CurrentPostion
+	myPos := info.CurrentPosition
 	myCards := info.PlayerCards[myPos]
 	for idx, card := range myCards {
 		if card.Value == info.TableCards[card.Color].Value+1 {
