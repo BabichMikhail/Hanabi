@@ -210,3 +210,28 @@ func (card Card) Copy() Card {
 		ProbabilityCard:   probCards,
 	}
 }
+
+func (card *Card) NormalizeProbabilities(color CardColor, value CardValue, countLeft int) {
+	if card.KnownValue && card.KnownColor {
+		return
+	}
+
+	colorValue := HashColorValue(color, value)
+
+	if probability, ok := card.ProbabilityCard[colorValue]; ok {
+		probSum := 1.0
+		if countLeft == 0 {
+			probSum -= probability
+			delete(card.ProbabilityCard, colorValue)
+		} else {
+			count := float64(countLeft)
+			probSum -= probability / (count + 1)
+			card.ProbabilityCard[colorValue] = probability / (count + 1) * count
+		}
+
+		for colorValue, _ := range card.ProbabilityCard {
+			card.ProbabilityCard[colorValue] /= probSum
+		}
+	}
+	return
+}
