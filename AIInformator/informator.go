@@ -2,6 +2,7 @@ package informator
 
 import (
 	"fmt"
+	"strconv"
 
 	ai "github.com/BabichMikhail/Hanabi/AI"
 	game "github.com/BabichMikhail/Hanabi/game"
@@ -10,6 +11,11 @@ import (
 type QReadFunc func(*game.PlayerGameInfo) float64
 type QUpdateFunc func(*game.GameState, float64)
 
+type KeyCacheActions struct {
+	PlayerInfoHash string
+	AIType         int
+}
+
 type Informator struct {
 	actions       []game.Action
 	gameStates    map[int]game.GameState
@@ -17,6 +23,8 @@ type Informator struct {
 	QRead         func(*game.PlayerGameInfo) float64
 	QUpdate       func(*game.GameState, float64)
 	Cache         map[int]interface{}
+	CachePInfo    map[string]*game.PlayerGameInfo
+	CacheActions  map[KeyCacheActions]*game.Action
 	isLearnOnStep bool
 }
 
@@ -30,6 +38,8 @@ func NewInformator(currentGameState *game.GameState, initialGameState *game.Game
 	info.QRead = qRead
 	info.QUpdate = qUpdate
 	info.isLearnOnStep = false
+	info.CachePInfo = map[string]*game.PlayerGameInfo{}
+	info.CacheActions = map[KeyCacheActions]*game.Action{}
 	return info
 }
 
@@ -151,18 +161,36 @@ func (info *Informator) GetCache() interface{} {
 func (info *Informator) CheckAvailablePlayerInformation(availableGameInfo []*game.AvailablePlayerGameInfo, step int) int {
 	okIdx := -1
 	playerInfo := info.getPlayerState(step, game.InfoTypeCheat)
+	hashRes1 := info.PlayerInfoHash(&playerInfo)
 	for idx, information := range availableGameInfo {
 		availablePlayerInfo := information.PlayerInfo
+		hashRes2 := info.PlayerInfoHash(availablePlayerInfo)
 		for pos, cards := range availablePlayerInfo.PlayerCards {
 			for j := 0; j < len(cards); j++ {
 				card1 := &cards[j]
 				card2 := &playerInfo.PlayerCards[pos][j]
 				if !card1.KnownColor || !card1.KnownValue {
-					panic("Bad information about cards")
+					panic("1. Bad information about cards")
+				}
+
+				if len(card1.ProbabilityColors) != 1 || len(card1.ProbabilityValues) != 1 {
+					panic("1. Bad probabilities for card")
+				}
+
+				if card1.Color == game.NoneColor || card1.Value == game.NoneValue {
+					panic("Bad Color Or Value")
 				}
 
 				if !card2.KnownColor || !card2.KnownValue {
-					panic("Bad information about cards")
+					panic("2. Bad information about cards 2")
+				}
+
+				if len(card2.ProbabilityColors) != 1 || len(card2.ProbabilityValues) != 1 {
+					panic("2. Bad probabilities for card")
+				}
+
+				if card2.Color == game.NoneColor || card2.Value == game.NoneValue {
+					panic("Bad Color Or Value")
 				}
 
 				if card1.Color != card2.Color || card1.Value != card2.Value {
@@ -176,28 +204,27 @@ func (info *Informator) CheckAvailablePlayerInformation(availableGameInfo []*gam
 				card1 := &cards[j]
 				card2 := &playerInfo.PlayerCardsInfo[pos][j]
 				if card1.KnownColor != card2.KnownColor || card1.KnownValue != card2.KnownValue {
-					fmt.Println(card1.KnownColor, card2.KnownColor, card1.KnownValue, card2.KnownValue, pos, availablePlayerInfo.CurrentPostion, availablePlayerInfo.Position)
-					panic("Bad information about cards")
+					panic("3. Bad information about cards ")
 				}
 
 				if len(card1.ProbabilityColors) != len(card2.ProbabilityColors) {
-					panic("Bad information about cards")
+					panic("4. Bad information about cards")
 				}
 
 				for color, _ := range card1.ProbabilityColors {
 					if _, ok := card2.ProbabilityColors[color]; !ok {
-						panic("Bad information about cards")
-					}
-				}
-
-				for value, _ := range card1.ProbabilityValues {
-					if _, ok := card2.ProbabilityValues[value]; !ok {
-						panic("Bad information about cards")
+						panic("5. Bad information about cards")
 					}
 				}
 
 				if len(card1.ProbabilityValues) != len(card2.ProbabilityValues) {
-					panic("Bad information about cards")
+					panic("6. Bad information about cards")
+				}
+
+				for value, _ := range card1.ProbabilityValues {
+					if _, ok := card2.ProbabilityValues[value]; !ok {
+						panic("7. Bad information about cards")
+					}
 				}
 
 				if card1.Color != card2.Color || card1.Value != card2.Value {
@@ -210,6 +237,19 @@ func (info *Informator) CheckAvailablePlayerInformation(availableGameInfo []*gam
 			continue
 		}
 
+		for color, card := range availablePlayerInfo.TableCards {
+			if card.Value != playerInfo.TableCards[color].Value {
+				panic("Bad table cards")
+			}
+		}
+
+		if okIdx != -1 {
+			panic("Magic")
+		}
+
+		if hashRes1 != hashRes2 {
+			panic("Different hash results\n" + fmt.Sprintf("Hash1: %s\n", hashRes1) + fmt.Sprintf("Hash2: %s", hashRes2))
+		}
 		okIdx = idx
 	needContinue:
 	}
@@ -217,6 +257,66 @@ func (info *Informator) CheckAvailablePlayerInformation(availableGameInfo []*gam
 	if okIdx == -1 {
 		panic("Bad availablePlayerGameInformation")
 	}
-	fmt.Println("Check AvailablePLayerInformation: OK")
 	return okIdx
+}
+
+func (info *Informator) ForcePlayerInfoHash(playerInfo *game.PlayerGameInfo) string {
+	result := strconv.Itoa(playerInfo.CurrentPosition)
+	for pos, cards := range playerInfo.PlayerCards {
+		result += fmt.Sprintf("pl(%d)", pos)
+		for i := 0; i < len(cards); i++ {
+			card := &cards[i]
+			result += strconv.Itoa(int(card.Color)) + strconv.Itoa(int(card.Value))
+			probSum := 0
+			for color, _ := range card.ProbabilityColors {
+				probSum += 1 << uint(color)
+			}
+			for value, _ := range card.ProbabilityValues {
+				probSum += 1 << (uint(value) + 5)
+			}
+			result += strconv.Itoa(probSum)
+		}
+	}
+	result += "info"
+	result += strconv.Itoa(playerInfo.BlueTokens) + strconv.Itoa(playerInfo.RedTokens) + strconv.Itoa(playerInfo.Step)
+	result += "table"
+	for _, color := range game.ColorsTable {
+		value := playerInfo.TableCards[color].Value
+		result += strconv.Itoa(int(value))
+	}
+
+	return result
+}
+
+func (info *Informator) PlayerInfoHash(playerInfo *game.PlayerGameInfo) string {
+	if playerInfo.HashKey != nil {
+		return *playerInfo.HashKey
+	}
+
+	result := info.ForcePlayerInfoHash(playerInfo)
+	playerInfo.HashKey = &result
+	return result
+}
+
+func (info *Informator) SetProbabilities(playerInfo *game.PlayerGameInfo) {
+	hashPlayerInfo := info.PlayerInfoHash(playerInfo)
+	if pinfo, ok := info.CachePInfo[hashPlayerInfo]; ok {
+		copyPInfo := pinfo.Copy()
+		*playerInfo = *copyPInfo
+		return
+	}
+	playerInfo.SetProbabilities(false, false)
+	info.CachePInfo[hashPlayerInfo] = playerInfo.Copy()
+}
+
+func (info *Informator) GetAction(playerInfo *game.PlayerGameInfo, aiType int, history []game.Action) *game.Action {
+	key := KeyCacheActions{
+		PlayerInfoHash: info.PlayerInfoHash(playerInfo),
+		AIType:         aiType,
+	}
+	if action, ok := info.CacheActions[key]; ok {
+		return action
+	}
+	newAI := ai.NewAI(*playerInfo, history, aiType, info)
+	return newAI.GetAction()
 }

@@ -106,6 +106,11 @@ type AIInformator interface {
 	GetQualitativeAssessmentOfState(*game.PlayerGameInfo) float64
 	GetCache() interface{}
 	SetCache(interface{})
+	CheckAvailablePlayerInformation([]*game.AvailablePlayerGameInfo, int) int
+	SetProbabilities(*game.PlayerGameInfo)
+	PlayerInfoHash(*game.PlayerGameInfo) string
+	ForcePlayerInfoHash(*game.PlayerGameInfo) string
+	GetAction(*game.PlayerGameInfo, int, []game.Action) *game.Action
 }
 
 func NewAI(playerInfo game.PlayerGameInfo, history []game.Action, aiType int, informator AIInformator) AI {
