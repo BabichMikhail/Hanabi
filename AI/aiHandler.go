@@ -20,6 +20,7 @@ const (
 	Type_AICheater
 	Type_AIFullCheater
 	Type_AI1
+	Type_AI2
 )
 
 var AITypes = []int{
@@ -38,6 +39,7 @@ var AITypes = []int{
 	Type_AICheater,
 	Type_AIFullCheater,
 	Type_AI1,
+	Type_AI2,
 }
 
 type Action struct {
@@ -81,6 +83,7 @@ const (
 	Name_AICheater              = "Cheater"
 	Name_AIFullCheater          = "FullCheater"
 	Name_AI1                    = "AI1"
+	Name_AI2                    = "AI2"
 )
 
 var AINames = map[int]string{
@@ -99,6 +102,7 @@ var AINames = map[int]string{
 	Type_AICheater:              Name_AICheater,
 	Type_AIFullCheater:          Name_AIFullCheater,
 	Type_AI1:                    Name_AI1,
+	Type_AI2:                    Name_AI2,
 }
 
 type AIInformator interface {
@@ -151,6 +155,8 @@ func NewAI(playerInfo game.PlayerGameInfo, history []game.Action, aiType int, in
 		ai = NewAICheater(baseAI)
 	case Type_AI1:
 		ai = NewAI1(baseAI)
+	case Type_AI2:
+		ai = NewAI2(baseAI)
 	default:
 		panic("Unknown aiType")
 	}

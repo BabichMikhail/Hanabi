@@ -12,7 +12,7 @@ type AI1 struct {
 
 func (ai *AI1) GetAction() *game.Action {
 	info := &ai.PlayerInfo
-	info.SetProbabilities(false, false)
+	ai.Informator.SetProbabilities(info)
 	myPos := info.CurrentPosition
 	for idx, card := range info.PlayerCards[myPos] {
 		if card.KnownColor && card.KnownValue && info.TableCards[card.Color].Value+1 == card.Value {
