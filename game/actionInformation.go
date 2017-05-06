@@ -23,7 +23,7 @@ func (state *GameState) NewActionInformationColor(playerPosition int, cardColor 
 		if !card.KnownColor && card.Color == CardColor(color) {
 			card.KnownColor = true
 			card.ProbabilityColors = map[CardColor]float64{
-				CardColor(color): 0.0,
+				CardColor(color): 1.0,
 			}
 		}
 		if !card.KnownColor && card.Color != CardColor(color) {
@@ -37,7 +37,7 @@ func (state *GameState) NewActionInformationValue(playerPosition int, cardValue 
 		if !card.KnownValue && card.Value == CardValue(value) {
 			card.KnownValue = true
 			card.ProbabilityValues = map[CardValue]float64{
-				CardValue(value): 0.0,
+				CardValue(value): 1.0,
 			}
 		}
 		if !card.KnownValue && card.Value != CardValue(value) {
