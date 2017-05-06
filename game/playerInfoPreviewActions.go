@@ -3,6 +3,7 @@ package game
 import (
 	"errors"
 	"fmt"
+	"strconv"
 )
 
 type ResultPreviewPlayerInformations struct {
@@ -10,7 +11,7 @@ type ResultPreviewPlayerInformations struct {
 	Max     int
 	Min     int
 	Med     float64
-	Results []ResultPlayerInfo
+	Results []*ResultPlayerInfo
 }
 
 type ResultPlayerInfo struct {
@@ -57,7 +58,7 @@ func (info *PlayerGameInfo) PreviewActionDiscard(cardPosition int) (*ResultPrevi
 	min := 26
 	med := 0.0
 
-	updateFunc := func(playerInfo *PlayerGameInfo, cardValue CardValue, cardColor CardColor, probability float64) *ResultPlayerInfo {
+	updateFunc := func(playerInfo *PlayerGameInfo, cardValue CardValue, cardColor CardColor, probability float64) []*ResultPlayerInfo {
 		newPlayerInfo = playerInfo.Copy()
 		playerCards := newPlayerInfo.PlayerCards[playerPosition]
 		card := playerCards[cardPosition].Copy()
@@ -71,17 +72,18 @@ func (info *PlayerGameInfo) PreviewActionDiscard(cardPosition int) (*ResultPrevi
 		card.Value = cardValue
 		card.Color = cardColor
 		card.ProbabilityColors = map[CardColor]float64{
-			cardColor: 0.0,
+			cardColor: 1.0,
 		}
 		card.ProbabilityValues = map[CardValue]float64{
-			cardValue: 0.0,
+			cardValue: 1.0,
 		}
+		card.ProbabilityCard = map[HashValue]float64{
+			HashColorValue(cardColor, cardValue): 1.0,
+		}
+		colorValue := ColorValue{Color: cardColor, Value: cardValue}
+		newPlayerInfo.VariantsCount[colorValue]--
 		newPlayerInfo.UsedCards = append(newPlayerInfo.UsedCards, card)
 		newPlayerInfo.BlueTokens++
-
-		if newPlayerInfo.DeckSize > 0 {
-			newPlayerInfo.MoveCardFromDeckToPlayer(playerPosition)
-		}
 
 		points := newPlayerInfo.GetPoints()
 		med += float64(points) * probability
@@ -93,21 +95,65 @@ func (info *PlayerGameInfo) PreviewActionDiscard(cardPosition int) (*ResultPrevi
 		}
 
 		newPlayerInfo.IncreasePosition()
-		return &ResultPlayerInfo{
-			Probability: probability,
-			Info:        newPlayerInfo,
+
+		for i := 0; i < len(playerCards); i++ {
+			playerCards[i].NormalizeProbabilities(cardColor, cardValue, newPlayerInfo.VariantsCount[colorValue])
 		}
+		for i := 0; i < len(newPlayerInfo.Deck); i++ {
+			newPlayerInfo.Deck[i].NormalizeProbabilities(cardColor, cardValue, newPlayerInfo.VariantsCount[colorValue])
+		}
+
+		results := []*ResultPlayerInfo{}
+		if newPlayerInfo.DeckSize > 0 {
+			newPlayerInfo.MoveCardFromDeckToPlayer(playerPosition)
+			cardPos := len(cards) - 1
+			if cards[cardPos].KnownColor && cards[cardPos].KnownValue {
+				results = append(results, &ResultPlayerInfo{
+					Probability: probability,
+					Info:        newPlayerInfo,
+				})
+			} else {
+				for hashColorValue, prob := range cards[cardPos].ProbabilityCard {
+					newInfo := newPlayerInfo.Copy()
+					playerCards = newInfo.PlayerCards[playerPosition]
+					card := &playerCards[cardPos]
+					card.KnownValue = true
+					card.KnownColor = true
+					color, value := ColorValueByHashColorValue(hashColorValue)
+					card.ProbabilityCard = map[HashValue]float64{hashColorValue: 1.0}
+					card.ProbabilityColors = map[CardColor]float64{color: 1.0}
+					card.ProbabilityValues = map[CardValue]float64{value: 1.0}
+					colorValue := ColorValue{Color: color, Value: value}
+					newInfo.VariantsCount[colorValue]--
+					count := newInfo.VariantsCount[colorValue]
+					for i := 0; i < len(playerCards)-1; i++ {
+						playerCards[i].NormalizeProbabilities(color, value, count)
+					}
+					for i := 0; i < len(newInfo.Deck); i++ {
+						newInfo.Deck[i].NormalizeProbabilities(color, value, count)
+					}
+					results = append(results, &ResultPlayerInfo{
+						Probability: probability * prob,
+						Info:        newInfo,
+					})
+				}
+			}
+		} else {
+			results = append(results, &ResultPlayerInfo{
+				Probability: probability,
+				Info:        newPlayerInfo,
+			})
+		}
+
+		return results
 	}
 
 	card := &cards[cardPosition]
 	if card.KnownColor && card.KnownValue {
-		result := updateFunc(info, card.Value, card.Color, 1.0)
-		if result == nil {
+		results := updateFunc(info, card.Value, card.Color, 1.0)
+		if len(results) == 0 {
 			return nil, nil
 		}
-		results := []ResultPlayerInfo{
-			*result,
-		}
 		return &ResultPreviewPlayerInformations{
 			Action:  action,
 			Max:     max,
@@ -117,48 +163,12 @@ func (info *PlayerGameInfo) PreviewActionDiscard(cardPosition int) (*ResultPrevi
 		}, nil
 	}
 
-	if card.KnownColor {
-		results := []ResultPlayerInfo{}
-		for cardValue, probability := range card.ProbabilityValues {
-			result := updateFunc(info, cardValue, card.Color, probability)
-			if result != nil {
-				results = append(results, *result)
-			}
-		}
-
-		return &ResultPreviewPlayerInformations{
-			Action:  action,
-			Max:     max,
-			Min:     min,
-			Med:     med,
-			Results: results,
-		}, nil
-	}
-
-	if card.KnownValue {
-		results := []ResultPlayerInfo{}
-		for cardColor, probability := range card.ProbabilityColors {
-			result := updateFunc(info, card.Value, cardColor, probability)
-			if result != nil {
-				results = append(results, *result)
-			}
-		}
-
-		return &ResultPreviewPlayerInformations{
-			Action:  action,
-			Max:     max,
-			Min:     min,
-			Med:     med,
-			Results: results,
-		}, nil
-	}
-
-	results := []ResultPlayerInfo{}
+	results := []*ResultPlayerInfo{}
 	for colorValue, probability := range card.ProbabilityCard {
 		cardColor, cardValue := ColorValueByHashColorValue(colorValue)
-		result := updateFunc(info, cardValue, cardColor, probability)
-		if result != nil {
-			results = append(results, *result)
+		newResults := updateFunc(info, cardValue, cardColor, probability)
+		if len(newResults) != 0 {
+			results = append(results, newResults...)
 		}
 	}
 
@@ -184,7 +194,7 @@ func (info *PlayerGameInfo) PreviewActionPlaying(cardPosition int) (*ResultPrevi
 	min := 26
 	med := 0.0
 
-	updateFunc := func(playerInfo *PlayerGameInfo, cardValue CardValue, cardColor CardColor, probability float64) *ResultPlayerInfo {
+	updateFunc := func(playerInfo *PlayerGameInfo, cardValue CardValue, cardColor CardColor, probability float64) []*ResultPlayerInfo {
 		newPlayerInfo = playerInfo.Copy()
 		playerCards := newPlayerInfo.PlayerCards[playerPosition]
 		card := playerCards[cardPosition].Copy()
@@ -203,19 +213,16 @@ func (info *PlayerGameInfo) PreviewActionPlaying(cardPosition int) (*ResultPrevi
 			card.KnownValue = true
 			card.Value = cardValue
 			card.Color = cardColor
-			card.ProbabilityColors = map[CardColor]float64{
-				cardColor: 1.0,
-			}
-			card.ProbabilityValues = map[CardValue]float64{
-				cardValue: 1.0,
+			card.ProbabilityColors = map[CardColor]float64{cardColor: 1.0}
+			card.ProbabilityValues = map[CardValue]float64{cardValue: 1.0}
+			card.ProbabilityCard = map[HashValue]float64{
+				HashColorValue(cardColor, cardValue): 1.0,
 			}
 			newPlayerInfo.UsedCards = append(newPlayerInfo.UsedCards, card)
 			newPlayerInfo.RedTokens++
 		}
-
-		if newPlayerInfo.DeckSize > 0 {
-			newPlayerInfo.MoveCardFromDeckToPlayer(playerPosition)
-		}
+		colorValue := ColorValue{Color: cardColor, Value: cardValue}
+		newPlayerInfo.VariantsCount[colorValue]--
 
 		points := newPlayerInfo.GetPoints()
 		med += float64(points) * probability
@@ -227,10 +234,50 @@ func (info *PlayerGameInfo) PreviewActionPlaying(cardPosition int) (*ResultPrevi
 		}
 
 		newPlayerInfo.IncreasePosition()
-		return &ResultPlayerInfo{
-			Probability: probability,
-			Info:        newPlayerInfo,
+
+		for i := 0; i < len(playerCards); i++ {
+			playerCards[i].NormalizeProbabilities(cardColor, cardValue, newPlayerInfo.VariantsCount[colorValue])
 		}
+		for i := 0; i < len(newPlayerInfo.Deck); i++ {
+			newPlayerInfo.Deck[i].NormalizeProbabilities(cardColor, cardValue, newPlayerInfo.VariantsCount[colorValue])
+		}
+
+		results := []*ResultPlayerInfo{}
+		if newPlayerInfo.DeckSize > 0 {
+			newPlayerInfo.MoveCardFromDeckToPlayer(playerPosition)
+			cards := newPlayerInfo.PlayerCards[playerPosition]
+			cardPos := len(cards) - 1
+			for hashColorValue, prob := range cards[cardPos].ProbabilityCard {
+				newInfo := newPlayerInfo.Copy()
+				playerCards = newInfo.PlayerCards[playerPosition]
+				card := &playerCards[cardPos]
+				card.KnownValue = true
+				card.KnownColor = true
+				color, value := ColorValueByHashColorValue(hashColorValue)
+				card.ProbabilityCard = map[HashValue]float64{hashColorValue: 1.0}
+				card.ProbabilityColors = map[CardColor]float64{color: 1.0}
+				card.ProbabilityValues = map[CardValue]float64{value: 1.0}
+				colorValue := ColorValue{Color: color, Value: value}
+
+				for i := 0; i < len(playerCards); i++ {
+					playerCards[i].NormalizeProbabilities(color, value, newInfo.VariantsCount[colorValue])
+				}
+				for i := 0; i < len(newInfo.Deck); i++ {
+					newInfo.Deck[i].NormalizeProbabilities(color, value, newInfo.VariantsCount[colorValue])
+				}
+				results = append(results, &ResultPlayerInfo{
+					Probability: probability * prob,
+					Info:        newInfo,
+				})
+			}
+		} else {
+			results = append(results, &ResultPlayerInfo{
+				Probability: probability,
+				Info:        newPlayerInfo,
+			})
+		}
+
+		return results
 	}
 
 	cards := info.PlayerCards[playerPosition]
@@ -242,63 +289,23 @@ func (info *PlayerGameInfo) PreviewActionPlaying(cardPosition int) (*ResultPrevi
 	card := cards[cardPosition].Copy()
 
 	if card.KnownColor && card.KnownValue {
-		result := updateFunc(info, card.Value, card.Color, 1.0)
-		if result == nil {
+		results := updateFunc(info, card.Value, card.Color, 1.0)
+		if len(results) == 0 {
 			return nil, errors.New("Fail for optimize")
 		}
-		results := []ResultPlayerInfo{
-			*result,
-		}
+
 		return &ResultPreviewPlayerInformations{
 			Action:  action,
 			Results: results,
 		}, nil
 	}
 
-	if card.KnownColor {
-		results := []ResultPlayerInfo{}
-		for colorValue, probability := range card.ProbabilityCard {
-			cardColor, cardValue := ColorValueByHashColorValue(colorValue)
-			result := updateFunc(info, cardValue, cardColor, probability)
-			if result != nil {
-				results = append(results, *result)
-			}
-		}
-
-		return &ResultPreviewPlayerInformations{
-			Action:  action,
-			Max:     max,
-			Min:     min,
-			Med:     med,
-			Results: results,
-		}, nil
-	}
-
-	if card.KnownValue {
-		results := []ResultPlayerInfo{}
-		for colorValue, probability := range card.ProbabilityCard {
-			cardColor, cardValue := ColorValueByHashColorValue(colorValue)
-			result := updateFunc(info, cardValue, cardColor, probability)
-			if result != nil {
-				results = append(results, *result)
-			}
-		}
-
-		return &ResultPreviewPlayerInformations{
-			Action:  action,
-			Max:     max,
-			Min:     min,
-			Med:     med,
-			Results: results,
-		}, nil
-	}
-
-	results := []ResultPlayerInfo{}
+	results := []*ResultPlayerInfo{}
 	for colorValue, probability := range card.ProbabilityCard {
 		cardColor, cardValue := ColorValueByHashColorValue(colorValue)
-		result := updateFunc(info, cardValue, cardColor, probability)
-		if result != nil {
-			results = append(results, *result)
+		newResults := updateFunc(info, cardValue, cardColor, probability)
+		if len(newResults) != 0 {
+			results = append(results, newResults...)
 		}
 	}
 
@@ -327,7 +334,7 @@ func (info *PlayerGameInfo) PreviewActionInformationColor(playerPosition int, ca
 	for i := 0; i < len(cards); i++ {
 		if !cards[i].KnownColor {
 			fmt.Println(cards[i])
-			panic("error Color")
+			panic("error Color " + strconv.Itoa(playerPosition))
 		}
 		if cards[i].Color == cardColor && !cardsInfo[i].KnownColor {
 			cardsInfo[i].KnownColor = true
@@ -342,8 +349,8 @@ func (info *PlayerGameInfo) PreviewActionInformationColor(playerPosition int, ca
 		Max:    points,
 		Min:    points,
 		Med:    float64(points),
-		Results: []ResultPlayerInfo{
-			ResultPlayerInfo{
+		Results: []*ResultPlayerInfo{
+			&ResultPlayerInfo{
 				Probability: 1.0,
 				Info:        newPlayerInfo,
 			},
@@ -382,8 +389,8 @@ func (info *PlayerGameInfo) PreviewActionInformationValue(playerPosition int, ca
 		Max:    points,
 		Min:    points,
 		Med:    float64(points),
-		Results: []ResultPlayerInfo{
-			ResultPlayerInfo{
+		Results: []*ResultPlayerInfo{
+			&ResultPlayerInfo{
 				Probability: 1.0,
 				Info:        newPlayerInfo,
 			},
