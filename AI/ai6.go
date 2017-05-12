@@ -316,9 +316,6 @@ func (ai *AI6) GetAction() *game.Action {
 			result = preview.Results[0]
 			for cardPosSecond, cardSecond := range copyInfo.PlayerCards[NNP] {
 				info = info.Copy()
-				if !cardSecond.KnownColor || !cardSecond.KnownValue {
-					panic("DSADSA")
-				}
 				ai.PlayerInfo = *result.Info
 				if ai.isCardPlayable(cardSecond) {
 					clueVariants = append(clueVariants, []int{cardPosFirst, cardPosSecond})
@@ -449,35 +446,28 @@ func (ai *AI6) GetAction() *game.Action {
 		return clueActions[topActionIdx]
 	}
 
-	if info.BlueTokens > 0 {
+	if info.BlueTokens > 5 {
 		for i := 0; i < len(info.PlayerCards[NP]); i++ {
 			copyInfo := info.Copy()
 			copyInfo.PlayerCards[NP] = copyInfo.PlayerCardsInfo[NP]
+			copyInfo.InfoIsSetted = false
 			copyInfo.SetProbabilities(false, false)
 			card := &copyInfo.PlayerCards[NP][i]
-			copyInfo1 := info.Copy()
-			copyInfo2 := info.Copy()
+
 			var previewColor, previewValue *game.ResultPreviewPlayerInformations
 			var err error
+			countValue := -1
+			copyInfo1 := info.Copy()
 			if !card.KnownValue {
 				previewValue, err = copyInfo1.PreviewActionInformationValue(NP, card.Value)
 				if err != nil {
 					panic(err)
 				}
-			}
-			if !card.KnownColor {
-				previewColor, err = copyInfo2.PreviewActionInformationColor(NP, card.Color)
-				if err != nil {
-					panic(err)
-				}
-			}
-
-			countValue := -1
-			countColor := -1
-			if previewValue != nil {
-				for i := 0; i < len(previewValue.Results); i++ {
-					ai.PlayerInfo = *previewValue.Results[i].Info
-					isPlayable := ai.isCardPlayable(*card)
+				for k := 0; k < len(previewValue.Results); k++ {
+					previewInfo := previewValue.Results[k].Info
+					previewCard := previewInfo.PlayerCards[NP][k]
+					ai.PlayerInfo = *previewValue.Results[k].Info
+					isPlayable := ai.isCardPlayable(previewCard)
 					ai.PlayerInfo = *copyInfo1
 					if !isPlayable {
 						countValue = 0
@@ -491,10 +481,19 @@ func (ai *AI6) GetAction() *game.Action {
 					}
 				}
 			}
-			if previewColor != nil {
-				for i := 0; i < len(previewColor.Results); i++ {
-					ai.PlayerInfo = *previewColor.Results[i].Info
-					isPlayable := ai.isCardPlayable(*card)
+
+			countColor := -1
+			copyInfo2 := info.Copy()
+			if !card.KnownColor {
+				previewColor, err = copyInfo2.PreviewActionInformationColor(NP, card.Color)
+				if err != nil {
+					panic(err)
+				}
+				for k := 0; k < len(previewColor.Results); k++ {
+					previewInfo := previewColor.Results[k].Info
+					previewCard := previewInfo.PlayerCards[NP][k]
+					ai.PlayerInfo = *previewColor.Results[k].Info
+					isPlayable := ai.isCardPlayable(previewCard)
 					ai.PlayerInfo = *copyInfo2
 					if !isPlayable {
 						countColor = 0
@@ -512,6 +511,7 @@ func (ai *AI6) GetAction() *game.Action {
 			if countValue == -1 && countColor == -1 {
 				continue
 			}
+
 			if countValue >= countColor {
 				return game.NewAction(game.TypeActionInformationValue, NP, int(card.Value))
 			} else {
@@ -520,7 +520,7 @@ func (ai *AI6) GetAction() *game.Action {
 		}
 	}
 
-	if info.BlueTokens < game.MaxBlueTokens {
+	if info.BlueTokens < 6 {
 		for idx, card := range info.PlayerCards[myPos] {
 			if !ai.isCardMayBeUsefull(card) {
 				return game.NewAction(game.TypeActionDiscard, myPos, idx)
