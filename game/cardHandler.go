@@ -42,16 +42,9 @@ const (
 	Orange
 )
 
+var ColorsTable = Colors[1:]
 var Colors = []CardColor{
 	NoneColor,
-	Red,
-	Blue,
-	Green,
-	Yellow,
-	Orange,
-}
-
-var ColorsTable = []CardColor{
 	Red,
 	Blue,
 	Green,
@@ -70,6 +63,7 @@ const (
 	Five
 )
 
+var ValuesTable = Values[1:]
 var Values = []CardValue{
 	NoneValue,
 	One,
@@ -89,6 +83,12 @@ func RandomCardsPermutation(cards []*Card) {
 func (card *Card) SetKnown(known bool) {
 	card.KnownColor = known
 	card.KnownValue = known
+}
+
+func (card *Card) CheckVisible() {
+	if card.Color == NoneColor || card.Value == NoneValue {
+		panic("Bad card")
+	}
 }
 
 func (card *Card) GetColors() map[CardColor]string {

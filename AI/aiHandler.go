@@ -22,6 +22,7 @@ const (
 	Type_AI1
 	Type_AI2
 	Type_AI6
+	Type_AIHat
 )
 
 var AITypes = []int{
@@ -42,6 +43,7 @@ var AITypes = []int{
 	Type_AI1,
 	Type_AI2,
 	Type_AI6,
+	Type_AIHat,
 }
 
 type Action struct {
@@ -87,6 +89,7 @@ const (
 	Name_AI1                    = "AI1"
 	Name_AI2                    = "AI2"
 	Name_AI6                    = "AI6"
+	Name_AIHat                  = "Hat"
 )
 
 var AINames = map[int]string{
@@ -107,6 +110,7 @@ var AINames = map[int]string{
 	Type_AI1:                    Name_AI1,
 	Type_AI2:                    Name_AI2,
 	Type_AI6:                    Name_AI6,
+	Type_AIHat:                  Name_AIHat, /* hat_player: https://github.com/chikinn/hanabi */
 }
 
 type AIInformator interface {
@@ -163,6 +167,8 @@ func NewAI(playerInfo game.PlayerGameInfo, history []game.Action, aiType int, in
 		ai = NewAI2(baseAI)
 	case Type_AI6:
 		ai = NewAI6(baseAI)
+	case Type_AIHat:
+		ai = NewAIHat(baseAI)
 	default:
 		panic("Unknown aiType")
 	}
