@@ -1,6 +1,7 @@
 package game
 
 import (
+	"fmt"
 	"math/rand"
 )
 
@@ -209,6 +210,26 @@ func (card Card) Copy() Card {
 		ProbabilityValues: probValues,
 		ProbabilityCard:   probCards,
 	}
+}
+
+func (card Card) String() string {
+	color := map[CardColor]string{
+		NoneColor: "Unknown",
+		Red:       "Red",
+		Blue:      "Blue",
+		Green:     "Green",
+		Yellow:    "Yello",
+		Orange:    "Orange",
+	}[card.Color]
+	value := map[CardValue]string{
+		NoneValue: "Unknown",
+		One:       "1",
+		Two:       "2",
+		Three:     "3",
+		Four:      "4",
+		Five:      "5",
+	}[card.Value]
+	return fmt.Sprintf("[ %s %s ]", color, value)
 }
 
 func (card *Card) NormalizeProbabilities(color CardColor, value CardValue, countLeft int) {

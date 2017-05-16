@@ -1,5 +1,7 @@
 package game
 
+import "fmt"
+
 type PlayerGameInfo struct {
 	MyTurn          bool               `json:"my_turn"`
 	CurrentPosition int                `json:"current_position"`
@@ -159,6 +161,28 @@ func (state *GameState) GetPlayerGameInfo(playerId int, infoType int) PlayerGame
 
 func NewPlayerInfo(game *Game, playerId int, infoType int) PlayerGameInfo {
 	return game.GetPlayerGameInfo(playerId, infoType)
+}
+
+func (info PlayerGameInfo) String() string {
+	result := ""
+	for pos, cards := range info.PlayerCards {
+		result += "[ "
+		for i := 0; i < len(cards); i++ {
+			result += cards[i].String()
+		}
+		result += " ]"
+		if pos == info.CurrentPosition {
+			result += " *"
+		}
+		result += "\n"
+	}
+	result += fmt.Sprintf("step %d blue %d; red %d\n", info.Step, info.BlueTokens, info.RedTokens)
+	result += "[ "
+	for _, color := range ColorsTable {
+		result += info.TableCards[color].String()
+	}
+	result += " ]"
+	return result
 }
 
 func (info *PlayerGameInfo) Copy() *PlayerGameInfo {
