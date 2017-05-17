@@ -91,6 +91,17 @@ func (card *Card) CheckVisible() {
 	}
 }
 
+func (card *Card) SetValue(value CardValue) {
+	card.Value = value
+	card.KnownValue = true
+	card.ProbabilityValues = map[CardValue]float64{value: 1.0}
+}
+
+func (card *Card) SetColor(color CardColor) {
+	card.Color = color
+	card.KnownColor = true
+	card.ProbabilityColors = map[CardColor]float64{color: 1.0}
+}
 func (card *Card) GetColors() map[CardColor]string {
 	return map[CardColor]string{
 		NoneColor: "",

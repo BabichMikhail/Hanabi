@@ -274,6 +274,53 @@ func (info *PlayerGameInfo) IsGameOver() bool {
 	return true
 }
 
+func (info *PlayerGameInfo) GetDefaultDeck() map[ColorValue]int {
+	cards := map[ColorValue]int{}
+	for _, value := range ValuesTable {
+		for _, color := range ColorsTable {
+			if value == 1 {
+				cards[ColorValue{Color: color, Value: value}] = 3
+			}
+			if value >= 2 && value <= 4 {
+				cards[ColorValue{Color: color, Value: value}] = 2
+			}
+			if value == 5 {
+				cards[ColorValue{Color: color, Value: value}] = 1
+			}
+		}
+	}
+	return cards
+}
+
+func (info *PlayerGameInfo) GetUnplayedCards() map[ColorValue]int {
+	cards := info.GetDefaultDeck()
+	for _, card := range info.UsedCards {
+		cards[ColorValue{Color: card.Color, Value: card.Value}]--
+	}
+	for color, card := range info.TableCards {
+		for value := CardValue(1); value < card.Value; value++ {
+			cards[ColorValue{Color: color, Value: value}]--
+		}
+	}
+	return cards
+}
+
+func (info *PlayerGameInfo) IsCardPlayable(card *Card) bool {
+	card.CheckVisible()
+	return info.TableCards[card.Color].Value+1 == card.Value
+}
+
+func (info *PlayerGameInfo) GetPlayableCardPositions() []int {
+	result := []int{}
+	pos := info.CurrentPosition
+	for i := 0; i < len(info.PlayerCards[pos]); i++ {
+		if info.IsCardPlayable(&info.PlayerCards[pos][i]) {
+			result = append(result, i)
+		}
+	}
+	return result
+}
+
 func (info *PlayerGameInfo) IncreasePosition() {
 	info.Step++
 	info.CurrentPosition++

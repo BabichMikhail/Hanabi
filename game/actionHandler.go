@@ -44,6 +44,10 @@ func (state *GameState) NewAction(actionType ActionType, playerPosition int, val
 	return action
 }
 
+func (action Action) IsInfoAction() bool {
+	return action.ActionType == TypeActionInformationColor || action.ActionType == TypeActionInformationValue
+}
+
 func NewAction(actionType ActionType, playerPosition int, value int) *Action {
 	return &Action{
 		ActionType:     actionType,
