@@ -66,3 +66,34 @@ func TestCardValues(t *testing.T) {
 		})
 	})
 }
+
+//TestHashValues
+func TestHashValues(t *testing.T) {
+	Convey("Test hashvalues", t, func() {
+		values := map[game.HashValue]int{}
+		Convey("Hashvalue must be 0 <= val < 25", func() {
+			ok := true
+			for _, color := range game.Colors {
+				for _, value := range game.Values {
+					val := game.HashColorValue(color, value)
+					values[val]++
+					if color != game.NoneColor && value != game.NoneValue {
+						ok = ok && 0 <= val && val < 25
+					}
+				}
+			}
+			So(ok, ShouldBeTrue)
+
+		})
+
+		Convey("Hashvalue must be unique", func() {
+			ok := true
+			for _, count := range values {
+				if count > 1 {
+					ok = false
+				}
+			}
+			So(ok, ShouldBeTrue)
+		})
+	})
+}

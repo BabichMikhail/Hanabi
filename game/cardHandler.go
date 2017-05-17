@@ -8,12 +8,12 @@ import (
 type HashValue int
 
 func HashColorValue(color CardColor, value CardValue) HashValue {
-	return HashValue(int(color) + 10*int(value))
+	return HashValue(int(color) - 1 + 5*(int(value)-1))
 }
 
 func ColorValueByHashColorValue(colorValue HashValue) (CardColor, CardValue) {
 	val := int(colorValue)
-	return CardColor(val % 10), CardValue(val / 10)
+	return CardColor(val%5 + 1), CardValue(val/5 + 1)
 }
 
 type ColorValue struct {
