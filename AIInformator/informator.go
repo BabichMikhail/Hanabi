@@ -26,6 +26,8 @@ type Informator struct {
 	CachePInfo    map[string]*game.PlayerGameInfo
 	CacheActions  map[KeyCacheActions]*game.Action
 	isLearnOnStep bool
+
+	HatRecords []*ai.HatPlayerRecord
 }
 
 func NewInformator(currentGameState *game.GameState, initialGameState *game.GameState, actions []game.Action, qRead QReadFunc, qUpdate QUpdateFunc) *Informator {
@@ -58,9 +60,27 @@ func (info *Informator) NextAI(aiType int) ai.AI {
 		infoType = game.InfoTypeCheat
 	} else if aiType == ai.Type_AIFullCheater {
 		infoType = game.InfoTypeFullCheat
+	} else if aiType == ai.Type_AIHat {
+		infoType = game.InfoTypeCheat
 	}
 	playerInfo := state.GetPlayerGameInfoByPos(state.CurrentPosition, infoType)
-	return ai.NewAI(playerInfo, info.actions, aiType, info)
+	newAI := ai.NewAI(playerInfo, info.actions, aiType, info)
+	if aiType == ai.Type_AIHat && len(info.actions) == 0 {
+		info.HatRecords = make([]*ai.HatPlayerRecord, len(playerInfo.PlayerCards))
+		for i := 0; i < len(playerInfo.PlayerCards); i++ {
+			rec := new(ai.HatPlayerRecord)
+			rec.ResetMemory()
+			rec.LastCluedAnyClue = len(playerInfo.PlayerCards) - 1
+			info.HatRecords[i] = rec
+		}
+
+	}
+	if aiType == ai.Type_AIHat {
+		newAI.(*ai.Hat).MyRecord = info.HatRecords[playerInfo.Position]
+		newAI.(*ai.Hat).PlayerRecords = info.HatRecords
+	}
+
+	return newAI
 }
 
 func (info *Informator) getPlayerState(step, infoType int, currentPosition ...int) game.PlayerGameInfo {
@@ -323,5 +343,14 @@ func (info *Informator) GetAction(playerInfo *game.PlayerGameInfo, aiType int, h
 		return action
 	}
 	newAI := ai.NewAI(*playerInfo, history, aiType, info)
+	if aiType == ai.Type_AIHat && len(history) == 0 {
+		info.HatRecords = make([]*ai.HatPlayerRecord, len(playerInfo.PlayerCards))
+		for i := 0; i < len(playerInfo.PlayerCards); i++ {
+			rec := info.HatRecords[i]
+			rec.ResetMemory()
+			rec.LastCluedAnyClue = -1
+		}
+		newAI.(*ai.Hat).MyRecord = info.HatRecords[playerInfo.Position]
+	}
 	return newAI.GetAction()
 }
