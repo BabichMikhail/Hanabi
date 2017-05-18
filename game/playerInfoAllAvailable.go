@@ -2,6 +2,8 @@ package game
 
 import "fmt"
 
+type AvailablePlayerGameInfos []*AvailablePlayerGameInfo
+
 type AvailablePlayerGameInfo struct {
 	PlayerInfo  *PlayerGameInfo
 	Probability float64
