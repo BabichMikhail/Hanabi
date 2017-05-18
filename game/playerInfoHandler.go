@@ -1,6 +1,9 @@
 package game
 
-import "fmt"
+import (
+	"fmt"
+	"strconv"
+)
 
 type PlayerGameInfo struct {
 	MyTurn          bool               `json:"my_turn"`
@@ -176,12 +179,19 @@ func (info PlayerGameInfo) String() string {
 		}
 		result += "\n"
 	}
-	result += fmt.Sprintf("step %d blue %d; red %d\n", info.Step, info.BlueTokens, info.RedTokens)
-	result += "[ "
+	result += fmt.Sprintf("step: %d. blue: %d. red: %d.\n", info.Step, info.BlueTokens, info.RedTokens)
+	result += "[ Table: "
 	for _, color := range ColorsTable {
 		result += info.TableCards[color].String()
 	}
-	result += " ]"
+	result += " ]\n"
+	result += "[ Deck: "
+	if info.DeckSize == 1 {
+		result += info.Deck[0].String()
+	} else {
+		result += strconv.Itoa(len(info.Deck))
+	}
+	result += " ]\n"
 	return result
 }
 
