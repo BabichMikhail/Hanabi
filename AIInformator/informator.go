@@ -161,9 +161,14 @@ func (info *Informator) GetCache() interface{} {
 func (info *Informator) CheckAvailablePlayerInformation(availableGameInfo []*game.AvailablePlayerGameInfo, step int) int {
 	okIdx := -1
 	playerInfo := info.getPlayerState(step, game.InfoTypeCheat)
+	fmt.Println("This Step:", playerInfo.Step)
 	hashRes1 := info.PlayerInfoHash(&playerInfo)
 	for idx, information := range availableGameInfo {
 		availablePlayerInfo := information.PlayerInfo
+		if availablePlayerInfo.CurrentPosition != playerInfo.CurrentPosition {
+			panic(fmt.Sprint("Different current positions:", availablePlayerInfo.CurrentPosition, playerInfo.CurrentPosition))
+		}
+
 		hashRes2 := info.PlayerInfoHash(availablePlayerInfo)
 		for pos, cards := range availablePlayerInfo.PlayerCards {
 			for j := 0; j < len(cards); j++ {
@@ -178,7 +183,7 @@ func (info *Informator) CheckAvailablePlayerInformation(availableGameInfo []*gam
 				}
 
 				if card1.Color == game.NoneColor || card1.Value == game.NoneValue {
-					panic("Bad Color Or Value")
+					panic(fmt.Sprint("Bad Color Or Value", pos, j))
 				}
 
 				if !card2.KnownColor || !card2.KnownValue {
@@ -239,7 +244,7 @@ func (info *Informator) CheckAvailablePlayerInformation(availableGameInfo []*gam
 
 		for color, card := range availablePlayerInfo.TableCards {
 			if card.Value != playerInfo.TableCards[color].Value {
-				panic("Bad table cards")
+				panic(fmt.Sprint("Bad table cards", "\n", color, "\n", availablePlayerInfo.TableCards, "\n", playerInfo.TableCards))
 			}
 		}
 
