@@ -324,24 +324,11 @@ func (info *Informator) PlayerInfoHash(playerInfo *game.PlayerGameInfo) string {
 }
 
 func (info *Informator) SetProbabilities(playerInfo *game.PlayerGameInfo) {
-	hashPlayerInfo := info.PlayerInfoHash(playerInfo)
-	if pinfo, ok := info.CachePInfo[hashPlayerInfo]; ok {
-		copyPInfo := pinfo.Copy()
-		*playerInfo = *copyPInfo
-		return
-	}
+	info.PlayerInfoHash(playerInfo)
 	playerInfo.SetProbabilities(false, false)
-	info.CachePInfo[hashPlayerInfo] = playerInfo.Copy()
 }
 
 func (info *Informator) GetAction(playerInfo *game.PlayerGameInfo, aiType int, history []game.Action) *game.Action {
-	key := KeyCacheActions{
-		PlayerInfoHash: info.PlayerInfoHash(playerInfo),
-		AIType:         aiType,
-	}
-	if action, ok := info.CacheActions[key]; ok {
-		return action
-	}
 	newAI := ai.NewAI(*playerInfo, history, aiType, info)
 	if aiType == ai.Type_AIHat && len(history) == 0 {
 		info.HatRecords = make([]*ai.HatPlayerRecord, len(playerInfo.PlayerCards))
