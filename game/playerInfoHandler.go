@@ -328,4 +328,8 @@ func (info *PlayerGameInfo) IncreasePosition() {
 		info.CurrentPosition = 0
 		info.Round++
 	}
+
+	if info.DeckSize == 0 && info.MaxStep == 0 {
+		info.MaxStep = info.Step + info.PlayerCount //- 1
+	}
 }
