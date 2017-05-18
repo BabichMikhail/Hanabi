@@ -91,6 +91,14 @@ func (card *Card) CheckVisible() {
 	}
 }
 
+func (card *Card) IsCardPlayable(progress map[CardColor]CardValue) bool {
+	return progress[card.Color]+1 == card.Value
+}
+
+func (card *Card) IsVisible() bool {
+	return card.KnownColor && card.KnownValue
+}
+
 func (card *Card) SetValue(value CardValue) {
 	card.Value = value
 	card.KnownValue = true
