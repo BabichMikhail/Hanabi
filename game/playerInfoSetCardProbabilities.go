@@ -11,14 +11,14 @@ func (info *PlayerGameInfo) SetEasyKnownAboutCards() {
 	for pos, _ := range info.PlayerCards {
 		for idx, _ := range info.PlayerCards[pos] {
 			card := &info.PlayerCards[pos][idx]
-			if len(card.ProbabilityColors) == 1 {
+			if card.Color == NoneColor && len(card.ProbabilityColors) == 1 {
 				for color, _ := range card.ProbabilityColors {
 					card.KnownColor = true
 					card.Color = color
 				}
 			}
 
-			if len(card.ProbabilityValues) == 1 {
+			if card.Value == NoneValue && len(card.ProbabilityValues) == 1 {
 				for value, _ := range card.ProbabilityValues {
 					card.KnownValue = true
 					card.Value = value
@@ -365,6 +365,9 @@ func (info *PlayerGameInfo) SetVariantsCount(isCheater, isFullCheater bool) {
 }
 
 func (info *PlayerGameInfo) SetProbabilities(isCheater, isFullCheater bool) {
+	if info.InfoIsSetted {
+		return
+	}
 	info.SetEasyKnownAboutCards()
 	info.SetVariantsCount(isCheater, isFullCheater)
 	variantsCount := info.VariantsCount
