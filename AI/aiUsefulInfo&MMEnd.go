@@ -234,7 +234,43 @@ func (ai *AIUsefulInfoAndMMEnd) getBestResultWithDepth() *game.ResultPreviewPlay
 func (ai *AIUsefulInfoAndMMEnd) getBestResultWithoutDepth() *game.ResultPreviewPlayerInformations {
 	info := &ai.PlayerInfo
 	var bestResult *game.ResultPreviewPlayerInformations
-	newAI := NewAI(*info, ai.History, Type_AIUsefulInformationV3, ai.Informator).(*AIUsefulInfoV3AndParts)
+
+	myPos := info.CurrentPosition
+	for i := 0; i < len(info.PlayerCards[myPos]); i++ {
+		newResult, err := info.PreviewActionPlaying(i)
+		if err == nil && ai.resultIsBetterThan(newResult, bestResult) {
+			bestResult = newResult
+		}
+	}
+
+	for i := 0; i < len(info.PlayerCards[myPos]); i++ {
+		newResult, err := info.PreviewActionDiscard(i)
+		if err == nil && ai.resultIsBetterThan(newResult, bestResult) {
+			bestResult = newResult
+		}
+	}
+
+	for i := 0; i < len(info.PlayerCards); i++ {
+		if i == myPos {
+			continue
+		}
+
+		for j := 0; j < len(info.PlayerCards[i]); j++ {
+			newResult, err := info.PreviewActionInformationColor(i, info.PlayerCards[i][j].Color)
+			if err == nil && ai.resultIsBetterThan(newResult, bestResult) {
+				bestResult = newResult
+			}
+		}
+
+		for j := 0; j < len(info.PlayerCards[i]); j++ {
+			newResult, err := info.PreviewActionInformationValue(i, info.PlayerCards[i][j].Value)
+			if err == nil && ai.resultIsBetterThan(newResult, bestResult) {
+				bestResult = newResult
+			}
+		}
+	}
+
+	/*newAI := NewAI(*info, ai.History, Type_AIUsefulInformationV3, ai.Informator).(*AIUsefulInfoV3AndParts)
 	newAI.setAvailableInformation()
 	action := newAI.GetAction()
 	switch action.ActionType {
@@ -258,7 +294,7 @@ func (ai *AIUsefulInfoAndMMEnd) getBestResultWithoutDepth() *game.ResultPreviewP
 		if err == nil && ai.resultIsBetterThan(resultInfoValue, bestResult) {
 			bestResult = resultInfoValue
 		}
-	}
+	}*/
 	return bestResult
 }
 
@@ -268,19 +304,20 @@ func (ai *AIUsefulInfoAndMMEnd) GetBestResult() *game.ResultPreviewPlayerInforma
 		return nil
 	}
 
-	if ai.Depth > 1 && info.Step <= info.MaxStep {
+	/*if ai.Depth > 1 && info.Step <= info.MaxStep {
 		return ai.getBestResultWithDepth()
-	}
+	}*/
 	return ai.getBestResultWithoutDepth()
 }
 
 func (ai *AIUsefulInfoAndMMEnd) GetAction() *game.Action {
 	ai.setAvailableInformation()
-	info := &ai.PlayerInfo
-	if info.DeckSize > 0 {
+	//info := &ai.PlayerInfo
+	return ai.GetBestResult().Action
+	/*if info.DeckSize > 0 {
 		ai := NewAI(*info, ai.History, Type_AIUsefulInformationV3, ai.Informator)
 		return ai.GetAction()
-	}
+	}*/
 
-	return ai.GetBestResult().Action
+	//return ai.GetBestResult().Action
 }

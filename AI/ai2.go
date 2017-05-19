@@ -144,6 +144,73 @@ func (ai *AI2) GetAction() *game.Action {
 		}
 
 		nextPlayerInformation := ai.Informator.GetPlayerState(i + 1)
+		//fmt.Println("There 1")
+		//action := ai.History[i]
+		/*if action.ActionType == game.TypeActionInformationColor || action.ActionType == game.TypeActionInformationValue {
+
+		} else if action.ActionType == game.TypeActionPlaying || action.ActionType == game.TypeActionDiscard {*/
+		//fmt.Println("There 4")
+		/*if currentPlayerInfo.DeckSize > 0 {
+			fmt.Println("There 6")
+			playerCards := nextPlayerInformation.PlayerCards[action.PlayerPosition]
+			card := playerCards[len(playerCards)-1]
+			for j := 0; j < len(newAvailablePlayerInformation); j++ {
+				playerInfo := newAvailablePlayerInformation[j].PlayerInfo
+				colorValue := game.ColorValue{Color: card.Color, Value: card.Value}
+				playerInfo.VariantsCount[colorValue]--
+				count := playerInfo.VariantsCount[colorValue]
+				myCards := playerInfo.PlayerCards[myPos]
+				for k := 0; k < len(myCards); k++ {
+					myCards[k].NormilizeProbabilities(card.Color, card.Value, count)
+				}
+				for k := 1; k < len(playerInfo.Deck); k++ {
+					playerInfo.Deck[k].NormilizeProbabilities(card.Color, card.Value, count)
+				}
+			}
+		}*/
+		//fmt.Println("There 5")
+		//}
+
+		//fmt.Println("There 2")
+
+		/*for j := 0; j < len(newAvailablePlayerInformation); j++ {
+			playerInfo := newAvailablePlayerInformation[j].PlayerInfo
+			probability := newAvailablePlayerInformation[j].Probability
+			myCards := nextPlayerInformation.PlayerCards[myPos]
+			for k := 0; k < len(myCards); k++ {
+				card := &playerInfo.PlayerCards[myPos][k]
+				for key, prob := range card.ProbabilityCard {
+					myCards[k].ProbabilityCard[key] += prob * probability
+				}
+			}
+			for k := 0; k < len(nextPlayerInformation.Deck); k++ {
+				card := &playerInfo.Deck[k+len(playerInfo.Deck)-len(nextPlayerInformation.Deck)]
+				for key, prob := range card.ProbabilityCard {
+					nextPlayerInformation.Deck[k].ProbabilityCard[key] += prob * probability
+				}
+			}
+		}*/
+
+		/*myCards := nextPlayerInformation.PlayerCards[myPos]
+		for j := 0; j < len(myCards); j++ {
+			if len(myCards[j].ProbabilityCard) == 1 {
+				//card := &myCards[j]
+				continue
+				//for hashColorValue, _ := range card.ProbabilityCard {
+				//card.Color, card.Value = game.ColorValueByHashColorValue(hashColorValue)
+				//colorValue := game.ColorValue{Color: card.Color, Value: card.Value}
+				nextPlayerInformation.VariantsCount[colorValue]--
+				pos := nextPlayerInformation.CurrentPosition
+				for i := 0; i < len(nextPlayerInformation.PlayerCards[pos]); i++ {
+
+				}
+				//}
+				card.KnownColor = true
+				card.KnownValue = true
+				card.ProbabilityColors = map[game.CardColor]float64{card.Color: 1.0}
+				card.ProbabilityValues = map[game.CardValue]float64{card.Value: 1.0}
+			}
+		}*/
 		currentPlayerInfo = &nextPlayerInformation
 	}
 

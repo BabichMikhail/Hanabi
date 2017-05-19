@@ -1,6 +1,8 @@
 package ai
 
 import (
+	"fmt"
+
 	"github.com/BabichMikhail/Hanabi/game"
 )
 
@@ -113,6 +115,7 @@ func (ai *AI6) DefaultInfoActions(info *game.PlayerGameInfo) ([]*game.Action, []
 				}
 			}
 			if !isUseful {
+				//uselessActions = append(uselessActions, actions[idx])
 				actions = append(actions[:idx], actions[idx+1:]...)
 				break
 			}
@@ -149,14 +152,19 @@ func (ai *AI6) DecodeClue1(info *game.PlayerGameInfo, action *game.Action) int {
 		if action.PlayerPosition == NPP || action.PlayerPosition == NP {
 			cluerInfo = *info
 			cards := cluerInfo.PlayerCards[action.PlayerPosition]
+			fmt.Println(cards, NP)
 			for i := 0; i < len(cards); i++ {
 				card := &cards[i]
 				if action.ActionType == game.TypeActionInformationColor {
 					if card.KnownColor && card.Color == game.CardColor(action.Value) {
+						//fmt.Println(i)
+						//panic("ABC")
 						return i
 					}
 				} else {
 					if card.KnownValue && card.Value == game.CardValue(action.Value) {
+						//fmt.Println(i)
+						//panic("ABC")
 						return i
 					}
 				}
@@ -178,6 +186,14 @@ func (ai *AI6) DecodeClue1(info *game.PlayerGameInfo, action *game.Action) int {
 		9:  1,
 		10: 2,
 		11: 3,
+		/*12: 0,
+		13: 1,
+		14: 2,
+		15: 3,
+		16: 0,
+		17: 1,
+		18: 2,
+		19: 3,*/
 	}[clueIdx]
 	return cardPos
 }
@@ -219,17 +235,27 @@ func (ai *AI6) DecodeClue2(info *game.PlayerGameInfo, action *game.Action) int {
 		9:  1,
 		10: 1,
 		11: 1,
+		/*12: 2,
+		13: 2,
+		14: 2,
+		15: 2,
+		16: 3,
+		17: 3,
+		18: 3,
+		19: 3,*/
 	}[clueIdx]
 	return cardPos
 }
 
 func (ai *AI6) GetAction() *game.Action {
 	info := &ai.PlayerInfo
+	fmt.Println("Step:", info.Step, info.RedTokens)
 	info.SetProbabilities(false, false)
 	myPos := info.CurrentPosition
 
 	for idx, card := range info.PlayerCards[myPos] {
 		if card.KnownColor && card.KnownValue && info.TableCards[card.Color].Value+1 == card.Value {
+			fmt.Println(game.NewAction(game.TypeActionPlaying, myPos, idx))
 			return game.NewAction(game.TypeActionPlaying, myPos, idx)
 		}
 	}
@@ -240,6 +266,7 @@ func (ai *AI6) GetAction() *game.Action {
 				for colorValue, prob := range card.ProbabilityCard {
 					color, value := game.ColorValueByHashColorValue(colorValue)
 					if prob > 0.6 && info.TableCards[color].Value+1 == value {
+						fmt.Println(game.NewAction(game.TypeActionPlaying, myPos, idx))
 						return game.NewAction(game.TypeActionPlaying, myPos, idx)
 					}
 				}
@@ -251,6 +278,7 @@ func (ai *AI6) GetAction() *game.Action {
 				for colorValue, prob := range card.ProbabilityCard {
 					color, value := game.ColorValueByHashColorValue(colorValue)
 					if prob > 0.8 && info.TableCards[color].Value+1 == value {
+						fmt.Println(game.NewAction(game.TypeActionPlaying, myPos, idx))
 						return game.NewAction(game.TypeActionPlaying, myPos, idx)
 					}
 				}
@@ -267,7 +295,9 @@ func (ai *AI6) GetAction() *game.Action {
 		isInformationAction := action.ActionType == game.TypeActionInformationColor || action.ActionType == game.TypeActionInformationValue
 		if isInformationAction {
 			cardPos := ai.DecodeClue1(info, &action)
+			fmt.Println("Decode1:", cardPos)
 			if cardPos != -1 && ai.isCardPlayable(info.PlayerCards[myPos][cardPos]) {
+				fmt.Println(myPos, game.NewAction(game.TypeActionPlaying, myPos, cardPos))
 				return game.NewAction(game.TypeActionPlaying, myPos, cardPos)
 			}
 		}
@@ -280,7 +310,9 @@ func (ai *AI6) GetAction() *game.Action {
 		isActionPlay := action2.ActionType == game.TypeActionPlaying
 		if isInformationAction && isActionPlay {
 			cardPos := ai.DecodeClue2(info, &action1)
+			fmt.Println("Decode2:", cardPos)
 			if cardPos != -1 && ai.isCardPlayable(info.PlayerCards[myPos][cardPos]) {
+				fmt.Println(myPos, game.NewAction(game.TypeActionPlaying, myPos, cardPos))
 				return game.NewAction(game.TypeActionPlaying, myPos, cardPos)
 			}
 		}
@@ -302,6 +334,7 @@ func (ai *AI6) GetAction() *game.Action {
 				panic(err)
 			}
 			if len(preview.Results) == 0 {
+				//fmt.Println(len(preview.Results))
 				panic("Bad preview result")
 			}
 			result := preview.Results[0]
@@ -316,6 +349,9 @@ func (ai *AI6) GetAction() *game.Action {
 			result = preview.Results[0]
 			for cardPosSecond, cardSecond := range copyInfo.PlayerCards[NNP] {
 				info = info.Copy()
+				if !cardSecond.KnownColor || !cardSecond.KnownValue {
+					panic("DSADSA")
+				}
 				ai.PlayerInfo = *result.Info
 				if ai.isCardPlayable(cardSecond) {
 					clueVariants = append(clueVariants, []int{cardPosFirst, cardPosSecond})
@@ -434,6 +470,7 @@ func (ai *AI6) GetAction() *game.Action {
 		}
 
 		if topActionIdx != -1 {
+			fmt.Println(clueActions[topActionIdx], results[topActionIdx][0], results[topActionIdx][1])
 			return clueActions[topActionIdx]
 		}
 
@@ -443,7 +480,21 @@ func (ai *AI6) GetAction() *game.Action {
 			}
 		}
 
+		var a, b int
+		for i := 0; i < len(clueVariants); i++ {
+			v := clueVariants[i]
+			if v[0] == results[topActionIdx][0] && results[topActionIdx][1] == v[1] {
+				a, b = v[0], v[1]
+			}
+		}
+
+		fmt.Println(clueActions[topActionIdx], a, b)
 		return clueActions[topActionIdx]
+	}
+
+	if info.BlueTokens > 0 && len(uselessActions) > 0 {
+		fmt.Println("//", uselessActions[0], -1)
+		//return uselessActions[0]
 	}
 
 	if info.BlueTokens > 5 {
@@ -459,6 +510,7 @@ func (ai *AI6) GetAction() *game.Action {
 			countValue := -1
 			copyInfo1 := info.Copy()
 			if !card.KnownValue {
+				//actionValue = game.NewAction(game.TypeActionInformationValue, NP, int(card.Value))
 				previewValue, err = copyInfo1.PreviewActionInformationValue(NP, card.Value)
 				if err != nil {
 					panic(err)
@@ -485,6 +537,7 @@ func (ai *AI6) GetAction() *game.Action {
 			countColor := -1
 			copyInfo2 := info.Copy()
 			if !card.KnownColor {
+				//actionColor = game.NewAction(game.TypeActionInformationColor, NP, int(card.Color))
 				previewColor, err = copyInfo2.PreviewActionInformationColor(NP, card.Color)
 				if err != nil {
 					panic(err)
@@ -495,6 +548,7 @@ func (ai *AI6) GetAction() *game.Action {
 					ai.PlayerInfo = *previewColor.Results[k].Info
 					isPlayable := ai.isCardPlayable(previewCard)
 					ai.PlayerInfo = *copyInfo2
+					//fmt.Println(card)
 					if !isPlayable {
 						countColor = 0
 						for j := 0; j < len(info.PlayerCardsInfo[NP]); j++ {
@@ -508,13 +562,20 @@ func (ai *AI6) GetAction() *game.Action {
 				}
 			}
 
+			//fmt.Println("Counts:", countValue, countColor, card)
 			if countValue == -1 && countColor == -1 {
 				continue
 			}
 
 			if countValue >= countColor {
+				//panic("ABC")
+				//panic("QWEERTY2")
+				fmt.Println(game.NewAction(game.TypeActionInformationValue, NP, int(card.Value)), -1, -1)
 				return game.NewAction(game.TypeActionInformationValue, NP, int(card.Value))
 			} else {
+				//panic("ABC")
+				//panic("QWEERTY1")
+				fmt.Println(game.NewAction(game.TypeActionInformationColor, NP, int(card.Color)), -1, -1)
 				return game.NewAction(game.TypeActionInformationColor, NP, int(card.Color))
 			}
 		}
@@ -523,9 +584,11 @@ func (ai *AI6) GetAction() *game.Action {
 	if info.BlueTokens < 6 {
 		for idx, card := range info.PlayerCards[myPos] {
 			if !ai.isCardMayBeUsefull(card) {
+				fmt.Println(game.NewAction(game.TypeActionDiscard, myPos, idx))
 				return game.NewAction(game.TypeActionDiscard, myPos, idx)
 			}
 		}
+		fmt.Println(game.NewAction(game.TypeActionDiscard, myPos, 0))
 		return game.NewAction(game.TypeActionDiscard, myPos, 0)
 	}
 
@@ -534,8 +597,14 @@ func (ai *AI6) GetAction() *game.Action {
 	}
 
 	if info.RedTokens == 2 && info.BlueTokens < game.MaxBlueTokens {
+		fmt.Println(game.NewAction(game.TypeActionDiscard, myPos, 0), "BadDiscard")
 		return game.NewAction(game.TypeActionDiscard, myPos, 0)
 	} else {
+		if info.Step == 0 {
+			fmt.Println(info)
+			panic("ABCWQE")
+		}
+		fmt.Println(game.NewAction(game.TypeActionPlaying, myPos, 0), "BadPlay")
 		return game.NewAction(game.TypeActionPlaying, myPos, 0)
 	}
 }

@@ -1,6 +1,7 @@
 package statistics
 
 import (
+	"fmt"
 	"math"
 	"math/rand"
 
@@ -60,7 +61,7 @@ func RunGames(aiTypes []int, playerIds []int, count int, fUpdateReady func(*int,
 		panic("bad players count")
 	}
 
-	limit := 100
+	limit := 10
 	if count < limit {
 		limit = count
 	}
@@ -97,6 +98,7 @@ func RunGames(aiTypes []int, playerIds []int, count int, fUpdateReady func(*int,
 	readyCount := 0
 	go fUpdateReady(&readyCount, count)
 	for j := 0; j < limit; j++ {
+		//func(j int) {
 		go func(j int) {
 			for k := 0; k < count/limit; k++ {
 				i := k*limit + j
@@ -111,6 +113,7 @@ func RunGames(aiTypes []int, playerIds []int, count int, fUpdateReady func(*int,
 					pos := g.CurrentState.CurrentPosition
 					AI := informator.NextAI(newAITypes[pos])
 					action := AI.GetAction()
+					fmt.Println("Action:", action)
 					err := informator.ApplyAction(action)
 					if err != nil {
 						panic(err)

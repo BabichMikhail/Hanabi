@@ -54,8 +54,12 @@ func (ai *AIUsefulInformationV2) SetCoefs(kPlayByValue, kPlayByColor, kInfoValue
 }
 
 func (ai *AIUsefulInformationV2) GetAction() *game.Action {
-	ai.setAvailableInformation()
+	//ai.setAvailableInformation()
 	info := &ai.PlayerInfo
+	if info.Step != len(ai.History) {
+		panic("jewifjieireg")
+	}
+	ai.Informator.SetProbabilities(info)
 	myPos := info.CurrentPosition
 
 	usefulActions := Actions{}
@@ -159,5 +163,6 @@ func (ai *AIUsefulInformationV2) GetAction() *game.Action {
 		}
 		return game.NewAction(game.TypeActionDiscard, myPos, rand.Intn(len(info.PlayerCards[myPos])))
 	}
+	panic("ABC")
 	return ai.getActionSmartyRandom()
 }
