@@ -1,6 +1,8 @@
 package ai
 
 import (
+	"fmt"
+
 	"github.com/BabichMikhail/Hanabi/game"
 )
 
@@ -164,11 +166,14 @@ func (ai *AI8) DecodeClues(info *game.PlayerGameInfo) {
 			card.SetColor(newCard.Color)
 			card.SetValue(newCard.Value)
 		} else {
-			if action.PlayerPosition == info.Position {
+			pos := action.PlayerPosition
+			if pos == info.Position {
 				panic("Bad action")
 			}
-			ai.Knowledge[action.PlayerPosition]--
-			if ai.Knowledge[action.PlayerPosition] < 0 {
+			if action.Value < ai.Knowledge[pos] {
+				ai.Knowledge[pos]--
+			}
+			if ai.Knowledge[pos] < 0 {
 				panic("Bad knowledge")
 			}
 		}
@@ -188,11 +193,14 @@ func (ai *AI8) DecodeClues(info *game.PlayerGameInfo) {
 				ai.Knowledge[j] = Min(ai.Knowledge[j]+1, len(info.PlayerCards[j]))
 			}
 		} else {
-			if action.PlayerPosition == info.Position {
+			pos := action.PlayerPosition
+			if pos == info.Position {
 				panic("Bad action")
 			}
-			ai.Knowledge[action.PlayerPosition]--
-			if ai.Knowledge[action.PlayerPosition] < 0 {
+			if action.Value < ai.Knowledge[pos] {
+				ai.Knowledge[pos]--
+			}
+			if ai.Knowledge[pos] < 0 {
 				panic("Bad knowledge")
 			}
 		}
@@ -222,8 +230,8 @@ func (ai *AI8) TryDiscard(info *game.PlayerGameInfo, pos ...int) *game.Action {
 	}
 
 	for i, card := range myCards { /* not last card */
-		upplayedCards := info.GetUnplayedCards()
-		if upplayedCards[game.ColorValue{Color: card.Color, Value: card.Value}] > 0 {
+		unplayedCards := info.GetUnplayedCards()
+		if unplayedCards[game.ColorValue{Color: card.Color, Value: card.Value}] > 1 {
 			return game.NewAction(game.TypeActionDiscard, myPos, i)
 		}
 	}
@@ -341,9 +349,92 @@ func (ai *AI8) GetPoints(progress map[game.CardColor]game.CardValue) int {
 	return points
 }
 
+func (ai *AI8) GetPlayableUnknownCards(info *game.PlayerGameInfo, progress map[game.CardColor]game.CardValue, pos int) (int, int) {
+	cards := info.PlayerCards[pos][ai.Knowledge[pos]:]
+	unplayedCards := info.GetUnplayedCards()
+	topIdx := -1
+	topRel := 1.0
+	untopIdx := -1
+	untopRel := 0.0
+	for i, card := range cards {
+		sumCount := 0
+		playedCount := 0
+		for unplayedCard, count := range unplayedCards {
+			color, value := unplayedCard.Color, unplayedCard.Value
+			if _, ok := card.ProbabilityColors[color]; !ok {
+				continue
+			}
+			if _, ok := card.ProbabilityValues[value]; !ok {
+				continue
+			}
+			if progress[color]+1 == value {
+				playedCount += count
+			}
+			sumCount += count
+		}
+
+		newRel := float64(playedCount) / float64(sumCount)
+		if untopIdx == -1 || newRel < untopRel {
+			untopIdx = i
+			untopRel = newRel
+		}
+		if topIdx == -1 || newRel > topRel {
+			topIdx = i
+			topRel = newRel
+		}
+	}
+	return topIdx, untopIdx
+}
+
+func (ai *AI8) HardDiscard(info *game.PlayerGameInfo, progress map[game.CardColor]game.CardValue, pos int) *game.Action {
+	_, topIdx := ai.GetPlayableUnknownCards(info, progress, pos)
+	return game.NewAction(game.TypeActionPlaying, pos, topIdx)
+}
+
+func (ai *AI8) RiskyPlay(info *game.PlayerGameInfo, progress map[game.CardColor]game.CardValue, pos int) *game.Action {
+	topIdx, _ := ai.GetPlayableUnknownCards(info, progress, pos)
+	return game.NewAction(game.TypeActionPlaying, pos, topIdx)
+}
+
+func (ai *AI8) DiscardHighest(info *game.PlayerGameInfo, pos int) *game.Action {
+	highestIdx := 0
+	cards := info.PlayerCards[pos]
+	for i := 0; i < len(cards); i++ {
+		if cards[i].Value > cards[highestIdx].Value {
+			highestIdx = i
+		}
+	}
+	return game.NewAction(game.TypeActionDiscard, pos, highestIdx)
+}
+
+func (ai *AI8) GetHardAction(info *game.PlayerGameInfo, progress map[game.CardColor]game.CardValue, pos, deep int) *game.Action {
+	var action *game.Action
+	myCards := info.PlayerCards[pos]
+	if ai.Knowledge[pos] < len(myCards) {
+		if info.RedTokens < 2 {
+			if deep == ai.GetMaxDeep(info) {
+				fmt.Println("Risky  play")
+			}
+			action = ai.RiskyPlay(info, progress, pos)
+		} else {
+			if deep == ai.GetMaxDeep(info) {
+				fmt.Println("Hard discard")
+			}
+			action = ai.HardDiscard(info, progress, pos)
+		}
+	} else {
+		if deep == ai.GetMaxDeep(info) {
+			fmt.Println("Critical discard")
+		}
+		action = ai.DiscardHighest(info, pos)
+	}
+	return action
+}
+
 func (ai *AI8) GetBestAction(info *game.PlayerGameInfo, progress map[game.CardColor]game.CardValue, pos, deep int) (*game.Action, int) {
 	if deep == 1 {
-		for i := 0; i < Min(ai.Knowledge[pos], len(info.PlayerCards[pos])); i++ {
+		myCards := info.PlayerCards[pos]
+		for i := 0; i < Min(ai.Knowledge[pos], len(myCards)); i++ {
 			card := &info.PlayerCards[pos][i]
 			if card.IsCardPlayable(progress) {
 				progress[card.Color]++
@@ -354,7 +445,10 @@ func (ai *AI8) GetBestAction(info *game.PlayerGameInfo, progress map[game.CardCo
 		}
 		var action *game.Action
 		if info.BlueTokens == 0 {
-			action = game.NewAction(game.TypeActionDiscard, pos, 0)
+			action = ai.TryDiscard(info)
+			if action == nil {
+				action = ai.GetHardAction(info, progress, pos, deep)
+			}
 		} else {
 			action = game.NewAction(game.TypeActionInformationColor, (pos+1)%info.PlayerCount, 1)
 		}
@@ -393,7 +487,7 @@ func (ai *AI8) GetBestAction(info *game.PlayerGameInfo, progress map[game.CardCo
 		}
 
 		_, points := ai.GetBestAction(info, progress, nextPos, deep-1)
-		if points >= topPoints {
+		if points > topPoints {
 			topPoints = points
 			/* Some Clue */
 			topAction = game.NewAction(game.TypeActionInformationColor, nextPos, 1)
@@ -419,6 +513,28 @@ func (ai *AI8) GetBestAction(info *game.PlayerGameInfo, progress map[game.CardCo
 		info.BlueTokens--
 	}
 
+	if topAction == nil { // hard action
+		topAction = ai.GetHardAction(info, progress, pos, deep)
+		if topAction.ActionType == game.TypeActionDiscard {
+			info.BlueTokens++
+		} else {
+			info.RedTokens++
+		}
+
+		_, points := ai.GetBestAction(info, progress, pos, deep-1)
+		if topAction.ActionType == game.TypeActionDiscard {
+			info.BlueTokens--
+		} else {
+			info.RedTokens--
+		}
+
+		if points != 25 {
+			points = -1
+		}
+		topPoints = points
+
+	}
+
 	return topAction, topPoints
 }
 
@@ -439,7 +555,7 @@ func (ai *AI8) FindBestAction(info *game.PlayerGameInfo) *game.Action {
 	action, _ := ai.GetBestAction(info, progress, myPos, ai.GetMaxDeep(info))
 	if action.IsInfoAction() {
 		action = ai.Clue(info)
-	} else {
+	} else if action.Value < ai.Knowledge[myPos] {
 		ai.Knowledge[myPos]--
 	}
 	return action
