@@ -13,15 +13,13 @@ func (info *PlayerGameInfo) SetEasyKnownAboutCards() {
 			card := &info.PlayerCards[pos][idx]
 			if card.Color == NoneColor && len(card.ProbabilityColors) == 1 {
 				for color, _ := range card.ProbabilityColors {
-					card.KnownColor = true
-					card.Color = color
+					card.SetColor(color)
 				}
 			}
 
 			if card.Value == NoneValue && len(card.ProbabilityValues) == 1 {
 				for value, _ := range card.ProbabilityValues {
-					card.KnownValue = true
-					card.Value = value
+					card.SetValue(value)
 				}
 			}
 		}
@@ -236,7 +234,7 @@ func (info *PlayerGameInfo) SetProbabilities_ConvergenceOfProbability(cards Card
 	}
 }
 
-func (info *PlayerGameInfo) setCard(card *Card, cardVariants []Variants) *CardProbs {
+func (info *PlayerGameInfo) SetCard(card *Card, cardVariants []Variants) *CardProbs {
 	newCardRef := &CardProbs{
 		Card:  card,
 		Probs: make([]float64, len(cardVariants)),
@@ -271,18 +269,10 @@ func (info *PlayerGameInfo) setCard(card *Card, cardVariants []Variants) *CardPr
 }
 
 func (info *PlayerGameInfo) SetVariantsCount(isCheater, isFullCheater bool) {
-	variantsCount := map[ColorValue]int{}
-	for _, color := range ColorsTable {
-		variantsCount[ColorValue{Color: color, Value: One}] = 3
-		variantsCount[ColorValue{Color: color, Value: Two}] = 2
-		variantsCount[ColorValue{Color: color, Value: Three}] = 2
-		variantsCount[ColorValue{Color: color, Value: Four}] = 2
-		variantsCount[ColorValue{Color: color, Value: Five}] = 1
-	}
+	variantsCount := info.GetDefaultDeck()
 
 	for _, cards := range info.PlayerCards {
-		for idx, _ := range cards {
-			card := &cards[idx]
+		for _, card := range cards {
 			if !card.KnownColor || !card.KnownValue {
 				continue
 			}
@@ -293,14 +283,8 @@ func (info *PlayerGameInfo) SetVariantsCount(isCheater, isFullCheater bool) {
 				panic("NoneValue")
 			}
 
-			card.ProbabilityColors = map[CardColor]float64{
-				card.Color: 1.0,
-			}
-
-			card.ProbabilityValues = map[CardValue]float64{
-				card.Value: 1.0,
-			}
-
+			card.ProbabilityColors = map[CardColor]float64{card.Color: 1.0}
+			card.ProbabilityValues = map[CardValue]float64{card.Value: 1.0}
 			card.ProbabilityCard = map[HashValue]float64{
 				HashColorValue(card.Color, card.Value): 1.0,
 			}
@@ -308,16 +292,9 @@ func (info *PlayerGameInfo) SetVariantsCount(isCheater, isFullCheater bool) {
 		}
 	}
 
-	for idx, _ := range info.UsedCards {
-		card := &info.UsedCards[idx]
-		card.ProbabilityColors = map[CardColor]float64{
-			card.Color: 1.0,
-		}
-
-		card.ProbabilityValues = map[CardValue]float64{
-			card.Value: 1.0,
-		}
-
+	for _, card := range info.UsedCards {
+		card.ProbabilityColors = map[CardColor]float64{card.Color: 1.0}
+		card.ProbabilityValues = map[CardValue]float64{card.Value: 1.0}
 		card.ProbabilityCard = map[HashValue]float64{
 			HashColorValue(card.Color, card.Value): 1.0,
 		}
@@ -327,14 +304,9 @@ func (info *PlayerGameInfo) SetVariantsCount(isCheater, isFullCheater bool) {
 	for color, card := range info.TableCards {
 		for i := 1; i <= int(card.Value); i++ {
 			variantsCount[ColorValue{Color: color, Value: CardValue(i)}]--
-			card.ProbabilityColors = map[CardColor]float64{
-				color: 1.0,
-			}
 
-			card.ProbabilityValues = map[CardValue]float64{
-				card.Value: 1.0,
-			}
-
+			card.ProbabilityColors = map[CardColor]float64{color: 1.0}
+			card.ProbabilityValues = map[CardValue]float64{card.Value: 1.0}
 			card.ProbabilityCard = map[HashValue]float64{
 				HashColorValue(color, card.Value): 1.0,
 			}
@@ -343,16 +315,9 @@ func (info *PlayerGameInfo) SetVariantsCount(isCheater, isFullCheater bool) {
 	}
 
 	if isFullCheater {
-		for idx, _ := range info.Deck {
-			card := &info.Deck[idx]
-			card.ProbabilityColors = map[CardColor]float64{
-				card.Color: 1.0,
-			}
-
-			card.ProbabilityValues = map[CardValue]float64{
-				card.Value: 1.0,
-			}
-
+		for _, card := range info.Deck {
+			card.ProbabilityColors = map[CardColor]float64{card.Color: 1.0}
+			card.ProbabilityValues = map[CardValue]float64{card.Value: 1.0}
 			card.ProbabilityCard = map[HashValue]float64{
 				HashColorValue(card.Color, card.Value): 1.0,
 			}
@@ -364,17 +329,9 @@ func (info *PlayerGameInfo) SetVariantsCount(isCheater, isFullCheater bool) {
 	info.VariantsCount = variantsCount
 }
 
-func (info *PlayerGameInfo) SetProbabilities(isCheater, isFullCheater bool) {
-	if info.InfoIsSetted {
-		return
-	}
-	info.SetEasyKnownAboutCards()
-	info.SetVariantsCount(isCheater, isFullCheater)
-	variantsCount := info.VariantsCount
-
-	cardsRef := Cards{}
+func (info *PlayerGameInfo) GetCardVariants() []Variants {
 	cardVariants := []Variants{}
-	for colorValue, count := range variantsCount {
+	for colorValue, count := range info.VariantsCount {
 		for i := 0; i < count; i++ {
 			cardVariants = append(cardVariants, Variants{
 				Color: colorValue.Color,
@@ -382,9 +339,20 @@ func (info *PlayerGameInfo) SetProbabilities(isCheater, isFullCheater bool) {
 			})
 		}
 	}
+	return cardVariants
+}
+
+func (info *PlayerGameInfo) SetProbabilities(isCheater, isFullCheater bool) {
+	if info.InfoIsSetted {
+		return
+	}
+	info.SetEasyKnownAboutCards()
+	info.SetVariantsCount(isCheater, isFullCheater)
+	cardVariants := info.GetCardVariants()
 
 	isPreview := false
 	lastPos := -1
+	cardsRef := Cards{}
 	for pos, cards := range info.PlayerCards {
 		for idx, _ := range cards {
 			card := &cards[idx]
@@ -399,13 +367,13 @@ func (info *PlayerGameInfo) SetProbabilities(isCheater, isFullCheater bool) {
 				lastPos = pos
 				isPreview = true
 			}
-			cardsRef = append(cardsRef, *info.setCard(card, cardVariants))
+			cardsRef = append(cardsRef, *info.SetCard(card, cardVariants))
 		}
 	}
 
 	for idx, _ := range info.Deck {
 		card := &info.Deck[idx]
-		cardsRef = append(cardsRef, *info.setCard(card, cardVariants))
+		cardsRef = append(cardsRef, *info.SetCard(card, cardVariants))
 	}
 
 	info.SetProbabilities_ConvergenceOfProbability(cardsRef, cardVariants)
