@@ -8,17 +8,39 @@ import (
 type HashValue int
 
 func HashColorValue(color CardColor, value CardValue) HashValue {
-	return HashValue(int(color) - 1 + 5*(int(value)-1))
+	if color != NoneColor && value != NoneValue {
+		return HashValue(int(color) - 1 + 5*(int(value)-1))
+	}
+	if color == NoneColor {
+		return HashValue(int(color) + int(value) - 11)
+	}
+	return HashValue(int(color) + int(value) - 6)
 }
 
-func ColorValueByHashColorValue(colorValue HashValue) (CardColor, CardValue) {
-	val := int(colorValue)
-	return CardColor(val%5 + 1), CardValue(val/5 + 1)
+var CardCodes map[HashValue]ColorValue
+
+func init() {
+	CardCodes = map[HashValue]ColorValue{}
+	for _, value := range Values {
+		for _, color := range Colors {
+			fmt.Println(GetCardColor(color), value, HashColorValue(color, value))
+			CardCodes[HashColorValue(color, value)] = ColorValue{Color: color, Value: value}
+		}
+	}
+}
+
+func ColorValueByHashColorValue(hashValue HashValue) (CardColor, CardValue) {
+	cv := CardCodes[hashValue]
+	return cv.Color, cv.Value
 }
 
 type ColorValue struct {
 	Color CardColor
 	Value CardValue
+}
+
+func (cv ColorValue) String() string {
+	return fmt.Sprintf("{ %s %d }", GetCardColor(cv.Color), cv.Value)
 }
 
 type Card struct {
