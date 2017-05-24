@@ -79,6 +79,15 @@ func (game *Game) ApplyAction(action Action) (err error) {
 }
 
 func (state *GameState) ApplyAction(action *Action) (err error) {
+	if action.IsInfoAction() {
+		if action.PlayerPosition == state.CurrentPosition {
+			panic("Bad Action")
+		}
+	} else {
+		if action.PlayerPosition != state.CurrentPosition {
+			panic("Bad Action")
+		}
+	}
 	switch action.ActionType {
 	case TypeActionDiscard:
 		_, err = state.NewActionDiscard(action.PlayerPosition, action.Value)
