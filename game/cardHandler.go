@@ -114,7 +114,50 @@ func (card *Card) CheckVisible() {
 }
 
 func (card *Card) IsCardPlayable(progress map[CardColor]CardValue) bool {
-	return progress[card.Color]+1 == card.Value
+	if card.KnownColor && card.KnownValue {
+		return progress[card.Color]+1 == card.Value
+	}
+	isPlayable := true
+	for hashValue, _ := range card.ProbabilityCard {
+		color, value := ColorValueByHashColorValue(hashValue)
+		isPlayable = isPlayable && progress[color]+1 == value
+	}
+	return isPlayable
+}
+
+func (card *Card) GetPlayability(progress map[CardColor]CardValue) float64 {
+	if card.KnownColor && card.KnownValue {
+		if card.IsCardPlayable(progress) {
+			return 1.0
+		} else {
+			return 0.0
+		}
+	}
+
+	playability := 0.0
+	for hashValue, prob := range card.ProbabilityCard {
+		color, value := ColorValueByHashColorValue(hashValue)
+		if progress[color]+1 == value {
+			playability += prob
+		}
+	}
+	return playability
+}
+
+func (card *Card) GetCriticality(progress map[CardColor]CardValue, variants map[ColorValue]int) float64 {
+	if card.KnownColor && card.KnownValue {
+		return 0.0
+	}
+
+	criticality := 0.0
+	for hashValue, prob := range card.ProbabilityCard {
+		color, value := ColorValueByHashColorValue(hashValue)
+		cv := ColorValue{Color: color, Value: value}
+		if progress[color]+1 != value && variants[cv] == 1 {
+			criticality += prob
+		}
+	}
+	return criticality
 }
 
 func (card *Card) IsVisible() bool {
@@ -122,12 +165,18 @@ func (card *Card) IsVisible() bool {
 }
 
 func (card *Card) SetValue(value CardValue) {
+	if value == NoneValue {
+		panic("Bad value")
+	}
 	card.Value = value
 	card.KnownValue = true
 	card.ProbabilityValues = map[CardValue]float64{value: 1.0}
 }
 
 func (card *Card) SetColor(color CardColor) {
+	if color == NoneColor {
+		panic("Bad color")
+	}
 	card.Color = color
 	card.KnownColor = true
 	card.ProbabilityColors = map[CardColor]float64{color: 1.0}

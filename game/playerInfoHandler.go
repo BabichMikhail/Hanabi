@@ -308,7 +308,7 @@ func (info *PlayerGameInfo) GetUnplayedCards() map[ColorValue]int {
 		cards[ColorValue{Color: card.Color, Value: card.Value}]--
 	}
 	for color, card := range info.TableCards {
-		for value := CardValue(1); value < card.Value; value++ {
+		for value := CardValue(1); value <= card.Value; value++ {
 			cards[ColorValue{Color: color, Value: value}]--
 		}
 	}

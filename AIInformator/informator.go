@@ -25,6 +25,7 @@ type Informator struct {
 	Cache         map[int]interface{}
 	CachePInfo    map[string]*game.PlayerGameInfo
 	CacheActions  map[KeyCacheActions]*game.Action
+	PseudoStates  map[int]map[int]*game.PlayerGameInfo
 	isLearnOnStep bool
 
 	HatRecords []*ai.HatPlayerRecord
@@ -42,6 +43,10 @@ func NewInformator(currentGameState *game.GameState, initialGameState *game.Game
 	info.isLearnOnStep = false
 	info.CachePInfo = map[string]*game.PlayerGameInfo{}
 	info.CacheActions = map[KeyCacheActions]*game.Action{}
+	info.PseudoStates = map[int]map[int]*game.PlayerGameInfo{}
+	for i := 0; i < len(currentGameState.PlayerStates); i++ {
+		info.PseudoStates[i] = map[int]*game.PlayerGameInfo{}
+	}
 	return info
 }
 
@@ -83,6 +88,11 @@ func (info *Informator) NextAI(aiType int) ai.AI {
 	return newAI
 }
 
+func (info *Informator) SetPseudoPlayerInfo(playerInfo *game.PlayerGameInfo) {
+	pos := info.currentState.CurrentPosition
+	info.PseudoStates[pos][playerInfo.Step] = playerInfo
+}
+
 func (info *Informator) getPlayerState(step, infoType int, currentPosition ...int) game.PlayerGameInfo {
 	state := info.gameStates[step]
 	pos := state.CurrentPosition
@@ -94,7 +104,7 @@ func (info *Informator) getPlayerState(step, infoType int, currentPosition ...in
 
 func (info *Informator) GetPlayerState(step int) game.PlayerGameInfo {
 	_, ok := info.gameStates[step]
-	if !ok {
+	if !ok && step < info.currentState.Step {
 		prevStep := step
 		var prevState game.GameState
 		for !ok {
@@ -108,6 +118,9 @@ func (info *Informator) GetPlayerState(step int) game.PlayerGameInfo {
 			info.gameStates[i+1] = *prevState.Copy()
 		}
 		_ = info.gameStates[step]
+	} else if !ok {
+		pos := info.currentState.CurrentPosition
+		return *info.PseudoStates[pos][step]
 	}
 	return info.getPlayerState(step, game.InfoTypeUsually, info.currentState.CurrentPosition)
 }
