@@ -151,6 +151,12 @@ func RunGames(aiTypes []int, playerIds []int, count int, fUpdateReady func(*int,
 		<-chans
 	}
 	stat.SetCharacteristics()
+	if math.IsNaN(stat.Kurt) {
+		stat.Kurt = 0
+	}
+	if math.IsNaN(stat.Asym) {
+		stat.Asym = 0
+	}
 	games := []*game.Game{worstGame, bestGame}
 	for _, g := range additionalGames {
 		games = append(games, g)
