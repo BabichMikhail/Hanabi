@@ -19,7 +19,8 @@ type Stat struct {
 	AITypes     []int     `orm:"-" json:"ai_types"`
 	AINames     []string  `orm:"-" json:"ai_names"`
 	GameCount   int       `orm:"column(count)" json:"count"`
-	WinCount    int       `orm:"column(win_count);default(0)" json:"win_count"`
+	WinCount    int       `orm:"column(win_count);default(0)" json:"-"`
+	Wins        float64   `orm:"-" json:"wins"`
 	Points      float64   `orm:"column(points);null" json:"points"`
 	Dispersion  float64   `orm:"column(dispersion);null" json:"dispersion"`
 	Kurtosis    float64   `orm:"column(kurtosis);null" json:"curtosis"`
@@ -179,7 +180,7 @@ func ReadStats() (stats []Stat) {
 	stats = []Stat{}
 	o := orm.NewOrm()
 	qb, _ := orm.NewQueryBuilder("mysql")
-	qb.Select("id", "player_count", "ai_types", "count", "points", "ready_at", "created_at", "ready_part").
+	qb.Select("id", "player_count", "ai_types", "count", "points", "win_count", "ready_at", "created_at", "ready_part").
 		From("stats").
 		OrderBy("created_at DESC")
 	_, err := o.Raw(qb.String()).QueryRows(&stats)
@@ -193,6 +194,8 @@ func ReadStats() (stats []Stat) {
 		if err != nil {
 			return []Stat{}
 		}
+
+		stat.Wins = float64(stat.WinCount*10000/stat.GameCount) / 100
 
 		stat.AINames = make([]string, len(stat.AITypes), cap(stat.AITypes))
 		for i, aiType := range stat.AITypes {

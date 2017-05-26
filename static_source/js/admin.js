@@ -18,6 +18,7 @@ function adminHandler() {
                         <th>Count</th>
                         <th>Places</th>
                         <th>Points</th>
+                        <th>Perfect</th>
                         <th>ExecTime</th>
                         <th>ReadyAt</th>
                         <th>CreatedAt</th>
@@ -33,6 +34,7 @@ function adminHandler() {
                     <td>` + stat.count + `</td>
                     <td>` + stat.ai_types.length + `</td>
                     <td>` + stat.points + `</td>
+                    <td>` + stat.wins + `%</td>
                     <td>` + (stat.is_ready ? stat.execution_time : "") + `</td>
                     <td>` + (stat.is_ready ? stat.ready_at : stat.ready_part + "%") + `</td>
                     <td>` + stat.created_at + `</td>
@@ -80,7 +82,7 @@ function adminHandler() {
 
             html += `<div class="col-md-4">
                 <select id="ai-count" onChange="Admin.UpdateCreateStatPageCount()">`
-            for (let i = 1; i <= 5; ++i) {
+            for (let i = 2; i <= 5; ++i) {
                 html += `<option value="` + i + `" ` + (i == count ? "selected" : "") + `>` + i + `</option>`
             }
             html += `</select>
