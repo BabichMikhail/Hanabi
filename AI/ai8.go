@@ -48,6 +48,31 @@ func (ai *AI8) GetClueActions(info *game.PlayerGameInfo, myPos, step int) []*gam
 		}
 	}
 
+	lowestValue := 5
+	completeColors := map[game.CardColor]struct{}{}
+	for color, card := range info.TableCards {
+		if int(card.Value) < lowestValue {
+			lowestValue = int(card.Value)
+		}
+		if card.Value == 5 {
+			completeColors[color] = struct{}{}
+		}
+	}
+
+	for j := len(actions) - 1; j >= 0 && len(actions) > 25; j-- {
+		action := actions[j]
+		if action.ActionType == game.TypeActionInformationValue && action.Value <= lowestValue {
+			actions = append(actions[:j], actions[j+1:]...)
+		}
+	}
+
+	for j := len(actions) - 1; j >= 0 && len(actions) > 25; j-- {
+		action := actions[j]
+		if _, ok := completeColors[game.CardColor(action.Value)]; action.ActionType == game.TypeActionInformationColor && ok {
+			actions = append(actions[:j], actions[j+1:]...)
+		}
+	}
+
 	return actions
 }
 
@@ -238,19 +263,6 @@ func (ai *AI8) TryDiscard(info *game.PlayerGameInfo, pos ...int) *game.Action {
 	return nil
 }
 
-func (ai *AI8) Discard(info *game.PlayerGameInfo) *game.Action {
-	myPos := info.CurrentPosition
-	highestValue := 0
-	cardPos := -1
-	for i, card := range info.PlayerCards[myPos] {
-		if int(card.Value) > highestValue {
-			highestValue = int(card.Value)
-			cardPos = i
-		}
-	}
-	return game.NewAction(game.TypeActionDiscard, myPos, cardPos)
-}
-
 func (ai *AI8) InitializeCache() {
 	ai.Knowledge = make([]int, ai.PlayerInfo.PlayerCount)
 	myFirstInfo := ai.Informator.GetPlayerState(0)
@@ -299,35 +311,41 @@ func (ai *AI8) LoadInformation(info *game.PlayerGameInfo) {
 	}
 	ai.DecodeClues(info)
 
-	/* @todo Use this code */
-	/*myCards := info.PlayerCards[myPos][:ai.Knowledge[myPos]]
-	if ai.Knowledge[myPos] == len(myCards)-1 {
-		if info.DeckSize == 1 {
-			info.SetVariantsCount(false, false)
-			for colorValue, _ := range info.VariantsCount {
-				color, value := colorValue.Color, colorValue.Value
-				info.Deck[0].SetColor(color)
-				info.Deck[0].SetValue(value)
-			}
-		} else if info.DeckSize == 0 {
-			info.SetVariantsCount(false, false)
-			countSum := 0
-			var colorValue game.ColorValue
-			for cv, count := range info.VariantsCount {
-				countSum += count
-				colorValue = cv
-			}
-			if countSum > 1 {
-				panic("Bad count")
-			}
-			card := &myCards[len(myCards)-1]
-			if countSum == 0 {
-				card.CheckVisible()
-			}
-			card.SetColor(colorValue.Color)
-			card.SetValue(colorValue.Value)
+	/* @todo I don't know cards[i] but i know cards[i + 1] */
+	/*myCards := info.PlayerCards[myPos]
+	for i := info.PlayerCards[myPos]; i < len(myCards); i++ {
+		card := &myCards[i]
+		if card.KnownColor && card.KnownValue {
+			ai.Knowledge[myPos]++
+		}
+	}
+
+	if info.DeckSize == 1 && ai.Knowledge[myPos] == len(myCards) {
+		info.SetVariantsCount(false, false)
+		for colorValue, _ := range info.VariantsCount {
+			color, value := colorValue.Color, colorValue.Value
+			info.Deck[0].SetColor(color)
+			info.Deck[0].SetValue(value)
+		}
+	} else if info.DeckSize == 0 && ai.Knowledge[myPos] == len(myCards)-1 {
+		info.SetVariantsCount(false, false)
+		countSum := 0
+		var colorValue game.ColorValue
+		for cv, count := range info.VariantsCount {
+			countSum += count
+			colorValue = cv
+		}
+		if countSum > 1 {
+			panic("Bad count")
+		}
+		card := &myCards[len(myCards)-1]
+		if countSum == 0 {
 			card.CheckVisible()
 		}
+		card.SetColor(colorValue.Color)
+		card.SetValue(colorValue.Value)
+		card.CheckVisible()
+		ai.Knowledge[myPos]++
 	}*/
 
 	ai.Informator.SetCache([]interface{}{ai.Knowledge, info.Copy()})
@@ -388,7 +406,7 @@ func (ai *AI8) GetPlayableUnknownCards(info *game.PlayerGameInfo, progress map[g
 
 func (ai *AI8) HardDiscard(info *game.PlayerGameInfo, progress map[game.CardColor]game.CardValue, pos int) *game.Action {
 	_, topIdx := ai.GetPlayableUnknownCards(info, progress, pos)
-	return game.NewAction(game.TypeActionPlaying, pos, topIdx)
+	return game.NewAction(game.TypeActionDiscard, pos, topIdx)
 }
 
 func (ai *AI8) RiskyPlay(info *game.PlayerGameInfo, progress map[game.CardColor]game.CardValue, pos int) *game.Action {
@@ -445,7 +463,7 @@ func (ai *AI8) GetBestAction(info *game.PlayerGameInfo, progress map[game.CardCo
 		}
 		var action *game.Action
 		if info.BlueTokens == 0 {
-			action = ai.TryDiscard(info)
+			action = ai.TryDiscard(info, pos)
 			if action == nil {
 				action = ai.GetHardAction(info, progress, pos, deep)
 			}
@@ -504,7 +522,7 @@ func (ai *AI8) GetBestAction(info *game.PlayerGameInfo, progress map[game.CardCo
 		info.BlueTokens++
 		_, points := ai.GetBestAction(info, progress, nextPos, deep-1)
 		if points > topPoints {
-			discard := ai.TryDiscard(info)
+			discard := ai.TryDiscard(info, pos)
 			if discard != nil {
 				topPoints = points
 				topAction = discard
