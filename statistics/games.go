@@ -60,7 +60,7 @@ func RunGames(aiTypes []int, playerIds []int, count int, fUpdateReady func(*int,
 		panic("bad players count")
 	}
 
-	limit := 100
+	limit := 10
 	if count < limit {
 		limit = count
 	}
