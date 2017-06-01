@@ -1,8 +1,6 @@
 package ai
 
 import (
-	"strconv"
-
 	"github.com/BabichMikhail/Hanabi/game"
 )
 
@@ -12,15 +10,16 @@ type AI1 struct {
 
 func (ai *AI1) GetAction() *game.Action {
 	info := &ai.PlayerInfo
-	ai.Informator.SetProbabilities(info)
+	info.SetProbabilities(false, false)
 	myPos := info.CurrentPosition
+
 	for idx, card := range info.PlayerCards[myPos] {
 		if card.KnownColor && card.KnownValue && info.TableCards[card.Color].Value+1 == card.Value {
 			return game.NewAction(game.TypeActionPlaying, myPos, idx)
 		}
 	}
 
-	if len(info.PlayerCards) != 5 {
+	if info.PlayerCount != 5 {
 		panic("Not implemented")
 	}
 
@@ -28,38 +27,39 @@ func (ai *AI1) GetAction() *game.Action {
 		action := ai.History[len(ai.History)-1]
 		isInformationAction := action.ActionType == game.TypeActionInformationColor || action.ActionType == game.TypeActionInformationValue
 		if isInformationAction {
-			cardPos := (action.PlayerPosition - myPos + len(info.PlayerCards)) % len(info.PlayerCards)
+			cardPos := (action.PlayerPosition - myPos + info.PlayerCount) % info.PlayerCount
 			if ai.isCardPlayable(info.PlayerCards[myPos][cardPos]) {
 				return game.NewAction(game.TypeActionPlaying, myPos, cardPos)
 			}
 		}
 	}
 
-	nextPos := (myPos + len(info.PlayerCards) + 1) % len(info.PlayerCards)
+	nextPos := (myPos + 1) % info.PlayerCount
 	if info.BlueTokens > 0 {
 		for idx, card := range info.PlayerCards[nextPos] {
 			if ai.isCardPlayable(card) {
-				infoPos := (myPos + len(info.PlayerCards) + idx + 1) % len(info.PlayerCards)
+				infoPos := (myPos + idx + 1) % info.PlayerCount
 				cards := info.PlayerCardsInfo[infoPos]
+				realCards := info.PlayerCards[infoPos]
 				for j := 0; j < len(cards); j++ {
 					if !cards[j].KnownValue && !cards[j].KnownColor {
-						return game.NewAction(game.TypeActionInformationValue, infoPos, int(info.PlayerCards[infoPos][j].Value))
+						return game.NewAction(game.TypeActionInformationValue, infoPos, int(realCards[j].Value))
 					}
 				}
 
 				for j := 0; j < len(cards); j++ {
 					if !cards[j].KnownValue {
-						return game.NewAction(game.TypeActionInformationValue, infoPos, int(info.PlayerCards[infoPos][j].Value))
+						return game.NewAction(game.TypeActionInformationValue, infoPos, int(realCards[j].Value))
 					}
 				}
 
 				for j := 0; j < len(cards); j++ {
 					if !cards[j].KnownColor {
-						return game.NewAction(game.TypeActionInformationColor, infoPos, int(info.PlayerCards[infoPos][j].Color))
+						return game.NewAction(game.TypeActionInformationColor, infoPos, int(realCards[j].Color))
 					}
 				}
 
-				return game.NewAction(game.TypeActionInformationColor, infoPos, int(info.PlayerCards[infoPos][0].Color))
+				return game.NewAction(game.TypeActionInformationColor, infoPos, int(realCards[0].Color))
 			}
 		}
 	}
@@ -91,12 +91,13 @@ func (ai *AI1) GetAction() *game.Action {
 				continue
 			}
 
-			infoPos := (myPos + len(info.PlayerCards) + 1 + infoIdx) % len(info.PlayerCards)
+			infoPos := (myPos + 1 + infoIdx) % info.PlayerCount
+			cards := info.PlayerCards[infoPos]
 			for cardPos, card := range info.PlayerCardsInfo[infoPos] {
 				if !card.KnownValue {
-					return game.NewAction(game.TypeActionInformationValue, infoPos, int(info.PlayerCards[infoPos][cardPos].Value))
+					return game.NewAction(game.TypeActionInformationValue, infoPos, int(cards[cardPos].Value))
 				} else if !card.KnownColor {
-					return game.NewAction(game.TypeActionInformationColor, infoPos, int(info.PlayerCards[infoPos][cardPos].Color))
+					return game.NewAction(game.TypeActionInformationColor, infoPos, int(cards[cardPos].Color))
 				}
 			}
 		}
@@ -111,7 +112,11 @@ func (ai *AI1) GetAction() *game.Action {
 		return game.NewAction(game.TypeActionDiscard, myPos, 0)
 	}
 
-	panic("Magic " + strconv.Itoa(info.BlueTokens))
+	if info.RedTokens < 2 {
+		return game.NewAction(game.TypeActionPlaying, myPos, 0)
+	} else {
+		return game.NewAction(game.TypeActionDiscard, myPos, 0)
+	}
 }
 
 func NewAI1(baseAI *BaseAI) *AI1 {
