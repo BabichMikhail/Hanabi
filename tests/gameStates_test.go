@@ -13,7 +13,7 @@ import (
 func TestGame(t *testing.T) {
 	Convey("Game Init", t, func() {
 		pseudoIds := []int{1, 2, 3, 4, 5}
-		g := game.NewGame(pseudoIds)
+		g := game.NewGame(pseudoIds, game.Type_NormalGame)
 		Convey("Game is created", func() {
 			So(g, ShouldNotBeNil)
 		})
