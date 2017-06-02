@@ -61,82 +61,59 @@ func (ai *AIUsefulInfoAndMMEnd) getBestResultWithDepth() *game.ResultPreviewPlay
 	info := &ai.PlayerInfo
 	pos := info.CurrentPosition
 	var bestResult *game.ResultPreviewPlayerInformations
+	myCards := info.PlayerCards[pos]
 
-	for i := 0; i < len(info.PlayerCards[pos]); i++ {
+	updateFunc := func(previewResult *game.ResultPreviewPlayerInformations) {
+		newHistory := ai.GetNewHistory(previewResult.Action)
+		newMax := -1
+		newMin := 26
+		newMed := 0.0
+		for _, result := range previewResult.Results {
+			newAI := NewAI(*result.Info, newHistory, ai.Type, ai.Informator).(AIUsefulAndMMEndInterface)
+			newAI.SetDepth(ai.Depth - 1)
+			newResult := newAI.GetBestResult()
+			if newResult == nil {
+				break
+			}
+			if newResult.Max > newMax {
+				newMax = newResult.Max
+			}
+			if newResult.Min < newMin {
+				newMin = newResult.Min
+			}
+			newMed += newResult.Med * result.Probability
+		}
+
+		if newMax != -1 {
+			previewResult.Max = newMax
+			previewResult.Min = newMin
+			previewResult.Med = newMed
+		}
+
+		if ai.resultIsBetterThan(previewResult, bestResult) {
+			bestResult = previewResult
+		}
+	}
+
+	for i := 0; i < len(myCards); i++ {
 		resultDiscard, err := info.PreviewActionDiscard(i)
 		if err != nil {
 			continue
 		}
-		newHistory := ai.GetNewHistory(resultDiscard.Action)
-		newMax := -1
-		newMin := 26
-		newMed := 0.0
-		for j := 0; j < len(resultDiscard.Results); j++ {
-			newAI := NewAI(*resultDiscard.Results[j].Info, newHistory, ai.Type, ai.Informator).(AIUsefulAndMMEndInterface)
-			newAI.SetDepth(ai.Depth - 1)
-			newResult := newAI.GetBestResult()
-			if newResult == nil {
-				break
-			}
-			if newResult.Max > newMax {
-				newMax = newResult.Max
-			}
-			if newResult.Min < newMin {
-				newMin = newResult.Min
-			}
-			newMed += newResult.Med * resultDiscard.Results[j].Probability
-		}
-
-		if newMax != -1 {
-			resultDiscard.Max = newMax
-			resultDiscard.Min = newMin
-			resultDiscard.Med = newMed
-		}
-
-		if ai.resultIsBetterThan(resultDiscard, bestResult) {
-			bestResult = resultDiscard
-		}
+		updateFunc(resultDiscard)
 	}
 
-	for i := 0; i < len(info.PlayerCards[pos]); i++ {
+	for i := 0; i < len(myCards); i++ {
 		resultPlaying, err := info.PreviewActionPlaying(i)
 		if err != nil {
 			continue
 		}
-		newHistory := ai.GetNewHistory(resultPlaying.Action)
-		newMax := -1
-		newMin := 26
-		newMed := 0.0
-		for j := 0; j < len(resultPlaying.Results); j++ {
-			newAI := NewAI(*resultPlaying.Results[j].Info, newHistory, ai.Type, ai.Informator).(AIUsefulAndMMEndInterface)
-			newAI.SetDepth(ai.Depth - 1)
-			newResult := newAI.GetBestResult()
-			if newResult == nil {
-				break
-			}
-			if newResult.Max > newMax {
-				newMax = newResult.Max
-			}
-			if newResult.Min < newMin {
-				newMin = newResult.Min
-			}
-			newMed += newResult.Med * resultPlaying.Results[j].Probability
-		}
-
-		if newMax != -1 {
-			resultPlaying.Max = newMax
-			resultPlaying.Min = newMin
-			resultPlaying.Med = newMed
-		}
-
-		if ai.resultIsBetterThan(resultPlaying, bestResult) {
-			bestResult = resultPlaying
-		}
+		updateFunc(resultPlaying)
 	}
 
 	isActionInfo := false
-	for i := 0; i < len(info.PlayerCards); i++ {
-		if i == pos || isActionInfo && info.MaxStep > info.Step && (i-info.CurrentPosition+len(info.PlayerCards))%len(info.PlayerCards) > info.MaxStep-info.Step {
+	for i := 0; i < info.PlayerCount; i++ {
+		if i == pos || isActionInfo && info.MaxStep > info.Step && (i-pos+info.PlayerCount)%info.PlayerCount > info.MaxStep-info.Step {
 			continue
 		}
 
@@ -151,81 +128,26 @@ func (ai *AIUsefulInfoAndMMEnd) getBestResultWithDepth() *game.ResultPreviewPlay
 			cardValues[info.PlayerCards[i][k].Value] = struct{}{}
 		}
 
-		if i == len(info.PlayerCards)-1 && !isActionInfo {
-			k := len(info.PlayerCards[i]) - 1
-			cardColors[info.PlayerCards[i][k].Color] = struct{}{}
+		if i == info.PlayerCount-1 && !isActionInfo {
+			cards := info.PlayerCards[i]
+			k := len(cards) - 1
+			cardColors[cards[k].Color] = struct{}{}
 		}
 
 		for cardColor, _ := range cardColors {
-			resultInfo, err := info.PreviewActionInformationColor(i, cardColor)
+			resultInfo, err := info.PreviewActionInformationColor(i, cardColor, true)
 			if err != nil {
 				continue
 			}
-			newHistory := ai.GetNewHistory(resultInfo.Action)
-			newMax := -1
-			newMin := 26
-			newMed := 0.0
-			for j := 0; j < len(resultInfo.Results); j++ {
-				newAI := NewAI(*resultInfo.Results[j].Info, newHistory, ai.Type, ai.Informator).(AIUsefulAndMMEndInterface)
-				newAI.SetDepth(ai.Depth - 1)
-				newResult := newAI.GetBestResult()
-				if newResult == nil {
-					break
-				}
-				if newResult.Max > newMax {
-					newMax = newResult.Max
-				}
-				if newResult.Min < newMin {
-					newMin = newResult.Min
-				}
-				newMed += newResult.Med * resultInfo.Results[j].Probability
-			}
-
-			if newMax != -1 {
-				resultInfo.Max = newMax
-				resultInfo.Min = newMin
-				resultInfo.Med = newMed
-			}
-
-			if ai.resultIsBetterThan(resultInfo, bestResult) {
-				bestResult = resultInfo
-			}
+			updateFunc(resultInfo)
 		}
 
 		for cardValue, _ := range cardValues {
-			resultInfo, err := info.PreviewActionInformationValue(i, cardValue)
+			resultInfo, err := info.PreviewActionInformationValue(i, cardValue, true)
 			if err != nil {
 				continue
 			}
-			newHistory := ai.GetNewHistory(resultInfo.Action)
-			newMax := -1
-			newMin := 26
-			newMed := 0.0
-			for j := 0; j < len(resultInfo.Results); j++ {
-				newAI := NewAI(*resultInfo.Results[j].Info, newHistory, ai.Type, ai.Informator).(AIUsefulAndMMEndInterface)
-				newAI.SetDepth(ai.Depth - 1)
-				newResult := newAI.GetBestResult()
-				if newResult == nil {
-					break
-				}
-				if newResult.Max > newMax {
-					newMax = newResult.Max
-				}
-				if newResult.Min < newMin {
-					newMin = newResult.Min
-				}
-				newMed += newResult.Med * resultInfo.Results[j].Probability
-			}
-
-			if newMax != -1 {
-				resultInfo.Max = newMax
-				resultInfo.Min = newMin
-				resultInfo.Med = newMed
-			}
-
-			if ai.resultIsBetterThan(resultInfo, bestResult) {
-				bestResult = resultInfo
-			}
+			updateFunc(resultInfo)
 		}
 	}
 	return bestResult
@@ -249,12 +171,12 @@ func (ai *AIUsefulInfoAndMMEnd) getBestResultWithoutDepth() *game.ResultPreviewP
 			bestResult = resultPlaying
 		}
 	case game.TypeActionInformationColor:
-		resultInfoColor, err := info.PreviewActionInformationColor(action.PlayerPosition, game.CardColor(action.Value))
+		resultInfoColor, err := info.PreviewActionInformationColor(action.PlayerPosition, game.CardColor(action.Value), true)
 		if err == nil && ai.resultIsBetterThan(resultInfoColor, bestResult) {
 			bestResult = resultInfoColor
 		}
 	case game.TypeActionInformationValue:
-		resultInfoValue, err := info.PreviewActionInformationValue(action.PlayerPosition, game.CardValue(action.Value))
+		resultInfoValue, err := info.PreviewActionInformationValue(action.PlayerPosition, game.CardValue(action.Value), true)
 		if err == nil && ai.resultIsBetterThan(resultInfoValue, bestResult) {
 			bestResult = resultInfoValue
 		}

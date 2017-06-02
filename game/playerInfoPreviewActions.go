@@ -231,7 +231,7 @@ func (info *PlayerGameInfo) PreviewActionPlaying(cardPosition int) (*ResultPrevi
 	}, nil
 }
 
-func (info *PlayerGameInfo) PreviewActionInformationColor(playerPosition int, cardColor CardColor) (*ResultPreviewPlayerInformations, error) {
+func (info *PlayerGameInfo) previewActionInformation(playerPosition int, value int, setFunc func(card, cardInfo *Card)) (*ResultPreviewPlayerInformations, error) {
 	if info.BlueTokens == 0 {
 		return nil, errors.New("No blue tokens")
 	}
@@ -245,20 +245,13 @@ func (info *PlayerGameInfo) PreviewActionInformationColor(playerPosition int, ca
 	cards := newPlayerInfo.PlayerCards[playerPosition]
 	cardsInfo := newPlayerInfo.PlayerCardsInfo[playerPosition]
 	for i := 0; i < len(cards); i++ {
-		if !cards[i].KnownColor {
-			fmt.Println(cards[i])
-			panic("error Color")
-		}
-		if cards[i].Color == cardColor && !cardsInfo[i].KnownColor {
-			cardsInfo[i].KnownColor = true
-			cardsInfo[i].Color = cardColor
-		}
+		setFunc(&cards[i], &cardsInfo[i])
 	}
 
 	points := newPlayerInfo.GetPoints()
 	newPlayerInfo.IncreasePosition()
 	return &ResultPreviewPlayerInformations{
-		Action: NewAction(TypeActionInformationColor, playerPosition, int(cardColor)),
+		Action: NewAction(TypeActionInformationValue, playerPosition, value),
 		Max:    points,
 		Min:    points,
 		Med:    float64(points),
@@ -271,42 +264,30 @@ func (info *PlayerGameInfo) PreviewActionInformationColor(playerPosition int, ca
 	}, nil
 }
 
-func (info *PlayerGameInfo) PreviewActionInformationValue(playerPosition int, cardValue CardValue) (*ResultPreviewPlayerInformations, error) {
-	if info.BlueTokens == 0 {
-		return nil, errors.New("No blue tokens")
-	}
+func (info *PlayerGameInfo) PreviewActionInformationColor(playerPosition int, cardColor CardColor, canUnknown ...bool) (*ResultPreviewPlayerInformations, error) {
+	return info.previewActionInformation(playerPosition, int(cardColor), func(card, cardInfo *Card) {
+		/* if need real color that do not use can unknown */
+		if !card.KnownColor && (len(canUnknown) == 0 || !canUnknown[0]) {
+			fmt.Println(card)
+			panic("error Color")
+		}
+		if card.Color == cardColor && !cardInfo.KnownColor {
+			cardInfo.KnownColor = true
+			cardInfo.Color = cardColor
+		}
+	})
+}
 
-	if info.VariantsCount == nil {
-		return nil, errors.New("Need setAvailableInformation()")
-	}
-
-	newPlayerInfo := info.Copy()
-	newPlayerInfo.BlueTokens--
-	cards := newPlayerInfo.PlayerCards[playerPosition]
-	cardsInfo := newPlayerInfo.PlayerCardsInfo[playerPosition]
-	for i := 0; i < len(cards); i++ {
-		if !cards[i].KnownValue {
-			fmt.Println(cards[i])
+func (info *PlayerGameInfo) PreviewActionInformationValue(playerPosition int, cardValue CardValue, canUnknown ...bool) (*ResultPreviewPlayerInformations, error) {
+	return info.previewActionInformation(playerPosition, int(cardValue), func(card, cardInfo *Card) {
+		/* if need real value that do not use can unknown */
+		if !card.KnownValue && (len(canUnknown) == 0 || !canUnknown[0]) {
+			fmt.Println(card)
 			panic("error Value")
 		}
-		if cards[i].Value == cardValue && !cardsInfo[i].KnownValue {
-			cardsInfo[i].KnownValue = true
-			cardsInfo[i].Value = cardValue
+		if card.Value == cardValue && !cardInfo.KnownValue {
+			cardInfo.KnownValue = true
+			cardInfo.Value = cardValue
 		}
-	}
-
-	points := newPlayerInfo.GetPoints()
-	newPlayerInfo.IncreasePosition()
-	return &ResultPreviewPlayerInformations{
-		Action: NewAction(TypeActionInformationValue, playerPosition, int(cardValue)),
-		Max:    points,
-		Min:    points,
-		Med:    float64(points),
-		Results: []*ResultPlayerInfo{
-			&ResultPlayerInfo{
-				Probability: 1.0,
-				Info:        newPlayerInfo,
-			},
-		},
-	}, nil
+	})
 }
