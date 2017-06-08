@@ -58,6 +58,70 @@ func NewAIUsefulInfoV4AndParts(baseAI *BaseAI, isUniversal bool) *AIUsefulInfoV4
 		}
 	} else {
 		ai.Coefs = map[int][]AIUsefulInfoV4AndPartsCoefs{
+			2: []AIUsefulInfoV4AndPartsCoefs{
+				AIUsefulInfoV4AndPartsCoefs{
+					CoefPlayByInfoA: 1.47,
+					CoefPlayByInfoB: 0.93,
+					CoefInfoA:       2.7,
+					CoefInfoB:       0.89,
+					CoefDiscardA:    0.7,
+					CoefDiscardB:    0.2,
+					CoefPlayA:       1.8,
+					CoefPlayB:       -0.6,
+				},
+				AIUsefulInfoV4AndPartsCoefs{
+					CoefPlayByInfoA: 2.94,
+					CoefPlayByInfoB: 1.93,
+					CoefInfoA:       5.05,
+					CoefInfoB:       1.94,
+					CoefDiscardA:    1.2,
+					CoefDiscardB:    0.7,
+					CoefPlayA:       2.6,
+					CoefPlayB:       -0.33,
+				},
+				AIUsefulInfoV4AndPartsCoefs{
+					CoefPlayByInfoA: 3.57,
+					CoefPlayByInfoB: 0.13,
+					CoefInfoA:       4.2,
+					CoefInfoB:       -0.61,
+					CoefDiscardA:    1,
+					CoefDiscardB:    0,
+					CoefPlayA:       3.7,
+					CoefPlayB:       0.7,
+				},
+			},
+			3: []AIUsefulInfoV4AndPartsCoefs{
+				AIUsefulInfoV4AndPartsCoefs{
+					CoefPlayByInfoA: 0.72,
+					CoefPlayByInfoB: 0.93,
+					CoefInfoA:       2.8,
+					CoefInfoB:       -0.56,
+					CoefDiscardA:    0.4,
+					CoefDiscardB:    -0.4,
+					CoefPlayA:       2.13,
+					CoefPlayB:       -0.63,
+				},
+				AIUsefulInfoV4AndPartsCoefs{
+					CoefPlayByInfoA: 3.14,
+					CoefPlayByInfoB: 0.23,
+					CoefInfoA:       2.6,
+					CoefInfoB:       0.64,
+					CoefDiscardA:    1,
+					CoefDiscardB:    0.7,
+					CoefPlayA:       3.1,
+					CoefPlayB:       -1,
+				},
+				AIUsefulInfoV4AndPartsCoefs{
+					CoefPlayByInfoA: 1.87,
+					CoefPlayByInfoB: 0.83,
+					CoefInfoA:       3.2,
+					CoefInfoB:       -0.61,
+					CoefDiscardA:    0.7,
+					CoefDiscardB:    0.7,
+					CoefPlayA:       3.5,
+					CoefPlayB:       0.7,
+				},
+			},
 			5: []AIUsefulInfoV4AndPartsCoefs{
 				AIUsefulInfoV4AndPartsCoefs{
 					CoefPlayByInfoA: 2.47,
@@ -97,10 +161,10 @@ func NewAIUsefulInfoV4AndParts(baseAI *BaseAI, isUniversal bool) *AIUsefulInfoV4
 }
 
 func (ai *AIUsefulInfoV4AndParts) GetCoefs(part int) []float64 {
-	if part >= len(ai.Coefs) || part < 0 {
+	if part >= len(ai.Coefs[ai.PlayerInfo.PlayerCount]) || part < 0 {
 		panic("Bad part for ai.GetCoefs()")
 	}
-	coefs := ai.Coefs[len(ai.PlayerInfo.PlayerCards)][part]
+	coefs := ai.Coefs[ai.PlayerInfo.PlayerCount][part]
 	return []float64{
 		coefs.CoefPlayByInfoA,
 		coefs.CoefPlayByInfoB,
@@ -114,10 +178,10 @@ func (ai *AIUsefulInfoV4AndParts) GetCoefs(part int) []float64 {
 }
 
 func (ai *AIUsefulInfoV4AndParts) SetCoefs(part int, coefs ...float64) {
-	if part >= len(ai.Coefs) || part < 0 {
+	if part >= len(ai.Coefs[ai.PlayerInfo.PlayerCount]) || part < 0 {
 		panic("Bad part for ai.SetCoefs()")
 	}
-	ai.Coefs[len(ai.PlayerInfo.PlayerCards)][part] = AIUsefulInfoV4AndPartsCoefs{
+	ai.Coefs[ai.PlayerInfo.PlayerCount][part] = AIUsefulInfoV4AndPartsCoefs{
 		CoefPlayByInfoA: coefs[0],
 		CoefPlayByInfoB: coefs[1],
 		CoefInfoA:       coefs[2],
@@ -203,25 +267,6 @@ func (ai *AIUsefulInfoV4AndParts) GetAction() *game.Action {
 						Usefulness: coefs.CoefPlayByInfoA*float64(i)/float64(len(subHistory)) + coefs.CoefPlayByInfoB,
 					}
 					usefulActions = append(usefulActions, action)
-
-					/*usefulnessNow := 0.0
-					if card.KnownColor && card.KnownValue {
-						tableValue := info.TableCards[card.Color].Value
-						if tableValue+1 == card.Value {
-							usefulnessNow = 1.0
-						} else {
-							usefulnessNow = 0.0
-						}
-					} else {
-						for hashValue, probability := range card.ProbabilityCard {
-							color, value := game.ColorValueByHashColorValue(hashValue)
-							if info.TableCards[color].Value+1 == value {
-								usefulnessNow += probability
-							}
-						}
-					}
-
-					fmt.Println("USEFULNESS NOW: ", usefulnessNow)*/
 				}
 			}
 		}
