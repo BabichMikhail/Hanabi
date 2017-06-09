@@ -122,6 +122,38 @@ func NewAIUsefulInfoV4AndParts(baseAI *BaseAI, isUniversal bool) *AIUsefulInfoV4
 					CoefPlayB:       0.7,
 				},
 			},
+			4: []AIUsefulInfoV4AndPartsCoefs{
+				AIUsefulInfoV4AndPartsCoefs{
+					CoefPlayByInfoA: 2.47,
+					CoefPlayByInfoB: -0.17,
+					CoefInfoA:       2.7,
+					CoefInfoB:       -0.58,
+					CoefDiscardA:    -0.8,
+					CoefDiscardB:    1.4,
+					CoefPlayA:       2.8,
+					CoefPlayB:       -0.6,
+				},
+				AIUsefulInfoV4AndPartsCoefs{
+					CoefPlayByInfoA: 2.64,
+					CoefPlayByInfoB: 0.23,
+					CoefInfoA:       2.6,
+					CoefInfoB:       -0.06,
+					CoefDiscardA:    0.67,
+					CoefDiscardB:    0.4,
+					CoefPlayA:       2.95,
+					CoefPlayB:       -0.4,
+				},
+				AIUsefulInfoV4AndPartsCoefs{
+					CoefPlayByInfoA: 1.87,
+					CoefPlayByInfoB: 0.88,
+					CoefInfoA:       4.5,
+					CoefInfoB:       0.39,
+					CoefDiscardA:    0.2,
+					CoefDiscardB:    0.15,
+					CoefPlayA:       5.1,
+					CoefPlayB:       0.7,
+				},
+			},
 			5: []AIUsefulInfoV4AndPartsCoefs{
 				AIUsefulInfoV4AndPartsCoefs{
 					CoefPlayByInfoA: 2.47,
