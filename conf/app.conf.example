@@ -1,18 +1,8 @@
-#@todo example config
-
 AppName = Hanabi
 HttpAddr = 127.0.0.1
 HttpPort = 8080
 RunMode = "dev"
 SessionOn = true
-
-db_path = ./database
-db_name = default
-
-#social_auth_url = http://127.0.0.1:8080/
-
-#facebook_client_id = 1614166525551005
-#facebook_client_secret = 69d581d3a38dde75196decd264175b74
 
 [app]
 secret_key = qwkvfjegiregreogregrergre

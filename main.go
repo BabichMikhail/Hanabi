@@ -43,7 +43,10 @@ func init() {
 	gamePackage.RegisterFunction()
 	middlewares.InitMiddleware()
 
-	Cfg, _ := goconfig.LoadConfigFile("conf/app.conf")
+	Cfg, err := goconfig.LoadConfigFile("conf/app.conf")
+	if err != nil {
+		panic(err)
+	}
 	Cfg.BlockMode = false
 
 	beego.BConfig.WebConfig.EnableXSRF = false
@@ -59,9 +62,6 @@ func init() {
 	if len(setting.SecretKey) == 0 {
 		fmt.Println("Please set your secret_key in app.conf file")
 	}
-
-	//setting.ActiveCodeLives = Cfg.MustInt("app", "acitve_code_live_minutes", 180)
-	//setting.ResetPwdCodeLives = Cfg.MustInt("app", "resetpwd_code_live_minutes", 180)
 
 	setting.LoginRememberDays = Cfg.MustInt("app", "login_remember_days", 7)
 	setting.LoginMaxRetries = Cfg.MustInt("app", "login_max_retries", 5)

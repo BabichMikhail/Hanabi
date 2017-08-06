@@ -23,7 +23,6 @@ func init() {
 	CardCodes = map[HashValue]ColorValue{}
 	for _, value := range Values {
 		for _, color := range Colors {
-			fmt.Println(GetCardColor(color), value, HashColorValue(color, value))
 			CardCodes[HashColorValue(color, value)] = ColorValue{Color: color, Value: value}
 		}
 	}
