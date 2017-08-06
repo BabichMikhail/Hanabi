@@ -64,7 +64,13 @@ func (c *AuthController) SignUp() {
 	}
 
 	var user wetalk.User
+	if count, err := wetalk.Users().Count(); err == nil && count == 0 {
+		user.IsAdmin = true
+	} else if err != nil {
+		panic(err)
+	}
 	err := auth.RegisterUser(&user, username, email, password1)
+
 	if err == nil {
 		c.Ctx.Redirect(302, c.URLFor(".SignIn"))
 		return
